@@ -1,0 +1,5 @@
+[package]
+
+name = "floday"
+version = "0.0.1"
+authors = [ "Kevin Hagner <kevin.hagner@spyzone.fr>"]
