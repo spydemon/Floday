@@ -15,12 +15,24 @@ GetOptions(
 );
 
 my $tree = parseRunfile($runFile);
-my $hostNode = initHost($tree, $host);
+my $hostData = initHost($tree, $host);
+my %runList = generateRunList($hostData);
+
+sub generateRunList{
+	my %runList;
+	foreach my $a ($_[0]->findnodes('@*')) {
+		$runList{$a->getName} = $a->getValue;
+	}
+	foreach my $b ($_[0]->findnodes('*')) {
+		$runList{$b->getName} = generateRunList($b);
+	}
+	return %runList;
+}
 
 sub initHost{
 	my $hostNode = $_[0]->findnodes("/run/host[\@name=\"$_[1]\"]");
 	die("Host $_[1] should have a single node in the runfile") if $hostNode->size() != 1;
-	return $hostNode;
+	return $hostNode->get_node(1);
 }
 
 sub parseRunfile{
