@@ -24,7 +24,7 @@ sub generateRunList{
 		$runList{$a->getName} = $a->getValue;
 	}
 	foreach my $b ($_[0]->findnodes('*')) {
-		$runList{$b->getName} = generateRunList($b);
+		$runList{$b->getName} = {generateRunList($b)};
 	}
 	return %runList;
 }
