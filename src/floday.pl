@@ -19,24 +19,27 @@ my $hostData = initHost($tree, $host);
 my %runList = generateRunList($hostData);
 
 sub generateRunList{
+	(my $hostData) = @_;
 	my %runList;
-	foreach my $a ($_[0]->findnodes('@*')) {
-		$runList{$a->getName} = $a->getValue;
+	foreach ($hostData->findnodes('@*')) {
+		$runList{$_->getName} = $_->getValue;
 	}
-	foreach my $b ($_[0]->findnodes('*')) {
-		$runList{$b->getName} = {generateRunList($b)};
+	foreach ($hostData->findnodes('*')) {
+		$runList{$_->getName} = {generateRunList($_)};
 	}
 	return %runList;
 }
 
 sub initHost{
-	my $hostNode = $_[0]->findnodes("/run/host[\@name=\"$_[1]\"]");
-	die("Host $_[1] should have a single node in the runfile") if $hostNode->size() != 1;
+	(my $tree, my $host) = @_;
+	my $hostNode = $tree->findnodes("/run/host[\@name=\"$host\"]");
+	die("Host $host should have a single node in the runfile") if $hostNode->size() != 1;
 	return $hostNode->get_node(1);
 }
 
 sub parseRunfile{
-	my $file = XML::LibXML->new->parse_file($_[0]);
+	(my $plainFile) = @_;
+	my $file = XML::LibXML->new->parse_file($plainFile);
 	my $nodes = XML::LibXML::XPathContext->new($file);
 	return $nodes;
 }
