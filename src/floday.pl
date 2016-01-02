@@ -20,6 +20,8 @@ my %runList;
 foreach ($hostData->get_nodelist) {
 	%runList = (%runList, ($_->getName => {generateRunList($_)}));
 };
+my %containerConfiguration = getConfiguration(%runList);
+my %containerChildren = getChildren(%runList);
 
 sub generateRunList{
 	(my $hostData) = @_;
@@ -31,6 +33,24 @@ sub generateRunList{
 		$runList{$_->getName} = {generateRunList($_)};
 	}
 	return %runList;
+}
+
+sub getChildren{
+	(my %runList) = @_;
+	my %children;
+	foreach (keys %runList) {
+		$children{$_} = $runList{$_} if ref $runList{$_} eq 'HASH';
+	}
+	return %children;
+}
+
+sub getConfiguration{
+	(my %runList) = @_;
+	my %configuration;
+	foreach (keys %runList) {
+		$configuration{$_} = $runList{$_} if ref $runList{$_} ne 'HASH';
+	}
+	return %configuration;
 }
 
 sub initHost{
