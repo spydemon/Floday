@@ -16,7 +16,10 @@ GetOptions(
 
 my $tree = parseRunfile($runFile);
 my $hostData = initHost($tree, $host);
-my %runList = generateRunList($hostData);
+my %runList;
+foreach ($hostData->get_nodelist) {
+	%runList = (%runList, ($_->getName => {generateRunList($_)}));
+};
 
 sub generateRunList{
 	(my $hostData) = @_;
@@ -32,9 +35,9 @@ sub generateRunList{
 
 sub initHost{
 	(my $tree, my $host) = @_;
-	my $hostNode = $tree->findnodes("/run/host[\@name=\"$host\"]");
-	die("Host $host should have a single node in the runfile") if $hostNode->size() != 1;
-	return $hostNode->get_node(1);
+	my $hostNode = $tree->findnodes("/run/host[\@name=\"$host\"]/*");
+	die("Host $host doesn't exists in the runfile") if $hostNode->size() < 1;
+	return $hostNode;
 }
 
 sub parseRunfile{
