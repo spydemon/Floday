@@ -25,8 +25,18 @@ my %runList;
 foreach ($xmlNodes->get_nodelist) {
 	%runList = (%runList, ($_->getName => {generateRunList($_)}));
 };
-my %containerConfiguration = getConfiguration(%runList);
 my %containerChildren = getChildren(%runList);
+
+foreach (values %containerChildren) {
+	my %containerConfiguration = getConfiguration(%{$_});
+	my %containerChildren = getChildren(%{$_});
+	fire(\%containerConfiguration, \%containerChildren);
+}
+
+sub fire{
+	my ($runfileConfiguration, $childrens) = @_;
+	say "We are firering $runfileConfiguration->{name} container !";
+}
 
 sub generateRunList{
 	(my $xmlNodes) = @_;
@@ -37,6 +47,7 @@ sub generateRunList{
 	foreach ($xmlNodes->findnodes('*')) {
 		$runList{$_->getName} = {generateRunList($_)};
 	}
+	$runList{name} = $xmlNodes->getName;
 	return %runList;
 }
 
