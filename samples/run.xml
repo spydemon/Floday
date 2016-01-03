@@ -1,20 +1,24 @@
 <run>
 	<host name="spyzone">
 		<root
+		  container="true"
 		  type="root"
 		  monitoring-type="zabbix"
 		  monitoring-server="monitoring.spyzone.fr"
 		>
 			<databases
+			  container="true"
 			  type="postgre-sql"
 			  ipv4="10.0.3.13"
 			  data="/tank/spyzone/db"
 			/>
 			<web
+			  container="true"
 			  type="web-proxy"
 			  port="80,442"
 			>
 				<blog
+				  container="true"
 				  type="wordpress"
 				  ssl="true"
 				  vhost="blog.spyzone.fr"
@@ -25,6 +29,7 @@
 				  git-path="/tank/spyzone/blog"
 				/>
 				<analytic
+				  container="true"
 				  type="piwik"
 				  vhost="piwik.spyzone.fr"
 				  db-type="postgre"
@@ -34,17 +39,20 @@
 				  git-path="/tank/spyzone/piwik"
 				/>
 				<metal-php
+				  container="false"
 				  type="php"
 				  path="/tank/php/smallproject"
 				  vhost="lolproject.com"
 				/>
 			</web>
 			<mumble
+			  container="true"
 			  type="mumble"
 			  port="1234"
 			  data="/tank/spyzone/mumble"
 			/>
 			<backup
+			  container="true"
 			  type="backup-saver"
 			  save="/tank/spyzone"
 			  to="spydemon@backup.spyzone.fr"
@@ -54,14 +62,30 @@
 	</host>
 	<host name="backup">
 		<root
+		  container="true"
 		  type="root"
 		  monitoring-type="zabbix"
 		  monitorign-server="monitoring.spyzone.fr"
 		>
 			<backup
+			  container="false"
 			  type="backup-receiver"
 			  port="233"
 			/>
 		</root>
+	</host>
+	<host name="spyzone">
+		<wordpress-ppr
+		  container="true"
+		  type="wordpress"
+		  ssl="true"
+		  vhost="ppr.blog.spyzone.fr"
+		  db-type="postgre"
+		  db-host="10.0.3.13"
+		  db-username="username2"
+		  db-password="password"
+		  git-path="/tank/spyzone/blogppr"
+		  git-branch="development"
+		/>
 	</host>
 </run>

@@ -8,28 +8,33 @@ use Getopt::Long;
 use XML::LibXML;
 
 my $runFile;
-my $host;
+my $host = '';
 GetOptions(
   "run=s" => \$runFile,
   "host=s" => \$host
 );
 
 my $tree = parseRunfile($runFile);
-my $hostData = initHost($tree, $host);
+my $xmlNodes;
+if ($host ne '') {
+	$xmlNodes= initHost($tree, $host);
+} else {
+	$xmlNodes= initContainers($tree);
+}
 my %runList;
-foreach ($hostData->get_nodelist) {
+foreach ($xmlNodes->get_nodelist) {
 	%runList = (%runList, ($_->getName => {generateRunList($_)}));
 };
 my %containerConfiguration = getConfiguration(%runList);
 my %containerChildren = getChildren(%runList);
 
 sub generateRunList{
-	(my $hostData) = @_;
+	(my $xmlNodes) = @_;
 	my %runList;
-	foreach ($hostData->findnodes('@*')) {
+	foreach ($xmlNodes->findnodes('@*')) {
 		$runList{$_->getName} = $_->getValue;
 	}
-	foreach ($hostData->findnodes('*')) {
+	foreach ($xmlNodes->findnodes('*')) {
 		$runList{$_->getName} = {generateRunList($_)};
 	}
 	return %runList;
@@ -58,6 +63,13 @@ sub initHost{
 	my $hostNode = $tree->findnodes("/run/host[\@name=\"$host\"]/*");
 	die("Host $host doesn't exists in the runfile") if $hostNode->size() < 1;
 	return $hostNode;
+}
+
+sub initContainers{
+	(my $tree) = @_;
+	my $containers = $tree->findnodes('/run/*[@container="true"]');
+	die("No containers was found in runfile") if $containers->size() < 1;
+	return $containers;
 }
 
 sub parseRunfile{
