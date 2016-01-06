@@ -1,0 +1,44 @@
+<config>
+	<info
+	  name="mumble"
+	  author="spydemon &lt;email@address.fr&gt;"
+	  version="1"
+	/>
+	<depends>
+		<core_container />
+	</depends>
+	<setup>
+		<script identifier="dl-sources">
+			<path>setup/dl-sources.pl</path>
+			<priority>10</priority>
+		</script>
+		<script identifier="config-admin">
+			<path>setup/config-admin.sh</path>
+			<priority>20</priority>
+		</script>
+		<script identifier="shell-customisation">
+			<remove />
+		</script>
+	</setup>
+	<startup>
+		<script identifier="iptables">
+			<path>startup/iptable.pl</path>
+			<priority>10</priority>
+		</script>
+		<script identifier="zfs-mount">
+			<path>startup/zfs-mount.pl</path>
+			<priority>20</priority>
+		</script>
+	</startup>
+	<shutdown>
+		<script identifier="zfs-umount">
+			<path>shutdown/zfs-unmount.pl</path>
+			<priority>10</priority>
+		</script>
+	</shutdown>
+	<configuration>
+		<port mandatory="true" default="5000" />
+		<data mandatory="true" />
+	</configuration>
+	<children />
+</config>

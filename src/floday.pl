@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use v5.20;
 
+my $CONTAINERS_PATH = '/home/spydemon/depots/floday/src/containers/';
+
 use Getopt::Long;
 use XML::LibXML;
 
@@ -14,7 +16,7 @@ GetOptions(
   "host=s" => \$host
 );
 
-my $tree = parseRunfile($runFile);
+my $tree = initializeXml($runFile);
 my $xmlNodes;
 if ($host ne '') {
 	$xmlNodes= initHost($tree, $host);
@@ -33,8 +35,36 @@ foreach (values %containerChildren) {
 	fire(\%containerConfiguration, \%containerChildren);
 }
 
+sub getContainerDefinition{
+	my ($containerType) = @_;
+	my $containerConfigurationFile = $CONTAINERS_PATH.$containerType.'/config.xml';
+	my $containerConfigurationTree = initializeXml($containerConfigurationFile);
+	my %setupScripts = fetchContainerConfigurationScript('setup', $containerConfigurationTree);
+	my %startupScripts = fetchContainerConfigurationScript('startup', $containerConfigurationTree);
+	my %shutdownScripts = fetchContainerConfigurationScript('shutdown', $containerConfigurationTree);
+	my %uninstallScripts = fetchContainerConfigurationScript('uninstall', $containerConfigurationTree);
+}
+
+sub fetchContainerConfigurationScript{
+	my ($scriptType, $configurationTree) = @_;
+	my $setupScriptNodes = $configurationTree->findnodes("/config/$scriptType/script");
+	my %configurationScripts;
+	foreach ($setupScriptNodes->get_nodelist) {
+		my $priority = $_->findnodes('priority');
+		my $path = $_->findnodes('path');
+		my $remove = $_->findnodes('remove');
+		$configurationScripts{$_->getAttribute('identifier')} = {
+		  'priority' => ($priority->size) ? $priority->get_node(0)->getValue() : undef,
+		  'path' => ($path->size) ? $path->get_node(0)->getValue() : undef,
+		  'remove' => ($remove->size) ? $remove->get_node(0)->getValue() : undef
+		}
+	}
+	return %configurationScripts;
+}
+
 sub fire{
 	my ($runfileConfiguration, $childrens) = @_;
+	my %containerDefinition = getContainerDefinition($runfileConfiguration->{type});
 	say "We are firering $runfileConfiguration->{name} container !";
 }
 
@@ -83,7 +113,7 @@ sub initContainers{
 	return $containers;
 }
 
-sub parseRunfile{
+sub initializeXml{
 	(my $plainFile) = @_;
 	my $file = XML::LibXML->new->parse_file($plainFile);
 	my $nodes = XML::LibXML::XPathContext->new($file);
