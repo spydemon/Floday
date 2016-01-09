@@ -4,9 +4,7 @@
 	  author="spydemon &lt;email@address.fr&gt;"
 	  version="1"
 	/>
-	<depends>
-		<core_container />
-	</depends>
+	<depends identifier="core" />
 	<setup>
 		<script identifier="dl-sources">
 			<path>setup/dl-sources.pl</path>
@@ -37,8 +35,13 @@
 		</script>
 	</shutdown>
 	<configuration>
-		<port mandatory="true" default="5000" />
-		<data mandatory="true" />
+		<port>
+			<mandatory>true</mandatory>
+			<value>5000</value>
+		</port>
+		<data>
+			<mandatory>true</mandatory>
+		</data>
 	</configuration>
 	<children />
 </config>

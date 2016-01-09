@@ -39,27 +39,27 @@ sub getContainerDefinition{
 	my ($containerType) = @_;
 	my $containerConfigurationFile = $CONTAINERS_PATH.$containerType.'/config.xml';
 	my $containerConfigurationTree = initializeXml($containerConfigurationFile);
-	my %setupScripts = fetchContainerConfigurationScript('setup', $containerConfigurationTree);
-	my %startupScripts = fetchContainerConfigurationScript('startup', $containerConfigurationTree);
-	my %shutdownScripts = fetchContainerConfigurationScript('shutdown', $containerConfigurationTree);
-	my %uninstallScripts = fetchContainerConfigurationScript('uninstall', $containerConfigurationTree);
+	my %parent = fetchContainerConfiguration('depends', $containerConfigurationTree);
+	my %setupScripts = fetchContainerConfiguration('setup/script', $containerConfigurationTree, 'priority', 'path', 'remove');
+	my %configuration = fetchContainerConfiguration('configuration/*', $containerConfigurationTree, '*');
+	my %startupScripts = fetchContainerConfiguration('startup/script', $containerConfigurationTree, 'priority', 'path', 'remove');
+	my %shutdownScripts = fetchContainerConfiguration('shutdown/script', $containerConfigurationTree, 'priority', 'path', 'remove');
+	my %uninstallScripts = fetchContainerConfiguration('uninstall/script', $containerConfigurationTree, 'priority', 'path', 'remove');
 }
 
-sub fetchContainerConfigurationScript{
-	my ($scriptType, $configurationTree) = @_;
-	my $setupScriptNodes = $configurationTree->findnodes("/config/$scriptType/script");
-	my %configurationScripts;
-	foreach ($setupScriptNodes->get_nodelist) {
-		my $priority = $_->findnodes('priority');
-		my $path = $_->findnodes('path');
-		my $remove = $_->findnodes('remove');
-		$configurationScripts{$_->getAttribute('identifier')} = {
-		  'priority' => ($priority->size) ? $priority->get_node(0)->getValue() : undef,
-		  'path' => ($path->size) ? $path->get_node(0)->getValue() : undef,
-		  'remove' => ($remove->size) ? $remove->get_node(0)->getValue() : undef
+sub fetchContainerConfiguration{
+	my ($n1, $configurationTree, @params) = @_;
+	my $n2 = $configurationTree->findnodes("/config/$n1");
+	my %configuration;
+	foreach my $n3 ($n2->get_nodelist) {
+		my %currentConfigurationNodeValues;
+		foreach (@params) {
+			my @n4 = $n3->findnodes($_)->get_nodelist;
+			foreach (@n4) {$currentConfigurationNodeValues{$_->getName} = $_->textContent;}
 		}
+		$configuration{$n3->getAttribute('identifier')} = {%currentConfigurationNodeValues};
 	}
-	return %configurationScripts;
+	return %configuration;
 }
 
 sub fire{

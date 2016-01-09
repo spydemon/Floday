@@ -74,18 +74,4 @@
 			/>
 		</root>
 	</host>
-	<host name="spyzone">
-		<wordpress-ppr
-		  container="true"
-		  type="wordpress"
-		  ssl="true"
-		  vhost="ppr.blog.spyzone.fr"
-		  db-type="postgre"
-		  db-host="10.0.3.13"
-		  db-username="username2"
-		  db-password="password"
-		  git-path="/tank/spyzone/blogppr"
-		  git-branch="development"
-		/>
-	</host>
 </run>
