@@ -1,0 +1,45 @@
+<config>
+	<info
+	  name="core"
+	  author="spydemon&lt;email@address.fr&gt;"
+	  version="1"
+	/>
+	<setup>
+		<script identifier="shell-customisation">
+			<path>setup/shell.pl</path>
+			<priority>100</priority>
+		</script>
+		<script identifier="monitoring">
+			<path>setup/zabbix.pl</path>
+			<priority>20</priority>
+		</script>
+	</setup>
+	<startup>
+		<script identifier="backuping">
+			<path>startup/backup.pl</path>
+			<priority>50</priority>
+		</script>
+	</startup>
+	<shutdown>
+		<script identifier="idontknow">
+			<path>shutdown/something.pl</path>
+			<priority>10</priority>
+		</script>
+	</shutdown>
+	<uninstall>
+		<script identifier="destroying">
+			<path>uninstall/destroy.pl</path>
+			<priority>10</priority>
+		</script>
+	</uninstall>
+	<configuration>
+		<port>
+			<mandatory>true</mandatory>
+			<value>5000</value>
+		</port>
+		<data>
+			<mandatory>true</mandatory>
+		</data>
+	</configuration>
+	<children />
+</config>

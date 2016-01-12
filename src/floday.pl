@@ -39,12 +39,18 @@ sub getContainerDefinition{
 	my ($containerType) = @_;
 	my $containerConfigurationFile = $CONTAINERS_PATH.$containerType.'/config.xml';
 	my $containerConfigurationTree = initializeXml($containerConfigurationFile);
+	my %containerConfiguration;
 	my %parent = fetchContainerConfiguration('depends', $containerConfigurationTree);
-	my %setupScripts = fetchContainerConfiguration('setup/script', $containerConfigurationTree, 'priority', 'path', 'remove');
-	my %configuration = fetchContainerConfiguration('configuration/*', $containerConfigurationTree, '*');
-	my %startupScripts = fetchContainerConfiguration('startup/script', $containerConfigurationTree, 'priority', 'path', 'remove');
-	my %shutdownScripts = fetchContainerConfiguration('shutdown/script', $containerConfigurationTree, 'priority', 'path', 'remove');
-	my %uninstallScripts = fetchContainerConfiguration('uninstall/script', $containerConfigurationTree, 'priority', 'path', 'remove');
+	$containerConfiguration{'configuration'} = {fetchContainerConfiguration('configuration/*', $containerConfigurationTree, '*')};
+	$containerConfiguration{'setup'} = {fetchContainerConfiguration('setup/script', $containerConfigurationTree, 'priority', 'path', 'remove')};
+	$containerConfiguration{'startup'} = {fetchContainerConfiguration('startup/script', $containerConfigurationTree, 'priority', 'path', 'remove')};
+	$containerConfiguration{'shutdown'} = {fetchContainerConfiguration('shutdown/script', $containerConfigurationTree, 'priority', 'path', 'remove')};
+	$containerConfiguration{'uninstall'} = {fetchContainerConfiguration('uninstall/script', $containerConfigurationTree, 'priority', 'path', 'remove')};
+	foreach (keys %parent) {
+		my %parentContainerConfiguration = getContainerDefinition($_);
+		mergeConfiguration(\%containerConfiguration, \%parentContainerConfiguration);
+	}
+	return %containerConfiguration;
 }
 
 sub fetchContainerConfiguration{
@@ -118,4 +124,15 @@ sub initializeXml{
 	my $file = XML::LibXML->new->parse_file($plainFile);
 	my $nodes = XML::LibXML::XPathContext->new($file);
 	return $nodes;
+}
+
+sub mergeConfiguration{
+	my ($hashA, $hashB) = @_;
+	foreach (keys %$hashB) {
+		if (exists $hashA->{$_}) {
+			mergeConfiguration($hashA->{$_}, $hashB->{$_}) if ref $hashA->{$_} eq 'HASH';
+		} else {
+			$hashA->{$_} = $hashB->{$_};
+		}
+	}
 }
