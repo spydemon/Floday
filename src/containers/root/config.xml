@@ -4,35 +4,37 @@
 	  author="spydemon &lt;email@address.fr&gt;"
 	  version="1"
 	/>
-	<depends identifier="core" />
+	<depends>
+		<core />
+	</depends>
 	<setup>
-		<script identifier="dl-sources">
-			<path>setup/dl-sources.pl</path>
+		<dl-sources>
+			<exec>setup/dl-sources.pl</exec>
 			<priority>10</priority>
-		</script>
-		<script identifier="config-admin">
-			<path>setup/config-admin.sh</path>
+		</dl-sources>
+		<config-admin>
+			<exec>setup/config-admin.sh</exec>
 			<priority>20</priority>
-		</script>
-		<script identifier="shell-customisation">
+		</config-admin>
+		<shell-customisation>
 			<remove />
-		</script>
+		</shell-customisation>
 	</setup>
 	<startup>
-		<script identifier="iptables">
-			<path>startup/iptable.pl</path>
+		<iptables>
+			<exec>startup/iptable.pl</exec>
 			<priority>10</priority>
-		</script>
-		<script identifier="zfs-mount">
-			<path>startup/zfs-mount.pl</path>
+		</iptables>
+		<zfs-mount>
+			<exec>startup/zfs-mount.pl</exec>
 			<priority>20</priority>
-		</script>
+		</zfs-mount>
 	</startup>
 	<shutdown>
-		<script identifier="zfs-umount">
-			<path>shutdown/zfs-unmount.pl</path>
+		<zfs-umount>
+			<exec>shutdown/zfs-unmount.pl</exec>
 			<priority>10</priority>
-		</script>
+		</zfs-umount>
 	</shutdown>
 	<configuration>
 		<port>

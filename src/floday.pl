@@ -40,12 +40,12 @@ sub getContainerDefinition{
 	my $containerConfigurationFile = $CONTAINERS_PATH.$containerType.'/config.xml';
 	my $containerConfigurationTree = initializeXml($containerConfigurationFile);
 	my %containerConfiguration;
-	my %parent = fetchContainerConfiguration('depends', $containerConfigurationTree);
-	$containerConfiguration{'configuration'} = {fetchContainerConfiguration('configuration/*', $containerConfigurationTree, '*')};
-	$containerConfiguration{'setup'} = {fetchContainerConfiguration('setup/script', $containerConfigurationTree, 'priority', 'path', 'remove')};
-	$containerConfiguration{'startup'} = {fetchContainerConfiguration('startup/script', $containerConfigurationTree, 'priority', 'path', 'remove')};
-	$containerConfiguration{'shutdown'} = {fetchContainerConfiguration('shutdown/script', $containerConfigurationTree, 'priority', 'path', 'remove')};
-	$containerConfiguration{'uninstall'} = {fetchContainerConfiguration('uninstall/script', $containerConfigurationTree, 'priority', 'path', 'remove')};
+	my %parent = fetchContainerConfiguration('depends/*', $containerConfigurationTree);
+	$containerConfiguration{'configuration'} = {fetchContainerConfiguration('configuration/*', $containerConfigurationTree)};
+	$containerConfiguration{'setup'} = {fetchContainerConfiguration('setup/*', $containerConfigurationTree)};
+	$containerConfiguration{'startup'} = {fetchContainerConfiguration('startup/*', $containerConfigurationTree)};
+	$containerConfiguration{'shutdown'} = {fetchContainerConfiguration('shutdown/*', $containerConfigurationTree)};
+	$containerConfiguration{'uninstall'} = {fetchContainerConfiguration('uninstall/*', $containerConfigurationTree)};
 	foreach (keys %parent) {
 		my %parentContainerConfiguration = getContainerDefinition($_);
 		mergeConfiguration(\%containerConfiguration, \%parentContainerConfiguration);
@@ -54,16 +54,16 @@ sub getContainerDefinition{
 }
 
 sub fetchContainerConfiguration{
-	my ($n1, $configurationTree, @params) = @_;
+	my ($n1, $configurationTree) = @_;
 	my $n2 = $configurationTree->findnodes("/config/$n1");
 	my %configuration;
 	foreach my $n3 ($n2->get_nodelist) {
 		my %currentConfigurationNodeValues;
-		foreach (@params) {
-			my @n4 = $n3->findnodes($_)->get_nodelist;
-			foreach (@n4) {$currentConfigurationNodeValues{$_->getName} = $_->textContent;}
+		my @n4 = $n3->findnodes('*')->get_nodelist;
+		foreach (@n4) {
+			$currentConfigurationNodeValues{$_->getName} = $_->textContent;
 		}
-		$configuration{$n3->getAttribute('identifier')} = {%currentConfigurationNodeValues};
+		$configuration{$n3->getName} = {%currentConfigurationNodeValues};
 	}
 	return %configuration;
 }
