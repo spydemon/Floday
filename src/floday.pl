@@ -19,9 +19,7 @@ GetOptions(
 
 my $containersToLauch = FLib::RunList->new($runFile, $host);
 do {
-	my %containerConfiguration = $containersToLauch->getCurrentContainerConfiguration();
-	my %containerChildren = $containersToLauch->getCurrentContainerChildren();
-	fire(\%containerConfiguration, \%containerChildren);
+	fire($containersToLauch);
 } while ($containersToLauch->getNextContainer());
 
 sub getContainerDefinition{
@@ -58,9 +56,12 @@ sub fetchContainerConfiguration{
 }
 
 sub fire{
-	my ($runfileConfiguration, $childrens) = @_;
-	my %containerDefinition = getContainerDefinition($runfileConfiguration->{type});
-	say "We are firering $runfileConfiguration->{name} container !";
+	my ($container) = @_;
+	my %containerConfiguration = $container->getCurrentContainerConfiguration();
+	my %containerChildren = $container->getCurrentContainerChildren();
+	my $containerName = $container->getCurrentContainerName();
+	my %containerDefinition = getContainerDefinition($containerName);
+	say "We are firering $containerName container !";
 }
 
 sub initializeXml{
