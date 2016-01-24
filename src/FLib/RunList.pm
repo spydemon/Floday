@@ -1,5 +1,121 @@
 package FLib::RunList;
 
+#{{{PDO
+=pod
+
+=head1 NAME
+
+FLib::RunList - Parse Floday XML runfile.
+
+=head1 SYNOPSYS
+
+ use FLib::RunList;
+ my $runList = FLib::LibXML->new(<runfile>);
+ $runList->getNextContainer();
+ my %children = $runList->getCurrentContainerChildren();
+ my %configuration = $runList->getCurrenContainerConfiguration();
+ my $name = $runList->getCurrentContainerName();
+
+=head1 DESCRIPTION
+
+The purpose of this module is to manage everything concerning Floday runfile.
+An object of this module is a representation of all containers in the higher level of given runfile.
+
+Runfile can be I<multihosts> or I<monohost>.
+Usualy user wrote always multihosts ones but Floday automaticaly generate monohost ones internaly.
+The principal difference between both is that multihosts ones contain a single or several I<host> node that manage the functionality to control several physical hosts with a single runfile.
+
+This object act with states.
+The B<getNextContainer> function can be used for navigating between each containers.
+This function returns I<1> if next container exists and I<0> otherwise for being easily used in loops.
+Every other functions are always acting on the given current container.
+
+=head2 Methods
+
+=head3 new($xmlFile, $host)
+
+Create a new XML::LibXML object for managing a given runfile.
+
+=over 15
+
+=item $xmlFile
+
+Path of the file to use as runfile.
+It can be on the XML or DBM format.
+
+=item $host
+
+Optional hostname to use.
+Should be null for monohost runfile.
+
+=item return
+
+Hash containing all configuration, children containers and current container.
+
+=back
+
+=head3 getCurrrentContainerChildren()
+
+Get a hash with all children of the given current container.
+These nodes are always directly present in the current one, and with a attribute I<container=true> (this will change).
+
+=over 15
+
+=item retrun
+
+Hash with all children of the current container.
+
+=back
+
+=head3 getCurrentContainerConfiguration()
+
+Get a hash will all configurations of the given current container.
+Configuration container are all parameters existing in the node corresponding to the container.
+
+=over 15
+
+=item return
+
+Hash with the configuration name as key, and the value as configuration value.
+
+=back
+
+=head3 getCurrentContainerName()
+
+Retrun the name of the current container.
+The name of the container is the name of the node (this will change).
+
+=over 15
+
+=item return
+
+String with the container name.
+
+=back
+
+=head3 getNextContainer()
+
+Increment the internal cursor defining which child to use as the "current" one.
+
+=over 15
+
+=item retrun
+
+I<1> if the next container exists in the runfile, I<0> otherwise.
+
+=back
+
+=head1 AUTHOR
+
+Kevin Hagner
+
+=head1 SEE ALSO
+
+Wiki and bug tracker of the entire Floday project can be found at : https://dev.spyzone.fr/floday.
+
+=cut
+#}}}
+
 use XML::LibXML;
 
 sub new {
