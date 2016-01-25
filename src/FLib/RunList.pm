@@ -22,8 +22,8 @@ The purpose of this module is to manage everything concerning Floday runfile.
 An object of this module is a representation of all containers in the higher level of given runfile.
 
 Runfile can be I<multihosts> or I<monohost>.
-Usualy user wrote always multihosts ones but Floday automaticaly generate monohost ones internaly.
-The principal difference between both is that multihosts ones contain a single or several I<host> node that manage the functionality to control several physical hosts with a single runfile.
+Usually user wrote always multi-hosts ones but Floday automatically generate mono-host ones internally.
+The principal difference between both is that multi-hosts ones contain a single or several I<host> node that manage the functionality to control several physical hosts with a single runfile.
 
 This object act with states.
 The B<getNextContainer> function can be used for navigating between each containers.
@@ -45,8 +45,8 @@ It can be on the XML or DBM format.
 
 =item $host
 
-Optional hostname to use.
-Should be null for monohost runfile.
+Optional host name to use.
+Should be null for mono-host runfile.
 
 =item return
 
@@ -82,7 +82,7 @@ Hash with the configuration name as key, and the value as configuration value.
 
 =head3 getCurrentContainerName()
 
-Retrun the name of the current container.
+Return the name of the current container.
 The name of the container is the name of the node (this will change).
 
 =over 15

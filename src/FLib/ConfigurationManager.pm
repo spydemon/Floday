@@ -1,5 +1,73 @@
 package FLib::ConfigurationManager;
 
+#{{{POD
+=pod
+
+=head1 NAME
+
+FLib::ConfigurationManager - Fetch Floday container configuration.
+
+=head1 SYNOPSYS
+
+ use Flib::ConfigurationManager;
+ $config = Flib::ConfigurationManager->new(<container_type>);
+ $config->mergeConfiguration(<configuration_to_merge>);
+
+=head1 DESCRIPTION
+
+This module is in charge of all actions relevant to container configuration fetching: parsing configuration files and process to all inheritance merges.
+The inheritance can be done by container relations ("web" container extends "core") or by runfile overrides.
+
+=head2 Methods
+
+=head3 new($containerType)
+
+Create a new FLib::ConfigurationManager for managing a container.
+
+=over 15
+
+=item $containerType
+
+Indicate which kind of container we should invocate.
+This is technically done by parsing the I<< container/<$containerType>/config.xml >> file in the Floday root folder.
+
+=item return
+
+A FLib::ConfigurationManager object.
+
+=back
+
+=head3 mergeConfiguration($extConf)
+
+Merge the container configuration with an external one.
+This mean that the hash representing the current container configuration will be fused with the hash I<extConf>.
+In the case of "conflict" (an attribute is declared in both hash) the one coming from external hash well be kept.
+This function is usually used for applying runfile attributes configuration to the container.
+
+=over 15
+
+=item $extConf
+
+A pointer on a hash representing the external configuration to merge.
+The key of a hash item is an attribute name, and his value, the attribute value.
+
+=item return
+
+Nothing. The merge result will be stored inside the FLib::ConfigurationManager object.
+
+=back
+
+=head1 AUTHOR
+
+Kevin Hagner
+
+=head1 SEE ALSO
+
+Wiki and bug tracker of the entire Floday project can be found at : https://dev.spyzone.fr/floday.
+
+=cut
+#}}}
+
 use XML::LibXML;
 
 my $CONTAINERS_PATH = '/home/spydemon/depots/floday/src/containers/';
