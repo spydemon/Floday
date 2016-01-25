@@ -1,64 +1,60 @@
 <run>
-	<host name="spyzone">
-		<root
+	<host
+	  name="spyzone"
+	  type="root"
+	>
+		<databases
 		  container="true"
-		  type="root"
-		  monitoring-type="zabbix"
-		  monitoring-server="monitoring.spyzone.fr"
+		  type="postgre-sql"
+		  ipv4="10.0.3.13"
+		  data="/tank/spyzone/db"
+		/>
+		<web
+		  container="true"
+		  type="web-proxy"
+		  port="80,442"
 		>
-			<databases
+			<blog
 			  container="true"
-			  type="postgre-sql"
-			  ipv4="10.0.3.13"
-			  data="/tank/spyzone/db"
+			  type="wordpress"
+			  ssl="true"
+			  vhost="blog.spyzone.fr"
+			  db-type="postgre"
+			  db-host="10.0.3.13"
+			  db-username="username"
+			  db-password="password"
+			  git-path="/tank/spyzone/blog"
 			/>
-			<web
+			<analytic
 			  container="true"
-			  type="web-proxy"
-			  port="80,442"
-			>
-				<blog
-				  container="true"
-				  type="wordpress"
-				  ssl="true"
-				  vhost="blog.spyzone.fr"
-				  db-type="postgre"
-				  db-host="10.0.3.13"
-				  db-username="username"
-				  db-password="password"
-				  git-path="/tank/spyzone/blog"
-				/>
-				<analytic
-				  container="true"
-				  type="piwik"
-				  vhost="piwik.spyzone.fr"
-				  db-type="postgre"
-				  db-host="10.0.3.13"
-				  db-username="piwik-db"
-				  db-password="password"
-				  git-path="/tank/spyzone/piwik"
-				/>
-				<metal-php
-				  container="false"
-				  type="php"
-				  path="/tank/php/smallproject"
-				  vhost="lolproject.com"
-				/>
-			</web>
-			<mumble
-			  container="true"
-			  type="mumble"
-			  port="1234"
-			  data="/tank/spyzone/mumble"
+			  type="piwik"
+			  vhost="piwik.spyzone.fr"
+			  db-type="postgre"
+			  db-host="10.0.3.13"
+			  db-username="piwik-db"
+			  db-password="password"
+			  git-path="/tank/spyzone/piwik"
 			/>
-			<backup
-			  container="true"
-			  type="backup-saver"
-			  save="/tank/spyzone"
-			  to="spydemon@backup.spyzone.fr"
-			  port="233"
+			<metal-php
+			  container="false"
+			  type="php"
+			  path="/tank/php/smallproject"
+			  vhost="lolproject.com"
 			/>
-		</root>
+		</web>
+		<mumble
+		  container="true"
+		  type="mumble"
+		  port="1234"
+		  data="/tank/spyzone/mumble"
+		/>
+		<backup
+		  container="true"
+		  type="backup-saver"
+		  save="/tank/spyzone"
+		  to="spydemon@backup.spyzone.fr"
+		  port="233"
+		/>
 	</host>
 	<host name="backup">
 		<root
