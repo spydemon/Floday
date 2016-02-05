@@ -15,6 +15,7 @@ FLib::RunList - Parse Floday XML runfile.
  my %children = $runList->getCurrentContainerChildren();
  my %configuration = $runList->getCurrenContainerConfiguration();
  my $name = $runList->getCurrentContainerName();
+ my $type = $runList->getCurrentContainerType();
 
 =head1 DESCRIPTION
 
@@ -83,13 +84,24 @@ Hash with the configuration name as key, and the value as configuration value.
 =head3 getCurrentContainerName()
 
 Return the name of the current container.
-The name of the container is the name of the node (this will change).
 
 =over 15
 
 =item return
 
 String with the container name.
+
+=back
+
+=head3 getCurrentContainerType()
+
+Retrun the type of the current container.
+
+=over 15
+
+=item return
+
+String with the container type.
 
 =back
 
@@ -159,6 +171,12 @@ sub getCurrentContainerName {
 	my ($this) = @_;
 	my @keysSorted = sort keys $this->{containerChildren};
 	return $keysSorted[$this->{currentContainer}];
+}
+
+sub getCurrentContainerType {
+	my ($this) = @_;
+	my $currentContainer = $this->{containerChildren}{$this->getCurrentContainerName()};
+	return $currentContainer->{type} or die ("Container $currentContainer->{name} has no type.");
 }
 
 sub getNextContainer {
