@@ -133,7 +133,7 @@ sub new {
 	my %runList;
 
 	foreach ($xmlNodes->get_nodelist) {
-		%runList = (%runList, ($_->getAttributeNode('name')->getValue => {_generateRunList($_)}));
+		%runList = (%runList, (_getNodeName($_) => {_generateRunList($_)}));
 	};
 
 	$this{containerChildren} = {_getChildren(\%runList)};
@@ -193,10 +193,15 @@ sub _generateRunList {
 		$runList{$_->getName} = $_->getValue;
 	}
 	foreach ($xmlNodes->findnodes('*')) {
-		$runList{$_->getAttributeNode('name')->getValue} = {_generateRunList($_)};
+		$runList{_getNodeName($_)} = {_generateRunList($_)};
 	}
 	$runList{action} = $xmlNodes->getName;
 	return %runList;
+}
+
+sub _getNodeName {
+	(my $node) = @_;
+	return $node->getAttributeNode('name')->getValue;
 }
 
 sub _initContainers {
