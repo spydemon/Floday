@@ -15,7 +15,7 @@
 		  port="80,442"
 		>
 			<container
-			  name="php"
+			  name="blog"
 			  type="wordpress"
 			  ssl="true"
 			  vhost="blog.spyzone.fr"

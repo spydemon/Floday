@@ -50,7 +50,7 @@ do {
 
 sub fire{
 	my ($containersFromRunList) = @_;
-	my $container = FLib::ConfigurationManager->new($containersFromRunList->getCurrentContainerName());
+	my $container = FLib::ConfigurationManager->new($containersFromRunList->getCurrentContainerType());
 	my %configuration = $containersFromRunList->getCurrentContainerConfiguration();
 	$container->mergeConfiguration(\%configuration);
 	my %containerConfiguration = $container->getCurrentContainerExportedConfiguration();
