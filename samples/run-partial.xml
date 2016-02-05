@@ -1,17 +1,17 @@
 <run>
-	<databases
-	  container="true"
+	<container
+	  name="databases-onpartial"
 	  type="postgre-sql"
 	  ipv4="10.0.3.13"
 	  data="/tank/spyzone/db"
 	/>
-	<web
-	  container="true"
+	<container
+	  name="web"
 	  type="web-proxy"
 	  port="80,442"
 	>
-		<blog
-		  container="true"
+		<container
+		  name="blog"
 		  type="wordpress"
 		  ssl="true"
 		  vhost="blog.spyzone.fr"
@@ -21,8 +21,8 @@
 		  db-password="password"
 		  git-path="/tank/spyzone/blog"
 		/>
-		<analytic
-		  container="true"
+		<container
+		  name="analytic"
 		  type="piwik"
 		  vhost="piwik.spyzone.fr"
 		  db-type="postgre"
@@ -31,21 +31,21 @@
 		  db-password="password"
 		  git-path="/tank/spyzone/piwik"
 		/>
-		<metal-php
-		  container="false"
+		<application
+		  name="metal-php"
 		  type="php"
 		  path="/tank/php/smallproject"
 		  vhost="lolproject.com"
 		/>
-	</web>
-	<mumble
-	  container="true"
+	</container>
+	<container
+	  name="mumble"
 	  type="mumble"
 	  port="1234"
 	  data="/tank/spyzone/mumble"
 	/>
-	<backup
-	  container="true"
+	<container
+	  name="backup"
 	  type="backup-saver"
 	  save="/tank/spyzone"
 	  to="spydemon@backup.spyzone.fr"

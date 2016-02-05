@@ -117,6 +117,7 @@ Wiki and bug tracker of the entire Floday project can be found at : https://dev.
 #}}}
 
 use XML::LibXML;
+use v5.20;
 
 sub new {
 	my ($class, $xmlFile, $host) = @_;
@@ -130,9 +131,11 @@ sub new {
 		$xmlNodes= _initContainers($tree);
 	}
 	my %runList;
+
 	foreach ($xmlNodes->get_nodelist) {
-		%runList = (%runList, ($_->getName => {_generateRunList($_)}));
+		%runList = (%runList, (_getNodeName($_) => {_generateRunList($_)}));
 	};
+
 	$this{containerChildren} = {_getChildren(\%runList)};
 	$this{containerConfiguration} = {_getConfiguration(\%runList)};
 	$this{currentContainer} = 0;
@@ -190,15 +193,20 @@ sub _generateRunList {
 		$runList{$_->getName} = $_->getValue;
 	}
 	foreach ($xmlNodes->findnodes('*')) {
-		$runList{$_->getName} = {_generateRunList($_)};
+		$runList{_getNodeName($_)} = {_generateRunList($_)};
 	}
-	$runList{name} = $xmlNodes->getName;
+	$runList{action} = $xmlNodes->getName;
 	return %runList;
+}
+
+sub _getNodeName {
+	(my $node) = @_;
+	return $node->getAttributeNode('name')->getValue;
 }
 
 sub _initContainers {
 	(my $tree) = @_;
-	my $containers = $tree->findnodes('/run/*[@container="true"]');
+	my $containers = $tree->findnodes('/run/container');
 	die("No containers was found in runfile") if $containers->size() < 1;
 	return $containers;
 }
