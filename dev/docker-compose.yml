@@ -2,4 +2,4 @@ floday:
     build: floday
     volumes:
         - ..:/opt/floday
-    command: perl floday.pl --run ../samples/run.xml --host spyzone
+    command: perl -d floday.pl --run ../samples/run.xml --host spyzone

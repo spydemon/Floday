@@ -5,5 +5,9 @@ RUN apt-get -y update \
 RUN echo yes | cpan
 RUN cpan XML::LibXML \
 	&& cpan Getopt::Long
+ADD komodo.tar.gz /opt/komodo
+ENV PERL5LIB=/opt/komodo
+ENV PERL5DB="BEGIN {require q($PERL5LIB/perl5db.pl)}"
+ENV PERLDB_OPTS="RemotePort=172.17.0.1:9000"
 VOLUME ["/opt/floday"]
 WORKDIR /opt/floday/src
