@@ -70,7 +70,7 @@ Wiki and bug tracker of the entire Floday project can be found at : https://dev.
 
 use XML::LibXML;
 
-my $CONTAINERS_PATH = '/home/spydemon/depots/floday/src/containers/';
+my $CONTAINERS_PATH = '/opt/floday/src/containers/';
 
 sub new {
 	my ($class, $containerType) = @_;
