@@ -231,7 +231,7 @@ sub _initContainers {
 
 sub _initHost {
 	(my $tree, my $host) = @_;
-	my $hostNode = $tree->findnodes("/run/host[\@name=\"$host\"]/*");
+	my $hostNode = $tree->findnodes("/run/host[\@name=\"$host\"]");
 	die("Host $host doesn't exists in the runfile") if $hostNode->size() < 1;
 	return $hostNode;
 }
