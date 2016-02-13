@@ -81,6 +81,22 @@ Hash will all applications of the current container.
 
 =back
 
+=head3 getConfiguration($attribute)
+
+Get an attribute of configuration of the container, or the entire hash.
+
+=over 15
+
+=item $attribute
+
+String containing the attribute name to return, or null for fetching all attributes.
+
+=item return
+
+Return the attribute value as string, or all attributes as hash.
+
+=back
+
 =head3 getCurrentContainerConfiguration()
 
 Get a hash will all configurations of the given current container.
@@ -172,6 +188,12 @@ sub new {
 sub getApplications {
 	my ($this) = @_;
 	return $this->{containerApplications};
+}
+
+sub getConfiguration {
+	my ($this, $configuration) = @_;
+	return $this->{containerConfiguration} if $configuration eq '';
+	return $this->{containerConfiguration}{$configuration};
 }
 
 sub getCurrentContainerChildren {
