@@ -50,6 +50,7 @@
 				</name>
 				<port>
 					<mandatory>true</mandatory>
+					<default>80</default>
 				</port>
 				<to>
 					<mandatory>true</mandatory>

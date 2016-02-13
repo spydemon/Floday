@@ -45,5 +45,17 @@
 			<mandatory>true</mandatory>
 		</data>
 	</configuration>
-	<children />
+	<applications>
+		<ssh>
+			<path>applications/ssh-access.pl</path>
+			<parameters>
+				<user>
+					<mandatory>true</mandatory>
+				</user>
+				<port>
+					<default>22</default>
+				</port>
+			</parameters>
+		</ssh>
+	</applications>
 </config>
