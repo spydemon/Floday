@@ -84,6 +84,7 @@ sub new {
 	$this{'startup'} = {_fetchConfiguration('startup/*', $containerTree)};
 	$this{'shutdown'} = {_fetchConfiguration('shutdown/*', $containerTree)};
 	$this{'uninstall'} = {_fetchConfiguration('uninstall/*', $containerTree)};
+	$this{'applications'} = {_fetchApplications($containerTree)};
 	foreach (keys %parent) {
 		my $parentConfiguration = FLib::ConfigurationManager->new($_);
 		_mergeConfiguration(\%this, $parentConfiguration);
@@ -100,6 +101,29 @@ sub mergeConfiguration {
 	foreach (keys %$configuration) {
 		$this->{configuration}{$_}{value} = $configuration->{$_};
 	}
+}
+
+sub _fetchApplications {
+	my ($configurationTree) = @_;
+	my %applications;
+	foreach my $n1 ($configurationTree->findnodes('/config/applications/*')->get_nodelist) {
+		my %application;
+		(my $path) = $n1->getChildrenByTagName('path');
+		$application{path} = $path->textContent;
+		foreach my $n2 ($n1->findnodes('parameters')) {
+			my %parameters;
+			foreach my $n3 ($n2->findnodes('*')) {
+				my %attributes;
+				foreach my $n4 ($n3->findnodes('*')) {
+					$attributes{$n4->getName} = $n4->textContent;
+				}
+				$parameters{$n3->getName} = {%attributes};
+			}
+			$application{parameters} = {%parameters};
+		}
+		$applications{$n1->getName} = {%application};
+	}
+	return %applications;
 }
 
 sub _fetchConfiguration{

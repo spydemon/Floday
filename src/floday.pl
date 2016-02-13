@@ -44,6 +44,11 @@ GetOptions(
 );
 
 my $containersToLaunch = FLib::RunList->new($runFile, $host);
+my $applications = $containersToLaunch->getApplications();
+foreach (keys %$applications) {
+	fireApplication($applications->{$_});
+}
+
 do {
 	fire($containersToLaunch);
 } while ($containersToLaunch->getNextContainer());
@@ -56,4 +61,10 @@ sub fire{
 	my %containerConfiguration = $container->getCurrentContainerExportedConfiguration();
 	my $containerName = $containersFromRunList->getCurrentContainerName();
 	say "We are firering $containerName container !";
+}
+
+sub fireApplication {
+	(my $application) = @_;
+	say "We are fiering $application->{name} application !";
+	my $test = 1;
 }

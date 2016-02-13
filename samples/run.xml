@@ -24,6 +24,7 @@
 			  db-username="username"
 			  db-password="password"
 			  git-path="/tank/spyzone/blog"
+			  ip="10.0.3.12"
 			/>
 			<container
 			  name="analytic"
@@ -54,6 +55,12 @@
 		  save="/tank/spyzone"
 		  to="spydemon@backup.spyzone.fr"
 		  port="233"
+		/>
+		<application
+		  name="web-bridge"
+		  type="bridge"
+		  port="80"
+		  to="10.0.3.12:80"
 		/>
 	</host>
 	<host name="backup">

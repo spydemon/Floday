@@ -41,5 +41,22 @@
 			<mandatory>true</mandatory>
 		</data>
 	</configuration>
+	<applications>
+		<bridge>
+			<path>applications/bridge.pl</path>
+			<parameters>
+				<name>
+					<mandatory>true</mandatory>
+				</name>
+				<port>
+					<mandatory>true</mandatory>
+					<default>80</default>
+				</port>
+				<to>
+					<mandatory>true</mandatory>
+				</to>
+			</parameters>
+		</bridge>
+	</applications>
 	<children />
 </config>

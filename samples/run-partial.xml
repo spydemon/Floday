@@ -1,4 +1,7 @@
-<run>
+<run
+  name="something"
+  type="root"
+>
 	<container
 	  name="databases-onpartial"
 	  type="postgre-sql"

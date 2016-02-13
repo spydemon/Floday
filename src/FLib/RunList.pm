@@ -13,6 +13,7 @@ FLib::RunList - Parse Floday XML runfile.
  my $runList = FLib::LibXML->new(<runfile>);
  $runList->getNextContainer();
  my %children = $runList->getCurrentContainerChildren();
+ my %applications = $runList->getApplications();
  my %configuration = $runList->getCurrenContainerConfiguration();
  my $name = $runList->getCurrentContainerName();
  my $type = $runList->getCurrentContainerType();
@@ -57,14 +58,42 @@ Hash containing all configuration, children containers and current container.
 
 =head3 getCurrrentContainerChildren()
 
-Get a hash with all children of the given current container.
-These nodes are always directly present in the current one, and with a attribute I<container=true> (this will change).
+Get a hash with all child containers of the given current container.
 
 =over 15
 
 =item retrun
 
 Hash with all children of the current container.
+
+=back
+
+=head3 getApplications()
+
+Get a hash with all application nodes in the given current container.
+An application is usually a script to run on the container.
+
+=over 15
+
+=item return
+
+Hash will all applications of the current container.
+
+=back
+
+=head3 getConfiguration($attribute)
+
+Get an attribute of configuration of the container, or the entire hash.
+
+=over 15
+
+=item $attribute
+
+String containing the attribute name to return, or null for fetching all attributes.
+
+=item return
+
+Return the attribute value as string, or all attributes as hash.
 
 =back
 
@@ -145,14 +174,26 @@ sub new {
 	my %runList;
 
 	foreach ($xmlNodes->get_nodelist) {
-		%runList = (%runList, (_getNodeName($_) => {_generateRunList($_)}));
+		%runList = _generateRunList($_);
 	};
 
 	$this{containerChildren} = {_getChildren(\%runList)};
+	$this{containerApplications} = {_getApplications(\%runList)};
 	$this{containerConfiguration} = {_getConfiguration(\%runList)};
 	$this{currentContainer} = 0;
 
 	return \%this;
+}
+
+sub getApplications {
+	my ($this) = @_;
+	return $this->{containerApplications};
+}
+
+sub getConfiguration {
+	my ($this, $configuration) = @_;
+	return $this->{containerConfiguration} if $configuration eq '';
+	return $this->{containerConfiguration}{$configuration};
 }
 
 sub getCurrentContainerChildren {
@@ -186,11 +227,20 @@ sub getNextContainer {
 	return 0;
 }
 
+sub _getApplications {
+	(my $runList) = @_;
+	my %applications;
+	foreach (keys %$runList) {
+		$applications{$_} = $runList->{$_} if ref $runList->{$_} eq 'HASH' && $runList->{$_}{action} eq 'application';
+	}
+	return %applications;
+}
+
 sub _getChildren {
 	(my $runList) = @_;
 	my %children;
 	foreach (keys %$runList) {
-		$children{$_} = $runList->{$_} if ref $runList->{$_} eq 'HASH';
+		$children{$_} = $runList->{$_} if ref $runList->{$_} eq 'HASH' && $runList->{$_}{action} eq 'container';
 	}
 	return %children;
 }
