@@ -10,8 +10,16 @@ sub new {
 	bless(\%this, $class);
 	my $nodes = _initializeNodes($xmlFileName, $hostName);
 	my %nodesAsHash = _fetchNodeContent($nodes->get_nodelist);
-	$this{runFile} = {%nodesAsHash};
+	$this{runFile} = {$hostName => {%nodesAsHash}};
 	return \%this;
+}
+
+sub getContainer {
+	my ($this, $containerPathString) = @_;
+	my @containerPathArray = split /-/, $containerPathString;
+	my ($status, $container) = _getContainer(\@containerPathArray, $this->{runFile});
+	die ("Container $containerPathString was not found in runfile") if $status eq 'ko';
+	return $container;
 }
 
 sub _fetchNodeContent {
@@ -25,6 +33,20 @@ sub _fetchNodeContent {
 		$hash{_getNodeName($_)}{action} = $_->getName;
 	}
 	return %hash;
+}
+
+sub _getContainer {
+	my ($containerPath, $hash) = @_;
+	return ('ko') if $hash == 0;
+	my $step = shift @$containerPath;
+	if (!defined $step) {
+		if (ref $hash eq 'HASH') {
+			return ('ok', $hash);
+		} else {
+			return ('ko');
+		}
+	}
+	return _getContainer($containerPath, $hash->{$step});
 }
 
 sub _getNodeName {
