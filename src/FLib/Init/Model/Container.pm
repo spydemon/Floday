@@ -1,6 +1,7 @@
 package FLib::Init::Model::Container;
 
 use v5.20;
+use FLib::Init::Helper::DefinitionParser;
 
 sub new {
 	my ($class, $containerInvocationAttributes, $containerPath) = @_;
@@ -10,6 +11,7 @@ sub new {
 	$this{parameters} = {_getContainerParameters($containerInvocationAttributes)};
 	$this{applications} = {_getChildApplications($containerInvocationAttributes)};
 	$this{containers} = {_getChildContainers($containerInvocationAttributes, $containerPath)};
+	$this{definition} = FLib::Init::Helper::DefinitionParser->new($this{parameters}{type});
 	return %this;
 }
 
