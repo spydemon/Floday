@@ -6,25 +6,24 @@ use FLib::Init::Helper::RunFileParser;
 use FLib::Init::Model::Container;
 
 sub new {
-	my ($class, $runFileName, $hostName) = @_;
+	my ($class, $runFileName, $currentContainerPath) = @_;
 	my %this;
-	$this{currentContainerPath} = $hostName;
-	$this{containers} = [];
+	$this{containers} = {};
+	$this{currentContainerPath} = $currentContainerPath;
 	bless(\%this, $class);
-	my $runFile = FLib::Init::Helper::RunFileParser->new($runFileName, $hostName);
-	_generateRunList(\%this, $runFile, $hostName);
+	my $runFile = FLib::Init::Helper::RunFileParser->new($runFileName, $currentContainerPath);
+	_generateRunList(\%this, $runFile, $currentContainerPath);
 	return \%this;
 }
 
-sub getCurrentContainerPath {
-	my ($this) = @_;
-	return $this->{currentContainerPath};
-}
-
 sub _generateRunList {
-	my ($this, $runFile, $hostName) = @_;
-	my $currentContainer = $runFile->getContainer($this->getCurrentContainerPath);
-	push @$this{containers}, FLib::Init::Model::Container->new($currentContainer, $hostName);
+	my ($this, $runFile, $containerPath) = @_;
+	my $currentContainer = $runFile->getContainer($containerPath);
+	my $hostContainer = FLib::Init::Model::Container->new($currentContainer, $containerPath);
+	$this->{containers}{$containerPath} = $hostContainer;
+	foreach ($runFile->getContainerChildrenPath($containerPath)) {
+		$this->_generateRunList($runFile, $_);
+	}
 }
 
 1

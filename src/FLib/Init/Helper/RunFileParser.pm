@@ -22,6 +22,19 @@ sub getContainer {
 	return $container;
 }
 
+sub getContainerChildrenPath {
+	my ($this, $rootPath) = @_;
+	my @rootPath = $this->_splitPathToArray($rootPath);
+	my ($status, $nodes) = _getContainer(\@rootPath, $this->{runFile});
+	die ("Container $rootPath was not found in runfile") if $status eq 'ko';
+	my %childrens = _getAllContainersIn($nodes);
+	my @childrenPath;
+	foreach (keys %childrens) {
+		push @childrenPath, $rootPath . '-' . $_;
+	}
+	return @childrenPath;
+}
+
 sub _fetchNodeContent {
 	my ($nodes) = @_;
 	my %hash;
@@ -33,6 +46,17 @@ sub _fetchNodeContent {
 		$hash{_getNodeName($_)}{action} = $_->getName;
 	}
 	return %hash;
+}
+
+sub _getAllContainersIn {
+	my ($nodes) = @_;
+	my %containers;
+	foreach (keys %$nodes) {
+		if (ref $nodes->{$_} eq 'HASH' && $nodes->{$_}->{action} eq 'container') {
+			$containers{$nodes->{$_}->{name}} = $nodes->{$_};
+		}
+	}
+	return %containers;
 }
 
 sub _getContainer {
@@ -63,6 +87,11 @@ sub _initializeNodes {
 	my $onlyHostNodes = $allNodes->findnodes("/run/host[\@name=\"$hostName\"]");
 	die ("Host $hostName doesn't exists in the runfile") if $onlyHostNodes->size < 1;
 	return $onlyHostNodes;
+}
+
+sub _splitPathToArray {
+	my ($this, $string) = @_;
+	split /-/, $string;
 }
 
 1

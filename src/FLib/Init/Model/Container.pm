@@ -10,9 +10,14 @@ sub new {
 	$this{path} = {$containerPath};
 	$this{parameters} = {_getContainerParameters($containerInvocationAttributes)};
 	$this{applications} = {_getChildApplications($containerInvocationAttributes)};
-	$this{containers} = {_getChildContainers($containerInvocationAttributes, $containerPath)};
+	$this{containers} = _getChildContainers($containerInvocationAttributes, $containerPath);
 	$this{definition} = FLib::Init::Helper::DefinitionParser->new($this{parameters}{type});
-	return %this;
+	return \%this;
+}
+
+sub getChildContainers {
+	my ($this) = @_;
+	return $this->{containers};
 }
 
 sub _getChildApplications {
@@ -34,7 +39,7 @@ sub _getChildContainers {
 			push @containers, $currentPath . '-' . $_;
 		}
 	}
-	return @containers;
+	return \@containers;
 }
 
 
