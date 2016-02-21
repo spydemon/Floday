@@ -1,7 +1,92 @@
 package FLib::Init::Helper::RunFileParser;
 
-use v5.20;
+#{{{POD
+=pod
 
+=head1 NAME
+
+FLib::Init::Helper::RunFileParser - Parse Floday XML runfile.
+
+=head1 SYNOPSYS
+
+ use FLib::Init::Helper::RunFileParser;
+ my $runFile = FLib::Init::Helper::RunFileParser->new(<runfile>, <containerPath>);
+ my @childPaths = $runFile->getContainerChildPaths(<containerPath);
+ my $container = $runList->getContainer(<containerPath>);
+
+=head1 DESCRIPTION
+
+The purpose of this module is to manage everything concerning Floday runfile.
+An object of this module is a representation of all content of the given runfile.
+
+=head2 Methods
+
+=head3 new($runFile, $hostName)
+
+Initialize a RunFileParser object.
+
+=over 15
+
+=item $runFile
+
+Path of the file to use as runfile.
+This file has to be in XML format and to respect Floday runfile format.
+
+=item $hostName
+
+The hostName is used for knowing which part of the runfile has to be parsed and also for initialize the root of container paths.
+
+=item return
+
+An Flib::Init::Helper::RunFileParser object.
+
+=back
+
+=head3 getContainerChildPaths($containerPath)
+
+Get the container path of all first level containers presents in the $containerPath container.
+
+=over 15
+
+=item $containerPath
+
+String that represents the container into which we want to find container children.
+
+=item return
+
+A array of string containing all container paths.
+
+=back
+
+=head3 getContainer($containerPath)
+
+Get all parameters concerning the container represented by the given container path.
+
+=over 15
+
+=item $containerPath
+
+String representing the container path to fetch.
+
+=item return
+
+A hash containing all parameters of the given container.
+
+=back
+
+=head1 AUTHOR
+
+Kevin Hagner
+
+=head1 SEE ALSO
+
+Wiki and bug tracker of the entire Floday project can be found at: https://dev.spyzone.fr/floday.
+
+
+=cut
+#}}}
+
+use v5.20;
 use XML::LibXML;
 
 sub new {
@@ -22,17 +107,17 @@ sub getContainer {
 	return $container;
 }
 
-sub getContainerChildrenPath {
+sub getContainerChildPaths {
 	my ($this, $rootPath) = @_;
 	my @rootPath = $this->_splitPathToArray($rootPath);
 	my ($status, $nodes) = _getContainer(\@rootPath, $this->{runFile});
 	die ("Container $rootPath was not found in runfile") if $status eq 'ko';
 	my %childrens = _getAllContainersIn($nodes);
-	my @childrenPath;
+	my @childPaths;
 	foreach (keys %childrens) {
-		push @childrenPath, $rootPath . '-' . $_;
+		push @childPaths, $rootPath . '-' . $_;
 	}
-	return @childrenPath;
+	return @childPaths;
 }
 
 sub _fetchNodeContent {

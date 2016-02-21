@@ -1,5 +1,70 @@
 package FLib::Init::Model::Container;
 
+#{{{POD
+=pod
+
+=head1 NAME
+
+FLib::Init::Model::Container - Manage a single Floday container.
+
+=head1 SYNOPSYS
+
+ use FLib::Init::Model::Container;
+ my $container = FLib::Init::Model::Container->new(<invocationAttributes>, <containerPath>);
+ $container->boot();
+
+=head1 DESCRIPTION
+
+Manage a container unit.
+
+=head2 Methods
+
+=head3 new($invocationAttributes, $containerPath)
+
+Initialize a container object.
+
+=over 15
+
+=item $invocationAttributes
+
+A hash with the attribute name as key, and his value as value.
+Those attributes will overload the ones present in container definition.
+Usually, this hash represent container attributes present in the runfile.
+
+=item $containerPath
+
+The $containerPath string is used for identifying this container in the entire runlist.
+It's thank to it that we know his parent and children.
+
+=item return
+
+An Flib::Init::Model::Container object.
+
+=back
+
+=head3 boot()
+
+Will boot all child applications and containers.
+
+=over 15
+
+=item return
+
+Nothing.
+
+=back
+
+=head1 AUTHOR
+
+Kevin Hagner
+
+=head1 SEE ALSO
+
+Wiki and bug tracker of the entire Floday project can be found at: https://dev.spyzone.fr/floday.
+
+=cut
+#}}}
+
 use v5.20;
 use FLib::Init::Helper::DefinitionParser;
 
@@ -15,7 +80,7 @@ sub new {
 	return \%this;
 }
 
-sub execute {
+sub boot {
 	my ($this) = @_;
 	#TODO manage applications execution.
 	#TODO manage containers execution.

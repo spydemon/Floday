@@ -9,7 +9,7 @@ Floday - LXC launcher
 
 =head1 SYNOPSIS
 
- floday --run <runfile> [--host <hostname>]
+ floday --run <runfile> --host <hostname>
 
 =head1 DESCRIPTION
 
@@ -45,7 +45,7 @@ GetOptions(
 );
 
 my $runList = FLib::Init::Model::RunList->new($runFile, $host);
-$runList->execute();
+$runList->boot();
 
 #my $containersToLaunch = FLib::RunList->new($runFile, $host);
 #my $applications = $containersToLaunch->getApplications();

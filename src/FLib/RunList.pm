@@ -157,8 +157,8 @@ Wiki and bug tracker of the entire Floday project can be found at : https://dev.
 =cut
 #}}}
 
-use XML::LibXML;
 use v5.20;
+use XML::LibXML;
 
 sub new {
 	my ($class, $xmlFile, $host) = @_;

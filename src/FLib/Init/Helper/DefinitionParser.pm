@@ -1,5 +1,51 @@
 package FLib::Init::Helper::DefinitionParser;
 
+#{{{POD
+=pod
+
+=head1 NAME
+
+FLib::Init::Helper::DefinitionParser - Parse Floday container definition XML files.
+
+=head1 SYNOPSYS
+
+ use FLib::Init::Helper::DefinitionParser;
+ my $containerDefinition = FLib::Init::Helper::DefinitionParser->new(<containerType>);
+
+=head1 DESCRIPTION
+
+The purpose of this module is to manage everything concerning Floday container defintion.
+An object of this module is a representation of all content of a I<config.xml> file.
+
+=head2 Methods
+
+=head3 new($containerType)
+
+Initialize a containerDefinition object.
+
+=over 15
+
+=item $containerType
+
+String with the type of container to fetch. The type define which I<config.xml> file use in containers repository.
+
+=item return
+
+A Flib::Init::Helper::DefinitionParser object.
+
+=back
+
+=head1 AUTHOR
+
+Kevin Hagner
+
+=head1 SEE ALSO
+
+Wiki and bug tracker of the entire Floday project can be found at: https://dev.spyzone.fr/floday.
+
+=cut
+#}}}
+
 use v5.20;
 use XML::LibXML;
 
