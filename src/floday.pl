@@ -33,8 +33,6 @@ use warnings;
 use v5.20;
 
 use Getopt::Long;
-#use FLib::RunList;
-#use FLib::ConfigurationManager;
 use FLib::Init::Model::RunList;
 
 my $runFile ='';
@@ -46,29 +44,3 @@ GetOptions(
 
 my $runList = FLib::Init::Model::RunList->new($runFile, $host);
 $runList->boot();
-
-#my $containersToLaunch = FLib::RunList->new($runFile, $host);
-#my $applications = $containersToLaunch->getApplications();
-#foreach (keys %$applications) {
-#	fireApplication($applications->{$_});
-#}
-#
-#do {
-#	fire($containersToLaunch);
-#} while ($containersToLaunch->getNextContainer());
-#
-#sub fire{
-#	my ($containersFromRunList) = @_;
-#	my $container = FLib::ConfigurationManager->new($containersFromRunList->getCurrentContainerType());
-#	my %configuration = $containersFromRunList->getCurrentContainerConfiguration();
-#	$container->mergeConfiguration(\%configuration);
-#	my %containerConfiguration = $container->getCurrentContainerExportedConfiguration();
-#	my $containerName = $containersFromRunList->getCurrentContainerName();
-#	say "We are firering $containerName container !";
-#}
-#
-#sub fireApplication {
-#	(my $application) = @_;
-#	say "We are fiering $application->{name} application !";
-#	my $test = 1;
-#}
