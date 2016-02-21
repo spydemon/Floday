@@ -36,7 +36,7 @@
 			<priority>10</priority>
 		</zfs-umount>
 	</shutdown>
-	<configuration>
+	<parameters>
 		<port>
 			<mandatory>true</mandatory>
 			<value>5000</value>
@@ -44,7 +44,7 @@
 		<data>
 			<mandatory>true</mandatory>
 		</data>
-	</configuration>
+	</parameters>
 	<applications>
 		<ssh>
 			<path>applications/ssh-access.pl</path>

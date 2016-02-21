@@ -32,7 +32,7 @@
 			<priority>10</priority>
 		</script>
 	</uninstall>
-	<configuration>
+	<parameters>
 		<port>
 			<mandatory>true</mandatory>
 			<value>5000</value>
@@ -40,7 +40,7 @@
 		<data>
 			<mandatory>true</mandatory>
 		</data>
-	</configuration>
+	</parameters>
 	<applications>
 		<bridge>
 			<path>applications/bridge.pl</path>
