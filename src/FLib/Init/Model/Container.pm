@@ -15,6 +15,12 @@ sub new {
 	return \%this;
 }
 
+sub execute {
+	my ($this) = @_;
+	#TODO manage applications execution.
+	#TODO manage containers execution.
+}
+
 sub getChildContainers {
 	my ($this) = @_;
 	return $this->{containers};

@@ -16,6 +16,11 @@ sub new {
 	return \%this;
 }
 
+sub execute {
+	my ($this) = @_;
+	$this->{containers}->{$this->{currentContainerPath}}->execute();
+}
+
 sub _generateRunList {
 	my ($this, $runFile, $containerPath) = @_;
 	my $currentContainer = $runFile->getContainer($containerPath);

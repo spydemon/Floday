@@ -45,7 +45,7 @@ GetOptions(
 );
 
 my $runList = FLib::Init::Model::RunList->new($runFile, $host);
-#$runList->execute();
+$runList->execute();
 
 #my $containersToLaunch = FLib::RunList->new($runFile, $host);
 #my $applications = $containersToLaunch->getApplications();
