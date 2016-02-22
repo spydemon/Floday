@@ -63,6 +63,7 @@ sub new {
 	_setName(\%this, $initializationParameters);
 	_setType(\%this, $initializationParameters);
 	_setPath(\%this, $definition);
+	_setParameters(\%this, $initializationParameters, $definition);
 	return \%this;
 }
 
@@ -78,6 +79,17 @@ sub _setName {
 	my ($this, $parameters) = @_;
 	die("Application name was not found") if !defined($parameters->{name});
 	$this->{name} = $parameters->{name};
+}
+
+sub _setParameters {
+	my ($this, $parameters, $definition) = @_;
+	my %parametersToKeep;
+	foreach (keys $definition->{parameters}) {
+		$parametersToKeep{$_} = $parameters->{$_};
+		$parametersToKeep{$_} = $definition->{parameters}{$_}{default} if !defined($parametersToKeep{$_});
+		die("Mandatory \"$_\" parameter is not provided for $this->{name} application") if !defined($parametersToKeep{$_}) && $definition->{parameters}{$_}{mandatory} eq 'true';
+	}
+	$this->{parameters} = {%parametersToKeep};
 }
 
 sub _setPath {
