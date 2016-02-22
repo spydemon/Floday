@@ -53,11 +53,46 @@ Wiki and bug tracker of the entire Floday project can be found at: https://dev.s
 
 use v5.20;
 
+my $CONTAINERS_PATH = '/opt/floday/src/containers/';
+
 sub new {
 	my ($class, $initializationParameters, $definition) = @_;
 	my %this;
 	bless(\%this, $class);
+	_setContainerType(\%this, $definition);
+	_setName(\%this, $initializationParameters);
+	_setType(\%this, $initializationParameters);
+	_setPath(\%this, $definition);
 	return \%this;
+}
+
+sub _setContainerType {
+	my ($this, $definition) = @_;
+	die("Application without container type was definied") if !defined($definition->{containerType});
+	my $containerDefinitionPath = $CONTAINERS_PATH . $definition->{containerType}. '/config.xml';
+	die("Definition of $definition->{containerType} type was not found") if !-e $containerDefinitionPath;
+	$this->{containerType} = $definition->{containerType};
+}
+
+sub _setName {
+	my ($this, $parameters) = @_;
+	die("Application name was not found") if !defined($parameters->{name});
+	$this->{name} = $parameters->{name};
+}
+
+sub _setPath {
+	my ($this, $definition) = @_;
+	die ("Path of $this->{name} application not set.") if !defined($definition->{path});
+	my $path = $CONTAINERS_PATH . $this->{containerType} . '/' . $definition->{path};
+	die ("Application $definition->{path} was not found for $this->{name} container") if !-e $path;
+	die ("$path can not be executed") if !-x $path;
+	$this->{path} = $definition->{path};
+}
+
+sub _setType {
+	my ($this, $parameters) = @_;
+	die ("Type of container $this->{name} was not set") if !defined $parameters->{type};
+	$this->{type} = $parameters->{type};
 }
 
 1
