@@ -83,7 +83,9 @@ sub new {
 
 sub boot {
 	my ($this) = @_;
-	#TODO manage applications execution.
+	for (values $this->{applications}) {
+		$_->execute();
+	}
 	#TODO manage containers execution.
 }
 

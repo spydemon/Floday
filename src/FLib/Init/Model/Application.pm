@@ -15,6 +15,8 @@ FLib::Init::Model::Application - Manage a single Floday application.
 =head1 DESCRIPTION
 
 Manage an application.
+Be careful at the fact that the I<path> attribute in it definition should be absolute inside the container it will be executed.
+The user that run Floday needs also the execute right on it.
 
 =head2 Methods
 
@@ -37,6 +39,20 @@ Hash of elements representing the container definition in his config.xml file.
 =item return
 
 An Flib::Init::Model::Application object.
+
+=back
+
+=head3 execute()
+
+Will execute the current application inside the container.
+The application need to have the execution right, and all it parameters will be sent trough the command line with the
+I<--parameterKey value> format.
+
+=over 15
+
+=item retrun
+
+Nothing.
 
 =back
 
@@ -67,6 +83,12 @@ sub new {
 	return \%this;
 }
 
+sub execute {
+	my ($this) = @_;
+	my $argsString = join ' ', map{'--'.$_. ' "'.$this->{parameters}{$_}.'"'} keys $this->{parameters};
+	qx($this->{path} $argsString);
+}
+
 sub _setContainerType {
 	my ($this, $definition) = @_;
 	die("Application without container type was definied") if !defined($definition->{containerType});
@@ -84,10 +106,13 @@ sub _setName {
 sub _setParameters {
 	my ($this, $parameters, $definition) = @_;
 	my %parametersToKeep;
-	foreach (keys $definition->{parameters}) {
+	for (keys %{$definition->{parameters}}) {
 		$parametersToKeep{$_} = $parameters->{$_};
 		$parametersToKeep{$_} = $definition->{parameters}{$_}{default} if !defined($parametersToKeep{$_});
-		die("Mandatory \"$_\" parameter is not provided for $this->{name} application") if !defined($parametersToKeep{$_}) && $definition->{parameters}{$_}{mandatory} eq 'true';
+		/^[a-zA-Z]*$/ or die "Invalid character in parameter name: $_";
+		$parametersToKeep{$_} =~ /"/ and die "Invalid character in parameter $_ value.";
+		!defined($parametersToKeep{$_}) && $definition->{parameters}{$_}{mandatory} eq 'true'
+		  and die("Mandatory \"$_\" parameter is not provided for $this->{name} application");
 	}
 	$this->{parameters} = {%parametersToKeep};
 }
@@ -98,7 +123,7 @@ sub _setPath {
 	my $path = $CONTAINERS_PATH . $this->{containerType} . '/' . $definition->{path};
 	die ("Application $definition->{path} was not found for $this->{name} container") if !-e $path;
 	die ("$path can not be executed") if !-x $path;
-	$this->{path} = $definition->{path};
+	$this->{path} = $path;
 }
 
 sub _setType {
