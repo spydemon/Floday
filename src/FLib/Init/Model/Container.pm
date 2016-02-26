@@ -67,6 +67,7 @@ Wiki and bug tracker of the entire Floday project can be found at: https://dev.s
 
 use v5.20;
 use FLib::Init::Helper::DefinitionParser;
+use FLib::Init::Model::Application;
 
 sub new {
 	my ($class, $containerInvocationAttributes, $containerPath) = @_;
@@ -74,15 +75,17 @@ sub new {
 	bless(\%this, $class);
 	$this{path} = {$containerPath};
 	$this{parameters} = {_getContainerParameters($containerInvocationAttributes)};
-	$this{applications} = {_getChildApplications($containerInvocationAttributes)};
 	$this{containers} = _getChildContainers($containerInvocationAttributes, $containerPath);
 	$this{definition} = FLib::Init::Helper::DefinitionParser->new($this{parameters}{type});
+	$this{applications} = {_getChildApplications(\%this, $containerInvocationAttributes)};
 	return \%this;
 }
 
 sub boot {
 	my ($this) = @_;
-	#TODO manage applications execution.
+	for (values $this->{applications}) {
+		$_->execute();
+	}
 	#TODO manage containers execution.
 }
 
@@ -92,11 +95,12 @@ sub getChildContainers {
 }
 
 sub _getChildApplications {
-	my ($attributes) = @_;
+	my ($this, $attributes) = @_;
 	my %applications;
 	foreach (keys %$attributes) {
 		if (ref $attributes->{$_} eq 'HASH' && $attributes->{$_}{action} eq 'application') {
 			$applications{$_} = $attributes->{$_};
+			$applications{$_} = FLib::Init::Model::Application->new($attributes->{$_}, $this->{definition}{applications}{$applications{$_}{type}});
 		}
 	}
 	return %applications;
@@ -112,7 +116,6 @@ sub _getChildContainers {
 	}
 	return \@containers;
 }
-
 
 sub _getContainerParameters {
 	my ($attributes) = @_;

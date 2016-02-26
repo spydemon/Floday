@@ -58,12 +58,13 @@ sub new {
 	my $containerDefinitionPath = $CONTAINERS_PATH.$containerType.'/config.xml';
 	my $containerXmlTree = _initializeXml($containerDefinitionPath);
 	my %parent = _fetchAttributes('depends/*', $containerXmlTree);
+	$this{'containerType'} = $containerType;
 	$this{'parameters'} = {_fetchAttributes('parameters/*', $containerXmlTree)};
 	$this{'setup'} = {_fetchAttributes('setup/*', $containerXmlTree)};
 	$this{'startup'} = {_fetchAttributes('startup/*', $containerXmlTree)};
 	$this{'shutdown'} = {_fetchAttributes('shutdown/*', $containerXmlTree)};
 	$this{'uninstall'} = {_fetchAttributes('uninstall/*', $containerXmlTree)};
-	$this{'applications'} = {_fetchApplications($containerXmlTree)};
+	$this{'applications'} = {_fetchApplications(\%this, $containerXmlTree)};
 	foreach (keys %parent) {
 		my $dependencies = FLib::Init::Helper::DefinitionParser->new($_);
 		_mergeAttributesWithDependencies(\%this, $dependencies);
@@ -72,12 +73,13 @@ sub new {
 }
 
 sub _fetchApplications {
-	my ($attributeTree) = @_;
+	my ($this, $attributeTree) = @_;
 	my %applications;
 	foreach my $n1 ($attributeTree->findnodes('/config/applications/*')->get_nodelist) {
 		my %application;
 		(my $path) = $n1->getChildrenByTagName('path');
 		$application{path} = $path->textContent;
+		$application{containerType} = $this->{containerType};
 		foreach my $n2 ($n1->findnodes('parameters')) {
 			my %parameters;
 			foreach my $n3 ($n2->findnodes('*')) {

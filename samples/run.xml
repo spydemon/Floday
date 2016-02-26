@@ -57,9 +57,9 @@
 		  port="233"
 		/>
 		<application
-		  name="web-bridge"
+		  name="webbridge"
 		  type="bridge"
-		  port="80"
+		  port="442"
 		  to="10.0.3.12:80"
 		/>
 	</host>
