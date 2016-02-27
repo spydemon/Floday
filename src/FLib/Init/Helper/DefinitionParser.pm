@@ -49,13 +49,11 @@ Wiki and bug tracker of the entire Floday project can be found at: https://dev.s
 use v5.20;
 use XML::LibXML;
 
-my $CONTAINERS_PATH = '/opt/floday/src/containers/';
-
 sub new {
 	my ($class, $containerType) = @_;
 	my %this;
 	bless(\%this, $class);
-	my $containerDefinitionPath = $CONTAINERS_PATH.$containerType.'/config.xml';
+	my $containerDefinitionPath = _getContainersPath().$containerType.'/config.xml';
 	my $containerXmlTree = _initializeXml($containerDefinitionPath);
 	my %parent = _fetchAttributes('depends/*', $containerXmlTree);
 	$this{'containerType'} = $containerType;
@@ -109,6 +107,14 @@ sub _fetchAttributes {
 		$attributes{$n3->getName} = {%currentAttributeNodeValues};
 	}
 	return %attributes;
+}
+
+sub _getContainersPath {
+	my $path = $ENV{FLODAY_CONTAINERS};
+	$path eq '' and die ("The environment variable FLODAY_CONTAINERS is not set.");
+	$path !~ /\/$/ and die ("FLODAY_CONTAINERS have to end with a slash.");
+	-d $path or die ("$path is not an existing directory.");
+	return $path;
 }
 
 sub _initializeXml {

@@ -69,8 +69,6 @@ Wiki and bug tracker of the entire Floday project can be found at: https://dev.s
 
 use v5.20;
 
-my $CONTAINERS_PATH = '/opt/floday/src/containers/';
-
 sub new {
 	my ($class, $initializationParameters, $definition) = @_;
 	my %this;
@@ -89,10 +87,18 @@ sub execute {
 	qx($this->{path} $argsString);
 }
 
+sub _getContainersPath {
+	my $path = $ENV{FLODAY_CONTAINERS};
+	$path eq '' and die ("The environment variable FLODAY_CONTAINERS is not set.");
+	$path !~ /\/$/ and die ("FLODAY_CONTAINERS have to end with a slash.");
+	-d $path or die ("$path is not an existing directory.");
+	return $path;
+}
+
 sub _setContainerType {
 	my ($this, $definition) = @_;
 	die("Application without container type was definied") if !defined($definition->{containerType});
-	my $containerDefinitionPath = $CONTAINERS_PATH . $definition->{containerType}. '/config.xml';
+	my $containerDefinitionPath = _getContainersPath . $definition->{containerType}. '/config.xml';
 	die("Definition of $definition->{containerType} type was not found") if !-e $containerDefinitionPath;
 	$this->{containerType} = $definition->{containerType};
 }
@@ -120,7 +126,7 @@ sub _setParameters {
 sub _setPath {
 	my ($this, $definition) = @_;
 	die ("Path of $this->{name} application not set.") if !defined($definition->{path});
-	my $path = $CONTAINERS_PATH . $this->{containerType} . '/' . $definition->{path};
+	my $path = _getContainersPath.$this->{containerType}.'/'.$definition->{path};
 	die ("Application $definition->{path} was not found for $this->{name} container") if !-e $path;
 	die ("$path can not be executed") if !-x $path;
 	$this->{path} = $path;
