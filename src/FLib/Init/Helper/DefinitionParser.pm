@@ -102,6 +102,8 @@ sub _fetchAttributes {
 		my %currentAttributeNodeValues;
 		my @n4 = $n3->findnodes('*')->get_nodelist;
 		foreach (@n4) {
+			$_->getName =~ /^[a-zA-Z0-9]*$/ or die "Invalid character in parameter name: $_";
+			$_->textContent =~ /"/ and die "Invalid character in parameter value: $_";
 			$currentAttributeNodeValues{$_->getName} = $_->textContent;
 		}
 		$attributes{$n3->getName} = {%currentAttributeNodeValues};
@@ -111,9 +113,9 @@ sub _fetchAttributes {
 
 sub _getContainersPath {
 	my $path = $ENV{FLODAY_CONTAINERS};
-	$path eq '' and die ("The environment variable FLODAY_CONTAINERS is not set.");
-	$path !~ /\/$/ and die ("FLODAY_CONTAINERS have to end with a slash.");
-	-d $path or die ("$path is not an existing directory.");
+	$path eq '' and die ("The environment variable FLODAY_CONTAINERS is not set");
+	$path !~ /\/$/ and die ("FLODAY_CONTAINERS have to end with a slash");
+	-d $path or die ("$path is not an existing directory");
 	return $path;
 }
 
