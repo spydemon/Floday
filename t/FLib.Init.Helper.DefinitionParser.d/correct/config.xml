@@ -1,0 +1,52 @@
+<config>
+	<setup>
+		<script identifier="a-script">
+			<path>setup/a-script.pl</path>
+			<priority>100</priority>
+		</script>
+	</setup>
+	<startup>
+		<script identifier="something">
+			<path>startup/a-script.pl</path>
+			<priority>200</priority>
+		</script>
+	</startup>
+	<shutdown>
+		<script identifier="sleep">
+			<path>shutdown/a-script.pl</path>
+			<priority>300</priority>
+		</script>
+	</shutdown>
+	<uninstall>
+		<script identifier="autoremove">
+			<path>uninstall/a-script.pl</path>
+			<priority>400</priority>
+		</script>
+	</uninstall>
+	<parameters>
+		<port>
+			<mandatory>true</mandatory>
+			<value>80</value>
+		</port>
+		<name>
+			<mandatory>true</mandatory>
+		</name>
+	</parameters>
+	<applications>
+		<app_name>
+			<path>somewhere/else.hs</path>
+			<parameters>
+				<param1>
+					<mandatory>true</mandatory>
+				</param1>
+				<param2>
+					<mandatory>false</mandatory>
+					<default>666</default>
+				</param2>
+				<param3>
+					<default>42</default>
+				</param3>
+			</parameters>
+		</app_name>
+	</applications>
+</config>
