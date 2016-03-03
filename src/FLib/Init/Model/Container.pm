@@ -121,7 +121,7 @@ sub _getContainerParameters {
 	my ($attributes) = @_;
 	my %parameters;
 	foreach (keys %$attributes) {
-		/^[a-zA-Z]*$/ or die("Invalid character in $_ parameter");
+		/"/ and die("Invalid character in $_ parameter");
 		$parameters{$_} = $attributes->{$_} if (ref $attributes->{$_} ne 'HASH');
 	}
 	return %parameters;
