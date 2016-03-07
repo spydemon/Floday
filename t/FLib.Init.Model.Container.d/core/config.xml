@@ -1,0 +1,12 @@
+<config>
+	<startup>
+		<script identifier="core-startup">
+			<path>startup/core.pl</path>
+			<priority>40</priority>
+		</script>
+		<script identifier="backuping">
+			<path>smthg_rewrited</path>
+			<hello>coucou</hello>
+		</script>
+	</startup>
+</config>
