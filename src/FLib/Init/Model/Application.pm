@@ -89,9 +89,9 @@ sub execute {
 
 sub _getContainersPath {
 	my $path = $ENV{FLODAY_CONTAINERS};
-	$path eq '' and die ("The environment variable FLODAY_CONTAINERS is not set.");
-	$path !~ /\/$/ and die ("FLODAY_CONTAINERS have to end with a slash.");
-	-d $path or die ("$path is not an existing directory.");
+	$path eq '' and die ("The environment variable FLODAY_CONTAINERS is not set");
+	$path !~ /\/$/ and die ("FLODAY_CONTAINERS have to end with a slash");
+	-d $path or die ("$path is not an existing directory");
 	return $path;
 }
 
@@ -113,10 +113,10 @@ sub _setParameters {
 	my ($this, $parameters, $definition) = @_;
 	my %parametersToKeep;
 	for (keys %{$definition->{parameters}}) {
-		$parametersToKeep{$_} = $parameters->{$_};
+		$parametersToKeep{$_} = $parameters->{parameters}{$_};
 		$parametersToKeep{$_} = $definition->{parameters}{$_}{default} if !defined($parametersToKeep{$_});
-		/^[a-zA-Z]*$/ or die "Invalid character in parameter name: $_";
-		$parametersToKeep{$_} =~ /"/ and die "Invalid character in parameter $_ value.";
+		/^[a-zA-Z0-9]*$/ or die "Invalid character in parameter name: $_";
+		$parametersToKeep{$_} =~ /"/ and die "Invalid character in parameter $_ value";
 		!defined($parametersToKeep{$_}) && $definition->{parameters}{$_}{mandatory} eq 'true'
 		  and die("Mandatory \"$_\" parameter is not provided for $this->{name} application");
 	}
@@ -125,7 +125,7 @@ sub _setParameters {
 
 sub _setPath {
 	my ($this, $definition) = @_;
-	die ("Path of $this->{name} application not set.") if !defined($definition->{path});
+	die ("Path of $this->{name} application not set") if !defined($definition->{path});
 	my $path = _getContainersPath.$this->{containerType}.'/'.$definition->{path};
 	die ("Application $definition->{path} was not found for $this->{name} container") if !-e $path;
 	die ("$path can not be executed") if !-x $path;
