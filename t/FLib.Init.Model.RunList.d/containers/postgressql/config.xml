@@ -1,0 +1,7 @@
+<config>
+	<applications>
+		<app>
+			<path>applications/app.sh</path>
+		</app>
+	</applications>
+</config>
