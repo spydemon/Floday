@@ -4,4 +4,7 @@ floday:
         - ..:/opt/floday
     environment:
         FLODAY_CONTAINERS : '/opt/floday/src/containers/'
-    command: perl -d floday.pl --run ../samples/run.xml --host spyzone
+        FLODAY_T_SRC : '/opt/floday/src/'
+        FLODAY_T : '/opt/floday/t/'
+    #command: perl -d floday.pl --run ../samples/run.xml --host spyzone
+    command: perl ../t/harness.pl

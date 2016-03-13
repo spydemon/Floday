@@ -4,7 +4,8 @@ RUN apt-get -y update \
 	&& apt-get install --no-install-recommends -y lxc perl-doc make gcc libxml2-dev zlib1g-dev
 RUN echo yes | cpan
 RUN cpan XML::LibXML \
-	&& cpan Getopt::Long
+	&& cpan Getopt::Long \
+	&& cpan Test::Exception
 ADD komodo.tar.gz /opt/komodo
 ENV PERL5LIB=/opt/komodo
 ENV PERL5DB="BEGIN {require q($PERL5LIB/perl5db.pl)}"
