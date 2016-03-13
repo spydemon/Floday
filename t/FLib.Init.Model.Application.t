@@ -222,6 +222,9 @@ throws_ok {FLib::Init::Model::Application->new($PARAM_1, $DEF_6)}
 throws_ok {FLib::Init::Model::Application->new($PARAM_1, $DEF_7)}
   qr/^Application without container type was definied at/;
 
-say $application->execute();
+my $app = $application->execute();
+ok $app =~ /param1 50/;
+ok $app =~ /param2 8/;
+ok $app =~ /param3 42/;
 
 done_testing;
