@@ -83,7 +83,7 @@ sub new {
 
 sub execute {
 	my ($this) = @_;
-	my $argsString = join ' ', map{'--'.$_. ' "'.$this->{parameters}{$_}.'"'} keys $this->{parameters};
+	my $argsString = join ' ', map{'--'.$_. ' "'.$this->{parameters}{$_}.'"'} keys %{$this->{parameters}};
 	qx($this->{path} $argsString);
 }
 

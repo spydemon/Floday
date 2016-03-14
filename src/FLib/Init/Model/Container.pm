@@ -83,7 +83,7 @@ sub new {
 
 sub boot {
 	my ($this) = @_;
-	for (values $this->{applications}) {
+	for (values %{$this->{applications}}) {
 		$_->execute();
 	}
 	#TODO manage containers execution.
