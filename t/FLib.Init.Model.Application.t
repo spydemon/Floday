@@ -180,15 +180,15 @@ my $RES_1 = bless( {
 $ENV{FLODAY_CONTAINERS} = '/opt/floday/t/FLib.Init.Model.Application.d/';
 
 #Normal execution
-`chmod u+x $ENV{FLODAY_CONTAINERS}validContainer/startup/hello.sh`;
+`chmod a+x $ENV{FLODAY_CONTAINERS}validContainer/startup/hello.sh`;
 my $application = FLib::Init::Model::Application->new($PARAM_1, $DEF_1);
 ok eq_hash $application, $RES_1;
 
 #Check executable right
-`chmod u-x $ENV{FLODAY_CONTAINERS}validContainer/startup/hello.sh`;
+`chmod a-x $ENV{FLODAY_CONTAINERS}validContainer/startup/hello.sh`;
 throws_ok {FLib::Init::Model::Application->new($PARAM_1, $DEF_1)}
   qr/validContainer\/startup\/hello.sh can not be executed at /;
-`chmod u+x $ENV{FLODAY_CONTAINERS}validContainer/startup/hello.sh`;
+`chmod a+x $ENV{FLODAY_CONTAINERS}validContainer/startup/hello.sh`;
 
 #Check unexistinig application file
 throws_ok {FLib::Init::Model::Application->new($PARAM_1, $DEF_2)}
