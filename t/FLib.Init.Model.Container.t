@@ -18,6 +18,7 @@ my $TEST_1 = {
   'name' => 'testContainer-invalid',
   'type' => 'valid',
 };
+
 my $TEST_2 = {
   'name' => 'testContainer',
   'attribute' => 'value',
@@ -30,11 +31,15 @@ my $TEST_2 = {
     'type' => 'php'
   }
 };
+
 my $TEST_3 = {
   'name' => 'testContainer',
   'type' => 'valid',
-  'attributes' => 'value'
+  'attributes' => {
+    'port' => '100'
+  }
 };
+
 my $TEST_4 = {
   'name' => 'testContainer',
   'type' => 'valid',
@@ -54,6 +59,7 @@ my $TEST_4 = {
     #'action' => 'application'
   }
 };
+
 my $RESULT_4 = bless( {
   'applications' => {},
   'definition' => bless( {
@@ -124,26 +130,16 @@ my $RESULT_4 = bless( {
 }, 'FLib::Init::Model::Container' );
 #}}}
 
-TODO: {
-	local $TODO = "We should check container name validity!";
-	throws_ok {FLib::Init::Model::Container->new($TEST_1, 'level1-level2')}
-	  qr/Invalid container name at /;
-}
+throws_ok {FLib::Init::Model::Container->new($TEST_1, 'level1-level2')}
+  qr/Invalid character in name value at /;
 
-TODO: {
-	local $TODO = "We should check that container type is valid and existing!";
-	throws_ok { FLib::Init::Model::Container->new($TEST_2, 'level1-level2')}
-	  qr/Type is missing for testContainer at /;
-}
+throws_ok { FLib::Init::Model::Container->new($TEST_2, 'level1-level2')}
+  qr/Mandatory type parameter is missing at /;
 
-TODO: {
-	local $TODO = "We should check that mandatory attributes die application when they are missing!";
-	throws_ok { FLib::Init::Model::Container->new($TEST_3, 'level1-level2')}
-	  qr/Mandatory "field" is missing at /;
-}
+#throws_ok { FLib::Init::Model::Container->new($TEST_3, 'level1-level2')}
+#  qr/Mandatory "field" is missing at /;
 
 my $container = FLib::Init::Model::Container->new($TEST_4, 'level1-level2');
-print Dumper $container;
 ok eq_hash $container, $RESULT_4;
 
 done_testing;

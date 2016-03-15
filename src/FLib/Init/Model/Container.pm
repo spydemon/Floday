@@ -94,6 +94,12 @@ sub getChildContainers {
 	return $this->{containers};
 }
 
+sub _checkParameters {
+	my ($parameters) = @_;
+	print Dumper $parameters;
+	defined $parameters->{type} or die ("Mandatory type parameter is missing");
+}
+
 sub _getChildApplications {
 	my ($this, $attributes) = @_;
 	my %applications;
@@ -121,9 +127,13 @@ sub _getContainerParameters {
 	my ($attributes) = @_;
 	my %parameters;
 	foreach (keys %$attributes) {
-		/"/ and die("Invalid character in $_ parameter");
-		$parameters{$_} = $attributes->{$_} if (ref $attributes->{$_} ne 'HASH');
+		/["-]/ and die("Invalid character in $_ parameter");
+		if (ref $attributes->{$_} ne 'HASH') {
+			$attributes->{$_} =~ /[-"]/ and die("Invalid character in $_ value");
+			$parameters{$_} = $attributes->{$_};
+		}
 	}
+	_checkParameters(\%parameters);
 	return %parameters;
 }
 
