@@ -74,10 +74,11 @@ sub new {
 	my %this;
 	bless(\%this, $class);
 	$this{path} = {$containerPath};
-	$this{parameters} = {_getContainerParameters($containerInvocationAttributes)};
+	$this{attributes} = {_getContainerAttributes($containerInvocationAttributes)};
 	$this{containers} = _getChildContainers($containerInvocationAttributes, $containerPath);
-	$this{definition} = FLib::Init::Helper::DefinitionParser->new($this{parameters}{type});
+	$this{definition} = FLib::Init::Helper::DefinitionParser->new($this{attributes}{type});
 	$this{applications} = {_getChildApplications(\%this, $containerInvocationAttributes)};
+	$this{parameters} = _initializeParameters(\%this);
 	return \%this;
 }
 
@@ -94,10 +95,9 @@ sub getChildContainers {
 	return $this->{containers};
 }
 
-sub _checkParameters {
-	my ($parameters) = @_;
-	print Dumper $parameters;
-	defined $parameters->{type} or die ("Mandatory type parameter is missing");
+sub _checkAttributes {
+	my ($attributes) = @_;
+	defined $attributes->{type} or die ("Mandatory type parameter is missing");
 }
 
 sub _getChildApplications {
@@ -123,18 +123,31 @@ sub _getChildContainers {
 	return \@containers;
 }
 
-sub _getContainerParameters {
-	my ($attributes) = @_;
-	my %parameters;
-	foreach (keys %$attributes) {
-		/["-]/ and die("Invalid character in $_ parameter");
-		if (ref $attributes->{$_} ne 'HASH') {
-			$attributes->{$_} =~ /[-"]/ and die("Invalid character in $_ value");
-			$parameters{$_} = $attributes->{$_};
+sub _getContainerAttributes {
+	my ($nodes) = @_;
+	my %attributes;
+	foreach (keys %$nodes) {
+		/["-]/ and die("Invalid character in $_ attribute");
+		if (ref $nodes->{$_} ne 'HASH') {
+			$nodes->{$_} =~ /[-"]/ and die("Invalid character in $_ value");
+			$attributes{$_} = $nodes->{$_};
 		}
 	}
-	_checkParameters(\%parameters);
-	return %parameters;
+	_checkAttributes(\%attributes);
+	return %attributes;
+}
+
+sub _initializeParameters {
+	my ($this) = @_;
+	my %attributes;
+	for (keys %{$this->{definition}{parameters}}) {
+		$attributes{$_} = $this->{definition}{parameters}{$_}{default};
+		#$attributes{$_} = $this->{attributes}{$_};
+		defined $this->{attributes}{$_} and $attributes{$_} = $this->{attributes}{$_};
+		defined $this->{definition}{parameters}{$_}{mandatory} && !defined $this->{attributes}{$_}
+		  and die ("Mandatory \"$_\" parameter is missing but required");
+	}
+	return %attributes;
 }
 
 1

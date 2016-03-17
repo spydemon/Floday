@@ -3,95 +3,102 @@
 use strict;
 use warnings;
 
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+
 #{{{Test variables
 my $TEST_1 = bless( {
   'containers' => {
     'valid-database-blog' => bless( {
+      'definition' => bless( {
+        'applications' => {},
+        'startup' => {},
+        'uninstall' => {},
+        'shutdown' => {},
+        'parameters' => {},
+        'setup' => {},
+        'containerType' => 'wordpress'
+      }, 'FLib::Init::Helper::DefinitionParser' ),
+      'attributes' => {
+        'type' => 'wordpress',
+        'name' => 'blog',
+        'action' => 'container',
+        'vhost' => 'myblog.mysite.fr'
+      },
+      'applications' => {},
       'path' => {
         'valid-database-blog' => undef
       },
-      'containers' => [],
-      'parameters' => {
-        'vhost' => 'myblog.mysite.fr',
-        'name' => 'blog',
-        'type' => 'wordpress',
-        'action' => 'container'
-      },
-      'applications' => {},
-      'definition' => bless( {
-        'setup' => {},
-        'containerType' => 'wordpress',
-        'uninstall' => {},
-        'parameters' => {},
-        'shutdown' => {},
-        'applications' => {},
-        'startup' => {}
-      }, 'FLib::Init::Helper::DefinitionParser' )
+      'parameters' => 0,
+      'containers' => []
     }, 'FLib::Init::Model::Container' ),
     'valid-database' => bless( {
-      'applications' => {
-        'goodapp' => bless( {
-          'path' => '/opt/floday/t/FLib.Init.Model.RunList.d/containers/postgressql/applications/app.sh',
-          'containerType' => 'postgressql',
-          'parameters' => {},
-          'type' => 'app',
-          'name' => 'goodapp'
-        }, 'FLib::Init::Model::Application' )
-      },
       'definition' => bless( {
-        'uninstall' => {},
-        'parameters' => {},
-        'containerType' => 'postgressql',
-        'setup' => {},
-        'startup' => {},
-        'shutdown' => {},
         'applications' => {
           'app' => {
-            'parameters' => {},
             'containerType' => 'postgressql',
-            'path' => 'applications/app.sh'
+            'path' => 'applications/app.sh',
+            'parameters' => {}
           }
-        }
+        },
+        'startup' => {},
+        'uninstall' => {},
+        'shutdown' => {},
+        'parameters' => {},
+        'setup' => {},
+        'containerType' => 'postgressql'
       }, 'FLib::Init::Helper::DefinitionParser' ),
+      'attributes' => {
+        'action' => 'container',
+        'name' => 'database',
+        'ipv4' => '10.0.3.13',
+        'type' => 'postgressql'
+      },
+      'applications' => {
+        'goodapp' => bless( {
+          'name' => 'goodapp',
+          'parameters' => {},
+          'path' => '/opt/floday/t/FLib.Init.Model.RunList.d/containers/postgressql/applications/app.sh',
+          'containerType' => 'postgressql',
+          'type' => 'app'
+        }, 'FLib::Init::Model::Application' )
+      },
       'path' => {
         'valid-database' => undef
       },
+      'parameters' => 0,
       'containers' => [
         'valid-database-blog'
-      ],
-      'parameters' => {
-        'type' => 'postgressql',
-        'name' => 'database',
-        'ipv4' => '10.0.3.13',
-        'action' => 'container'
-      }
+      ]
     }, 'FLib::Init::Model::Container' ),
     'valid' => bless( {
-      'containers' => [
-        'valid-database'
-      ],
-      'parameters' => {
-        'type' => 'root',
-        'name' => 'valid'
-      },
-      'path' => {
-        'valid' => undef
-      },
       'definition' => bless( {
         'setup' => {},
         'containerType' => 'root',
-        'parameters' => {},
-        'uninstall' => {},
-        'applications' => {},
         'shutdown' => {},
-        'startup' => {}
+        'applications' => {},
+        'uninstall' => {},
+        'startup' => {},
+        'parameters' => {}
       }, 'FLib::Init::Helper::DefinitionParser' ),
-      'applications' => {}
+      'attributes' => {
+        'type' => 'root',
+        'name' => 'valid'
+      },
+      'applications' => {},
+      'path' => {
+        'valid' => undef
+      },
+      'parameters' => 0,
+      'containers' => [
+        'valid-database'
+      ]
     }, 'FLib::Init::Model::Container' )
   },
   'currentContainerPath' => 'valid'
 }, 'FLib::Init::Model::RunList' );
 #}}}
+
 use v5.20;
 
 use Test::More;
@@ -102,7 +109,6 @@ use FLib::Init::Model::RunList;
 $ENV{FLODAY_CONTAINERS} = '/opt/floday/t/FLib.Init.Model.RunList.d/containers/';
 `chmod u+x $ENV{FLODAY_CONTAINERS}postgressql/applications/app.sh`;
 my $runlist = FLib::Init::Model::RunList->new('/opt/floday/t/FLib.Init.Model.RunList.d/correct.xml', 'valid');
-
 ok eq_hash $runlist, $TEST_1;
 
 done_testing;
