@@ -66,13 +66,15 @@ my $TEST_3 = {
 #Test new
 throws_ok {FLib::Init::Helper::RunFileParser->new('../t/FLib.Init.Helper.RunFileParser.d/correct.xml', 'nonexisting')}
   qr/^Host nonexisting doesn't exists in the runfile at/;
+
 my $runList = FLib::Init::Helper::RunFileParser->new('../t/FLib.Init.Helper.RunFileParser.d/correct.xml', 'valid');
 ok eq_hash $runList, $TEST_1;
-TODO: {
-	local $TODO = 'Attributes validity is not check for the moment';
-	throws_ok {FLib::Init::Helper::RunFileParser->new('../t/FLib.Init.Helper.RunFileParser.d/correct.xml', 'unvalidName')}
-	  qr/^Invalid character in name attribute at/;
-}
+
+throws_ok {FLib::Init::Helper::RunFileParser->new('../t/FLib.Init.Helper.RunFileParser.d/correct.xml', 'unvalidName')}
+  qr/^Invalid character in name attribute at/;
+
+throws_ok {FLib::Init::Helper::RunFileParser->new('../t/FLib.Init.Helper.RunFileParser.d/correct.xml', 'nameMissing')}
+  qr/^Node without name attribute can't exist at/;
 
 #Test getContainerChildPaths
 throws_ok {$runList->getContainerChildPaths('database-blog')}

@@ -98,6 +98,8 @@ sub getChildContainers {
 sub _checkAttributes {
 	my ($attributes) = @_;
 	defined $attributes->{type} or die ("Mandatory type parameter is missing");
+	defined $attributes->{name} or die ("Mandatory name parameter is missing");
+	$attributes->{name} =~ /["-]/ and die ("Unvalid carracter in name parameter");
 }
 
 sub _getChildApplications {
