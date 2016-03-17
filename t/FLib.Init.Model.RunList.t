@@ -3,109 +3,112 @@
 use strict;
 use warnings;
 
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+
 #{{{Test variables
 my $TEST_1 = bless( {
-    'containers' => {
-        'valid-database' => bless( {
-          'applications' => {
-              'goodapp' => bless( {
-                'name' => 'goodapp',
-                'path' => '/opt/floday/t/FLib.Init.Model.RunList.d/containers/postgressql/applications/app.sh',
-                'type' => 'app',
-                'containerType' => 'postgressql',
-                'parameters' => {}
-              }, 'FLib::Init::Model::Application' )
-            },
-          'path' => {
-              'valid-database' => undef
-            },
-          'containers' => [
-              'valid-database-blog'
-          ],
-          'parameters' => {
-            'action' => 'container',
-            'ipv4' => '10.0.3.13',
-            'name' => 'database',
-            'type' => 'postgressql'
-          },
-          'definition' => bless( {
-            'parameters' => {},
-            'startup' => {},
-            'setup' => {},
-            'containerType' => 'postgressql',
-            'applications' => {
-              'app' => {
-                'parameters' => {},
-                'containerType' => 'postgressql',
-                'path' => 'applications/app.sh'
-              }
-            },
-            'shutdown' => {},
-            'uninstall' => {}
-            }, 'FLib::Init::Helper::DefinitionParser' )
-        }, 'FLib::Init::Model::Container' ),
-        'valid-database-blog' => bless( {
-          'path' => {
-            'valid-database-blog' => undef
-          },
-          'applications' => {},
-          'definition' => bless( {
-            'setup' => {},
-            'containerType' => 'wordpress',
-            'parameters' => {},
-            'startup' => {},
-            'uninstall' => {},
-            'shutdown' => {},
-            'applications' => {}
-          }, 'FLib::Init::Helper::DefinitionParser' ),
-          'containers' => [],
-          'parameters' => {
-            'type' => 'wordpress',
-            'vhost' => 'myblog.mysite.fr',
-            'name' => 'blog',
-            'action' => 'container'
-          }
-        }, 'FLib::Init::Model::Container' ),
-        'valid' => bless( {
-          'definition' => bless( {
-           'startup' => {},
-           'parameters' => {},
-           'setup' => {},
-           'containerType' => 'root',
-           'applications' => {},
-           'uninstall' => {},
-           'shutdown' => {}
-          }, 'FLib::Init::Helper::DefinitionParser' ),
-          'parameters' => {
-            'type' => 'root',
-            'name' => 'valid'
-          },
-          'containers' => [
-            'valid-database'
-          ],
-          'path' => {
-            'valid' => undef
-          },
-          'applications' => {}
-        }, 'FLib::Init::Model::Container' )
+  'containers' => {
+    'valid-database-blog' => bless( {
+      'definition' => bless( {
+        'applications' => {},
+        'startup' => {},
+        'uninstall' => {},
+        'shutdown' => {},
+        'parameters' => {},
+        'setup' => {},
+        'containerType' => 'wordpress'
+      }, 'FLib::Init::Helper::DefinitionParser' ),
+      'attributes' => {
+        'type' => 'wordpress',
+        'name' => 'blog',
+        'action' => 'container',
+        'vhost' => 'myblog.mysite.fr'
       },
-    'currentContainerPath' => 'valid'
+      'applications' => {},
+      'path' => {
+        'valid-database-blog' => undef
+      },
+      'parameters' => 0,
+      'containers' => []
+    }, 'FLib::Init::Model::Container' ),
+    'valid-database' => bless( {
+      'definition' => bless( {
+        'applications' => {
+          'app' => {
+            'containerType' => 'postgressql',
+            'path' => 'applications/app.sh',
+            'parameters' => {}
+          }
+        },
+        'startup' => {},
+        'uninstall' => {},
+        'shutdown' => {},
+        'parameters' => {},
+        'setup' => {},
+        'containerType' => 'postgressql'
+      }, 'FLib::Init::Helper::DefinitionParser' ),
+      'attributes' => {
+        'action' => 'container',
+        'name' => 'database',
+        'ipv4' => '10.0.3.13',
+        'type' => 'postgressql'
+      },
+      'applications' => {
+        'goodapp' => bless( {
+          'name' => 'goodapp',
+          'parameters' => {},
+          'path' => '/opt/floday/t/FLib.Init.Model.RunList.d/containers/postgressql/applications/app.sh',
+          'containerType' => 'postgressql',
+          'type' => 'app'
+        }, 'FLib::Init::Model::Application' )
+      },
+      'path' => {
+        'valid-database' => undef
+      },
+      'parameters' => 0,
+      'containers' => [
+        'valid-database-blog'
+      ]
+    }, 'FLib::Init::Model::Container' ),
+    'valid' => bless( {
+      'definition' => bless( {
+        'setup' => {},
+        'containerType' => 'root',
+        'shutdown' => {},
+        'applications' => {},
+        'uninstall' => {},
+        'startup' => {},
+        'parameters' => {}
+      }, 'FLib::Init::Helper::DefinitionParser' ),
+      'attributes' => {
+        'type' => 'root',
+        'name' => 'valid'
+      },
+      'applications' => {},
+      'path' => {
+        'valid' => undef
+      },
+      'parameters' => 0,
+      'containers' => [
+        'valid-database'
+      ]
+    }, 'FLib::Init::Model::Container' )
+  },
+  'currentContainerPath' => 'valid'
 }, 'FLib::Init::Model::RunList' );
-
 #}}}
+
 use v5.20;
 
 use Test::More;
 use Test::Exception;
-use Data::Dumper;
 
 use FLib::Init::Model::RunList;
 
 $ENV{FLODAY_CONTAINERS} = '/opt/floday/t/FLib.Init.Model.RunList.d/containers/';
 `chmod u+x $ENV{FLODAY_CONTAINERS}postgressql/applications/app.sh`;
 my $runlist = FLib::Init::Model::RunList->new('/opt/floday/t/FLib.Init.Model.RunList.d/correct.xml', 'valid');
-
 ok eq_hash $runlist, $TEST_1;
-
 
 done_testing;

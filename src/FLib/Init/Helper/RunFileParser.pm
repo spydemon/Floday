@@ -161,8 +161,10 @@ sub _getContainer {
 sub _getNodeName {
 	my ($node) = @_;
 	my $name = $node->getAttributeNode('name');
-	die("Node witout name attribute can't exist") if $name == undef;
-	return $name->getValue;
+	$name == undef and die("Node without name attribute can't exist");
+	$name = $name->getValue;
+	$name =~ /["-]/ and die ("Invalid character in name attribute");
+	return $name;
 }
 
 sub _initializeNodes {
