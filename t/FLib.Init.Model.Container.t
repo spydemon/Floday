@@ -134,7 +134,7 @@ my $RESULT_4 = bless( {
 #}}}
 
 throws_ok {FLib::Init::Model::Container->new($TEST_1, 'level1-level2')}
-  qr/Invalid character in name value at /;
+  qr/Invalid character in name attribute at /;
 
 throws_ok { FLib::Init::Model::Container->new($TEST_2, 'level1-level2')}
   qr/Mandatory type parameter is missing at /;

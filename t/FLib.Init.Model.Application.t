@@ -138,30 +138,24 @@ my $DEF_7 = {
 my $PARAM_1 = {
   'name' => 'firstApp',
   'type' => 'bashStuff',
-  'parameters' => {
-    'param1' => '50',
-    'param2' => '8',
-    'param4' => 'notexisting'
-  }
+  'param1' => '50',
+  'param2' => '8',
+  'param4' => 'notexisting'
 };
 
 my $PARAM_2 = {
   'name' => 'firstApp',
   'type' => 'bashStuff',
-  'parameters' => {
-    'param1' => '"invalid',
-    'param2' => '8',
-    'param4' => 'notexisting'
-  }
+  'param1' => '"invalid',
+  'param2' => '8',
+  'param4' => 'notexisting'
 };
 
 my $PARAM_3 = {
   'name' => 'firstApp',
   'type' => 'bashStuff',
-  'parameters' => {
-    'param2' => '8',
-    'param4' => 'notexisting'
-  }
+  'param2' => '8',
+  'param4' => 'notexisting'
 };
 
 my $RES_1 = bless( {
