@@ -113,7 +113,7 @@ sub _setParameters {
 	my ($this, $parameters, $definition) = @_;
 	my %parametersToKeep;
 	for (keys %{$definition->{parameters}}) {
-		$parametersToKeep{$_} = $parameters->{parameters}{$_};
+		$parametersToKeep{$_} = $parameters->{$_};
 		$parametersToKeep{$_} = $definition->{parameters}{$_}{default} if !defined($parametersToKeep{$_});
 		/^[a-zA-Z0-9]*$/ or die "Invalid character in parameter name: $_";
 		$parametersToKeep{$_} =~ /"/ and die "Invalid character in parameter $_ value";
