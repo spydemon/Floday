@@ -10,26 +10,39 @@ use Test::Exception;
 
 use FLib::Init::Helper::DefinitionParser;
 use Data::Dumper;
+$Data::Dumper::Indent = 1;
 
 #{{{Test variables
 my $TEST_1 = bless( {
-  'uninstall' => {
+  'shutdown' => {
     'script' => {
-      'path' => 'uninstall/a-script.pl',
-      'priority' => '400'
+      'priority' => '300',
+      'path' => 'shutdown/a-script.pl'
     }
   },
-  'setup' => {
-    'script' => {
-      'path' => 'setup/a-script.pl',
-      'priority' => '100'
-    }
-  },
-  'containerType' => 'correct',
   'startup' => {
     'script' => {
       'path' => 'startup/a-script.pl',
       'priority' => '200'
+    }
+  },
+  'parameters' => {
+    'log' => {
+      'default' => '1'
+    },
+    'name' => {
+      'mandatory' => 'true'
+    },
+    'port' => {
+      'mandatory' => 'true',
+      'default' => '80'
+    }
+  },
+  'containerType' => 'correct',
+  'setup' => {
+    'script' => {
+      'priority' => '100',
+      'path' => 'setup/a-script.pl'
     }
   },
   'applications' => {
@@ -44,25 +57,16 @@ my $TEST_1 = bless( {
           'default' => '42'
         },
         'param2' => {
-          'default' => '666',
-          'mandatory' => 'false'
+          'mandatory' => 'false',
+          'default' => '666'
         }
       }
     }
   },
-  'parameters' => {
-    'port' => {
-      'value' => '80',
-      'mandatory' => 'true'
-    },
-      'name' => {
-      'mandatory' => 'true'
-    }
-  },
-  'shutdown' => {
+  'uninstall' => {
     'script' => {
-      'priority' => '300',
-      'path' => 'shutdown/a-script.pl'
+      'path' => 'uninstall/a-script.pl',
+      'priority' => '400'
     }
   }
 }, 'FLib::Init::Helper::DefinitionParser' );
@@ -93,8 +97,5 @@ throws_ok {FLib::Init::Helper::DefinitionParser->new('withHyphenInParameterValue
   qr/^Invalid character in parameter value: /;
 my $obj = FLib::Init::Helper::DefinitionParser->new('correct');
 ok eq_hash $obj, $TEST_1;
-
-#Test _mergeAttributesWithDependencies
-#TODO with issue #16
 
 done_testing;
