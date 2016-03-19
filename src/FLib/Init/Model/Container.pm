@@ -99,7 +99,7 @@ sub _checkAttributes {
 	my ($attributes) = @_;
 	defined $attributes->{type} or die ("Mandatory type parameter is missing");
 	defined $attributes->{name} or die ("Mandatory name parameter is missing");
-	$attributes->{name} =~ /["-]/ and die ("Unvalid carracter in name parameter");
+	$attributes->{name} =~ /["-]/ and die ("Invalid character in name attribute");
 }
 
 sub _getChildApplications {
@@ -129,9 +129,9 @@ sub _getContainerAttributes {
 	my ($nodes) = @_;
 	my %attributes;
 	foreach (keys %$nodes) {
-		/["-]/ and die("Invalid character in $_ attribute");
+		/"/ and die("Invalid character in $_ attribute");
 		if (ref $nodes->{$_} ne 'HASH') {
-			$nodes->{$_} =~ /[-"]/ and die("Invalid character in $_ value");
+			$nodes->{$_} =~ /"/ and die("Invalid character in $_ value");
 			$attributes{$_} = $nodes->{$_};
 		}
 	}
