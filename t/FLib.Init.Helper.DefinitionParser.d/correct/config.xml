@@ -1,4 +1,7 @@
 <config>
+	<depends>
+		<parent />
+	</depends>
 	<setup>
 		<script identifier="a-script">
 			<path>setup/a-script.pl</path>
@@ -26,7 +29,7 @@
 	<parameters>
 		<port>
 			<mandatory>true</mandatory>
-			<value>80</value>
+			<default>80</default>
 		</port>
 		<name>
 			<mandatory>true</mandatory>
