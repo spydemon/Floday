@@ -7,4 +7,5 @@ floday:
         FLODAY_T_SRC : '/opt/floday/src/'
         FLODAY_T : '/opt/floday/t/'
     #command: perl -d floday.pl --run ../samples/run.xml --host spyzone
-    command: perl ../t/harness.pl
+    #command: perl ../t/harness.pl
+    command: perl /opt/keepalive.pl
