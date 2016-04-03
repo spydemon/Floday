@@ -29,7 +29,7 @@ if ($action eq 'inspect') {
 
 sub run($msg, $cmd){
 	say "\033[32m$msg\033[0m";
-	qx/$cmd/;
+	open my $exec, '|-', $cmd or die $!;
 }
 
 `whereis docker` =~ /:$/
@@ -43,7 +43,9 @@ sub run($msg, $cmd){
 
 run
   "Launching Floday.",
-  "docker run --cap-add SYS_ADMIN "
+  "docker run "
+    ."--cap-add SYS_ADMIN "
+    ."--cap-add NET_ADMIN "
     ."--volume $CURRENT_PATH/$APPLICATION_PATH:/opt/floday "
     ."--env FLODAY_CONTAINERS=/opt/floday/src/containers/ "
     ."--env FLODAY_T_SRC=/opt/floday/src/ "

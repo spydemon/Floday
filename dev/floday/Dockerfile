@@ -1,7 +1,7 @@
 FROM ubuntu:15.10
 RUN apt-get -y update \
 	&& apt-get upgrade -y \
-	&& apt-get install --no-install-recommends -y lxc perl-doc make gcc libxml2-dev zlib1g-dev
+	&& apt-get install --no-install-recommends -y lxc lxc-templates perl-doc make gcc libxml2-dev zlib1g-dev wget man vim iproute net-tools cgroup-bin
 RUN echo yes | cpan
 RUN cpan XML::LibXML \
 	&& cpan Getopt::Long \
