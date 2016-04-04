@@ -66,6 +66,11 @@ sub container_run {
 	run 
 	  'Start Floday_Work virtual machine.',
 	  'VBoxManage startvm Floday_Work --type headless';
+	my $ip;
+	do {
+		($ip) = `VBoxManage guestproperty get Floday_Work /VirtualBox/GuestInfo/Net/0/V4/IP` =~ /^Value: ([.1-9]*)$/;
+	} while (!defined $ip);
+	say "Container ip address : $ip";
 }
 
 `whereis VBoxManage` =~ /:$/
