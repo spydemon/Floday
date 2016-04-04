@@ -37,8 +37,7 @@ sub container_stop {
 sub container_flush {
 	container_stop;
 	if (`VBoxManage list vms` =~ /Floday_Work/) {
-		my ($uuid) = `VBoxManage showvminfo Floday_Work` =~ /UUID: ([-a-z0-9]{1,})/;
-		my ($hdd) = `VBoxManage showvminfo Floday_Work` =~ /IDE \(0, 0\): ([-\/_.a-zA-Z0-9 ]{0,}) .*/;
+		my ($hdd) = `VBoxManage showvminfo Floday_Work` =~ /SATA \(0, 0\): ([-\/_.a-zA-Z0-9 ]{0,}) .*/;
 		run
 		  'Unlink hdd and vm.',
 		  'VBoxManage modifyvm Floday_Work --hda none';
