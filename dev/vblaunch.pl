@@ -25,13 +25,17 @@ sub error($msg) {
 	say "\033[1;31m$msg\033[0m";
 }
 
-sub container_flush {
+sub container_stop {
 	if (`VBoxManage list runningvms` =~ /Floday_Work/) {
 		run
 		  'Stop Floday_Work vm.',
 		  'VBoxManage controlvm Floday_Work acpipowerbutton';
 		while (`VBoxManage list runningvms` =~ /Floday_Work/){};
 	}
+}
+
+sub container_flush {
+	container_stop;
 	if (`VBoxManage list vms` =~ /Floday_Work/) {
 		my ($uuid) = `VBoxManage showvminfo Floday_Work` =~ /UUID: ([-a-z0-9]{1,})/;
 		my ($hdd) = `VBoxManage showvminfo Floday_Work` =~ /IDE \(0, 0\): ([-\/_.a-zA-Z0-9 ]{0,}) .*/;
@@ -76,6 +80,7 @@ $? != 0
 switch ($action) {
 	case 'flush' {container_flush;}
 	case 'run' {container_run;}
+	case 'stop' {container_stop;}
 	else {container_run;}
 }
 
