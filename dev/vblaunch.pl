@@ -10,6 +10,8 @@ no warnings qw(experimental::signatures);
 use Getopt::Long;
 use Switch;
 use File::Basename;
+use Net::OpenSSH;
+$Net::OpenSSH::debug = 0;
 
 my $action = '';
 GetOptions(
@@ -53,6 +55,11 @@ sub container_flush {
 	}
 }
 
+sub get_container_ip {
+	my ($ip) = `VBoxManage guestproperty get Floday_Work /VirtualBox/GuestInfo/Net/0/V4/IP` =~ /^Value: ([.0-9]*)$/;
+	return $ip;
+}
+
 sub container_run {
 	`VBoxManage list runningvms` =~ /Floday_Work/
 	  and error 'Floday_Work is already running.'
@@ -67,9 +74,18 @@ sub container_run {
 	  'VBoxManage startvm Floday_Work --type headless';
 	my $ip;
 	do {
-		($ip) = `VBoxManage guestproperty get Floday_Work /VirtualBox/GuestInfo/Net/0/V4/IP` =~ /^Value: ([.1-9]*)$/;
+		$ip = get_container_ip;
 	} while (!defined $ip);
 	say "Container ip address : $ip";
+}
+
+sub container_exec($cmd) {
+	container_run if !defined get_container_ip;
+	my $ssh = Net::OpenSSH->new("user:password@".get_container_ip);
+	$ssh->error and die('SSH fail: ' . $ssh->error);
+	my ($out, $pid) = $ssh->pipe_out($cmd)
+	  or die "ssh command failed: " . $ssh->error;
+	while (<$out>) { print; }
 }
 
 `whereis VBoxManage` =~ /:$/
@@ -85,6 +101,8 @@ switch ($action) {
 	case 'flush' {container_flush;}
 	case 'run' {container_run;}
 	case 'stop' {container_stop;}
+	case 'test' {container_exec('perl /opt/floday/t/harness.pl');}
+	case 'exec' {container_exec('cd /opt/floday/src/ && ./floday.pl --run ../samples/run.xml --host spyzone');}
 	else {container_run;}
 }
 
