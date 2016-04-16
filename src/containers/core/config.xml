@@ -1,9 +1,5 @@
 <config>
-	<info
-	  name="core"
-	  author="spydemon&lt;email@address.fr&gt;"
-	  version="1"
-	/>
+	<template>alpine.pl</template>
 	<setup>
 		<script identifier="shell-customisation">
 			<path>setup/shell.pl</path>

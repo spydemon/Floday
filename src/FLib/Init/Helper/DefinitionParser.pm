@@ -57,6 +57,7 @@ sub new {
 	my $containerXmlTree = _initializeXml($containerDefinitionPath);
 	my %parent = _fetchAttributes('depends/*', $containerXmlTree);
 	$this{'containerType'} = $containerType;
+	$this{'template'} = _fetchTemplate($containerXmlTree);
 	$this{'parameters'} = {_fetchAttributes('parameters/*', $containerXmlTree)};
 	$this{'setup'} = {_fetchAttributes('setup/*', $containerXmlTree)};
 	$this{'startup'} = {_fetchAttributes('startup/*', $containerXmlTree)};
@@ -110,6 +111,13 @@ sub _fetchAttributes {
 	}
 	return %attributes;
 }
+
+sub _fetchTemplate {
+	my ($attributeTree) = @_;
+	my $template = $attributeTree->findnodes('/config/template');
+	return $template->string_value();
+}
+
 
 sub _getContainersPath {
 	my $path = $ENV{FLODAY_CONTAINERS};

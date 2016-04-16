@@ -14,6 +14,7 @@ $Data::Dumper::Indent = 1;
 
 #{{{Test variables
 my $TEST_1 = bless( {
+  'template' => 'clp.pl',
   'shutdown' => {
     'script' => {
       'priority' => '300',

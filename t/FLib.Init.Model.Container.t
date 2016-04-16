@@ -69,6 +69,7 @@ my $RESULT_4 = bless( {
   },
   'applications' => {},
   'definition' => bless( {
+    'template' => '',
     'shutdown' => {
       'script' => {
         'path' => 'shutdown/something.pl',

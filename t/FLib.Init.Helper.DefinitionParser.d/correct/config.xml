@@ -2,6 +2,7 @@
 	<depends>
 		<parent />
 	</depends>
+	<template>clp.pl</template>
 	<setup>
 		<script identifier="a-script">
 			<path>setup/a-script.pl</path>
