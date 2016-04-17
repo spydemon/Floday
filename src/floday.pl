@@ -35,12 +35,13 @@ use v5.20;
 use Getopt::Long;
 use FLib::Init::Model::RunList;
 
-my $runFile ='';
-my $host = '';
+my $containerName = '';
+my $runFile = '/etc/floday/run.xml';
 GetOptions(
-  "run=s" => \$runFile,
-  "host=s" => \$host
+  "container=s" => \$containerName,
 );
 
+my ($host) = $containerName =~ /^([a-z]*)-?/;
 my $runList = FLib::Init::Model::RunList->new($runFile, $host);
-$runList->boot();
+my $container = $runList->getContainer($containerName);
+$container->boot();
