@@ -17,6 +17,7 @@ my $TEST_1 = bless( {
         'shutdown' => {},
         'parameters' => {},
         'setup' => {},
+        'template' => '',
         'containerType' => 'wordpress'
       }, 'FLib::Init::Helper::DefinitionParser' ),
       'attributes' => {
@@ -34,6 +35,7 @@ my $TEST_1 = bless( {
     }, 'FLib::Init::Model::Container' ),
     'valid-database' => bless( {
       'definition' => bless( {
+        'template' => '',
         'applications' => {
           'app' => {
             'containerType' => 'postgressql',
@@ -73,6 +75,7 @@ my $TEST_1 = bless( {
     }, 'FLib::Init::Model::Container' ),
     'valid' => bless( {
       'definition' => bless( {
+        'template' => '',
         'setup' => {},
         'containerType' => 'root',
         'shutdown' => {},

@@ -54,7 +54,7 @@ my $TEST_4 = {
   'childApplication' => {
     'name' => 'childApplication',
     'type' => 'php',
-	#'action' => 'application'
+    #'action' => 'application'
   }
 };
 

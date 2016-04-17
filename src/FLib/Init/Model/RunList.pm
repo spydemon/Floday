@@ -11,6 +11,7 @@ FLib::Init::Model::RunList - Manage a Floday runlist.
 
  use FLib::Init::Model::RunList;
  my $runList = FLib::Init::Model::RunList->new(<runfileName>, <hostName>);
+ my $container = $runList->getContainer('spyzone-php-blog');
  $runList->boot();
 
 =head1 DESCRIPTION
@@ -35,7 +36,7 @@ The hostName is used for knowing which part of the runfile has to be parsed and 
 
 =item return
 
-A Flib::Init::Model::RunList object.
+A FLib::Init::Model::RunList object.
 
 =back
 
@@ -48,6 +49,22 @@ Boot the curent container.
 =item return
 
 Nothing.
+
+=back
+
+=head3 getContainer($containerPath)
+
+Return the container corresponding to the given path, or die if the container was not found.
+
+=over 15
+
+=item $containerPath
+
+Container path to get, as string.
+
+=item return
+
+A FLib::Init::Model::Container object.
 
 =back
 
@@ -80,6 +97,12 @@ sub new {
 sub boot {
 	my ($this) = @_;
 	$this->{containers}->{$this->{currentContainerPath}}->boot();
+}
+
+sub getContainer {
+	my ($this, $name) = @_;
+	$this->{containers}{$name}
+	  or die ("Container $name is not exisiting.");
 }
 
 sub _generateRunList {
