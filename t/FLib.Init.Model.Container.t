@@ -54,7 +54,7 @@ my $TEST_4 = {
   'childApplication' => {
     'name' => 'childApplication',
     'type' => 'php',
-	#'action' => 'application'
+    #'action' => 'application'
   }
 };
 
@@ -69,6 +69,7 @@ my $RESULT_4 = bless( {
   },
   'applications' => {},
   'definition' => bless( {
+    'template' => '',
     'shutdown' => {
       'script' => {
         'path' => 'shutdown/something.pl',

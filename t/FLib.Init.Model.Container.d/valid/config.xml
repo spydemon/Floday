@@ -2,6 +2,7 @@
 	<depends>
 		<core />
 	</depends>
+	<template></template>
 	<setup>
 		<script identifier="shell-customisation">
 			<path>setup/shell.pl</path>
