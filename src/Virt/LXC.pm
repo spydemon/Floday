@@ -1,6 +1,18 @@
 package Virt::LXC;
 use v5.20;
 
+sub _qx {
+	my ($this, $cmd, $wantarray) = @_;
+	my $stderr = File::Temp->new();
+	my $stdout = `$cmd 2>$stderr`;
+	my $result = !$?;
+	seek $stderr, 0, 0;
+	open F,'<',$stderr;
+	say $cmd;
+	$wantarray and return ($result, $stdout, join('', <F>));
+	return $result;
+}
+
 sub new {
 	my %this;
 	my ($class, $utsname) = @_;
@@ -56,33 +68,33 @@ sub deploy {
 	defined $this->{'utsname'} or die 'Utsname is missing.';
 	defined $this->{'template'} or die 'Template is missing.';
 	$this->isExisting and die "Container with the $this->{'utsname'} utsname already exists.";
-	`lxc-create -t $this->{'template'} -n $this->{'utsname'} 2&1>/dev/null`;
+	$this->_qx("lxc-create -t $this->{'template'} -n $this->{'utsname'}", wantarray);
 }
 
 sub destroy {
 	my ($this) = @_;
 	defined $this->{'utsname'} or die 'Utsname is missing.';
 	$this->isRunning and $this->stop;
-	`lxc-destropy -n $this->{'utsname'} 2&1>/dev/null`
+	$this->_qx("lxc-destroy -n $this->{'utsname'}", wantarray);
 }
 
 sub stop {
 	my ($this) = @_;
 	$this->isRunning or die "Container $this->{'utsname'} is not running.";
-	`lxc-stop -n $this->{'utsname'}`;
+	$this->_qx("lxc-stop -n $this->{'utsname'}", wantarray);
 }
 
 sub start {
 	my ($this) = @_;
 	$this->isRunning and die "Container $this->{'utsname'} is already running.";
 	$this->isExisting or die "Container $this->{'utsname'} doesn't exist.";
-	`lxc-start -n $this->{'utsname'}`;
+	$this->_qx("lxc-start -n $this->{'utsname'}", wantarray);
 }
 
 sub exec {
 	my ($this, $cmd) = @_;
 	$this->isRunning or die 'Can\'t execute something in a non running container.';
-	print `lxc-attach -n $this->{'utsname'} -- $cmd`;
+	$this->_qx("lxc-attach -n $this->{'utsname'} -- $cmd", wantarray);
 }
 
 sub setTemplate {
