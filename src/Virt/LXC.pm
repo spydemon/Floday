@@ -1,4 +1,6 @@
 package Virt::LXC;
+use File::Temp;
+
 use v5.20;
 
 sub _qx {
@@ -95,6 +97,17 @@ sub exec {
 	my ($this, $cmd) = @_;
 	$this->isRunning or die 'Can\'t execute something in a non running container.';
 	$this->_qx("lxc-attach -n $this->{'utsname'} -- $cmd", wantarray);
+}
+
+sub put {
+	my ($this, $input, $dest) = @_;
+	$this->isExisting or die 'Container doesn\'t exists.';
+	-r $input or die "Input $input is not readable.";
+	$dest !~ /^\// and die 'Destination should be an absolute path.';
+	$dest = $this->getLxcPath.'/rootfs'.$dest;
+	$dest =~ /^(.*\/)/;
+	-d $1 or `mkdir -p $1`;
+	`cp -R $input $dest`;
 }
 
 sub setTemplate {
