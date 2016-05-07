@@ -65,6 +65,12 @@ sub isExisting {
 	grep {$_ eq $this->{'utsname'}} getExistingContainers;
 }
 
+sub isStopped {
+	my ($this) = @_;
+	defined $this->{'utsname'} or die 'Utsname is missing.';
+	grep {$_ eq $this->{'utsname'}} getStoppedContainers;
+}
+
 sub deploy {
 	my ($this) = @_;
 	defined $this->{'utsname'} or die 'Utsname is missing.';
