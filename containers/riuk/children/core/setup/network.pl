@@ -8,6 +8,7 @@ use Data::Dumper;
 use Getopt::Long;
 use File::Temp;
 use Virt::LXC;
+use Template::Alloy;
 use strict;
 
 $Data::Dumper::Indent = 1;
@@ -25,21 +26,16 @@ for (split /-/, $a) {
 	$definition = $definition->{applications}->{$_};
 }
 
-open INT, '</opt/floday/containers/riuk/children/core/setup/network.tmpl';
 my $interface = File::Temp->new();
-open OUT, '>', $interface;
-
-while(<INT>) {
-	$_ =~ s/\{\{(.*)\}\}/$definition->{parameters}{$1}/g;
-	print OUT $_;
-}
+my $t = Template::Alloy->new(
+	ABSOLUTE => 1,
+);
+$t->process('/opt/floday/containers/riuk/children/core/setup/network.tt', $definition->{parameters}, $interface) or die $t->error;
 
 my $container = Virt::LXC->new($definition->{parameters}{name});
 die 'The container doesn\'t exist' if !$container->isExisting;
 $container->put($interface, '/etc/network/interfaces');
-
-say $definition->{parameters}{ech};
-say Dumper $definition;
-
-$c =~ s/-/}->{children}->{/g;
-$c = '{'.$c.'}';
+#$container->start if $container->isStopped;
+#$container->exec('rc-update add networking');
+#$container->stop;
+#$container->start;

@@ -36,7 +36,7 @@ my $runList = {
 							'priority' => 10
 						},
 						'lighttpd' => {
-							'exec' => '/opt/floday/containers/riuk/children/web/setup/network.pl',
+							'exec' => '/opt/floday/containers/riuk/children/web/setup/lighttpd.pl',
 							'priority' => 20
 						}
 					},
@@ -47,7 +47,7 @@ my $runList = {
 								'name' => 'spyzone-web-test',
 								'data' => 'floday.d/riuk-web-test/php/',
 								'bridge' => 'lxcbr0',
-								'iface' => 'yallah!',
+								'iface' => 'eth0',
 								'ipv4' => '10.0.3.6',
 								'gateway' => '10.0.3.1',
 								'netmask' => '255.255.255.0',
@@ -94,18 +94,19 @@ sub launch {
 		my %startupScripts = getScriptsByPriorities($c->{setup});
 		if ($container->isExisting) {
 			say "Destroying $c->{parameters}{name} container.";
-			#$container->destroy;
+#			$container->destroy;
 		}
-		$container->setTemplate($c->{parameters}{template});
-		say "Creation of the $c->{parameters}{name} container.";
-		#my ($state, $stdout, $stderr) = $container->deploy;
-		#say "Container created" if $state;
-		#die $stderr unless $state;
+#		$container->setTemplate($c->{parameters}{template});
+#		say "Creation of the $c->{parameters}{name} container.";
+#		my ($state, $stdout, $stderr) = $container->deploy;
+#		say "Container created" if $state;
+#		die $stderr unless $state;
 		for(sort keys %startupScripts) {
-			`$startupScripts{$_}->{exec} --container $c->{parameters}{name}`;
+			say "$startupScripts{$_}->{exec} --container $c->{parameters}{name}";
+			say `$startupScripts{$_}->{exec} --container $c->{parameters}{name}`;
 		}
-		foreach($c->{applications}) {
-			launch $_;
+		for($c->{applications}) {
+			launch ($_) unless $_ eq undef;
 		}
 	}
 }
@@ -115,7 +116,7 @@ sub initHost {
 	$yaml->write('/usr/lib/floday/runlist.yml');
 	my ($host) = @_;
 	for ($host->{applications}) {
-		say Dumper $_;
+		#say Dumper $_;
 		launch $_;
 	}
 }
