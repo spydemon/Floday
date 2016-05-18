@@ -26,16 +26,16 @@ for (split /-/, $a) {
 	$definition = $definition->{applications}->{$_};
 }
 
+my $container = Virt::LXC->new($definition->{parameters}{name});
+$container->start if $container->isStopped;
+
 my $interface = File::Temp->new();
 my $t = Template::Alloy->new(
 	ABSOLUTE => 1,
 );
 $t->process('/opt/floday/containers/riuk/children/core/setup/network.tt', $definition->{parameters}, $interface) or die $t->error;
-
-my $container = Virt::LXC->new($definition->{parameters}{name});
 die 'The container doesn\'t exist' if !$container->isExisting;
 $container->put($interface, '/etc/network/interfaces');
-#$container->start if $container->isStopped;
-#$container->exec('rc-update add networking');
-#$container->stop;
-#$container->start;
+$container->exec('rc-update add networking');
+
+$container->stop;

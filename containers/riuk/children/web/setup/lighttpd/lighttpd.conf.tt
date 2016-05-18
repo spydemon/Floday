@@ -26,7 +26,7 @@ $HTTP["host"] == "[% c.hostname %]" {
 	fastcgi.server = ("/" =>
 		(( 
 			"host" => "[% c.ipv4 %]",
-			"port" => "[% c.port %]",
+			"port" => 9000,
 			"check-local" => "disable",
 			"docroot" => "/var/www/"
 		))
