@@ -17,7 +17,7 @@ my $runList = {
 			'parameters' => {
 				'type' => 'riuk',
 				'name' => 'spyzone',
-				'external_ipv4' => '192.168.1.151'
+				'external_ipv4' => '192.168.15.151'
 			},
 			'applications' => {
 				web => {
@@ -46,7 +46,8 @@ my $runList = {
 							'parameters' => {
 								'type' => 'riuk-http-php',
 								'name' => 'spyzone-web-test',
-								'data' => 'floday.d/riuk-web-test/php/',
+								'data_in' => 'floday.d/riuk-web-test/php',
+								'data_out' => '/var/www',
 								'bridge' => 'lxcbr0',
 								'iface' => 'eth0',
 								'ipv4' => '10.0.3.6',
@@ -61,11 +62,11 @@ my $runList = {
 									'priority' => 10
 								},
 								'php' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/network.pl',
+									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setup/php.pl',
 									'priority' => 20
 								},
 								'data' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/data_receiver.pl',
+									'exec' => '/opt/floday/containers/riuk/children/core/setup/data.pl',
 									'priority' => 30
 								}
 							}
@@ -74,7 +75,8 @@ my $runList = {
 							'parameters' => {
 								'type' => 'riuk-http-php',
 								'name' => 'spyzone-web-secondtest',
-								'data' => 'floday.d/riuk-web-secondtest/php/',
+								'data_in' => 'floday.d/riuk-web-secondtest/php',
+								'data_out' => '/var/www',
 								'bridge' => 'lxcbr0',
 								'iface' => 'eth0',
 								'ipv4' => '10.0.3.7',
@@ -89,11 +91,11 @@ my $runList = {
 									'priority' => 10
 								},
 								'php' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/network.pl',
+									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setup/php.pl',
 									'priority' => 20
 								},
 								'data' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/data_receiver.pl',
+									'exec' => '/opt/floday/containers/riuk/children/core/setup/data.pl',
 									'priority' => 30
 								}
 							}
@@ -118,26 +120,25 @@ sub getScriptsByPriorities {
 }
 
 sub launch {
-	my ($app) = @_;
-	for(my ($c) = values %$app) {
-		my $container = Virt::LXC->new($c->{parameters}{name});
-		my %startupScripts = getScriptsByPriorities($c->{setup});
-		if ($container->isExisting) {
-			say "Destroying $c->{parameters}{name} container.";
+	my ($c) = @_;
+	my $container = Virt::LXC->new($c->{parameters}{name});
+	my %startupScripts = getScriptsByPriorities($c->{setup});
+	if ($container->isExisting) {
 #			$container->destroy;
-		}
+	}
 #		$container->setTemplate($c->{parameters}{template});
 #		say "Creation of the $c->{parameters}{name} container.";
 #		my ($state, $stdout, $stderr) = $container->deploy;
 #		say "Container created" if $state;
 #		die $stderr unless $state;
-		for(sort keys %startupScripts) {
-			say "$startupScripts{$_}->{exec} --container $c->{parameters}{name}";
-			say `$startupScripts{$_}->{exec} --container $c->{parameters}{name}`;
-		}
-		for($c->{applications}) {
-			launch ($_) unless $_ eq undef;
-		}
+	for(sort keys %startupScripts) {
+		say "$startupScripts{$_}->{exec} --container $c->{parameters}{name}";
+		say `$startupScripts{$_}->{exec} --container $c->{parameters}{name}`;
+	}
+	$container->stop if $container->isRunning;
+	$container->start;
+	for (values %{$c->{applications}}) {
+		launch ($_);
 	}
 }
 
@@ -145,9 +146,8 @@ sub initHost {
 	my $yaml = YAML::Tiny->new(%$runList);
 	$yaml->write('/usr/lib/floday/runlist.yml');
 	my ($host) = @_;
-	for ($host->{applications}) {
-		#say Dumper $_;
-		launch $_;
+	for (values $host->{applications}) {
+		launch($_);
 	}
 }
 
