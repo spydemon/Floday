@@ -13,7 +13,7 @@ use strict;
 
 $Data::Dumper::Indent = 1;
 
-my $runlist = YAML::Tiny->read('/usr/lib/floday/runlist.yml');
+my $runlist = YAML::Tiny->read('/var/lib/floday/runlist.yml');
 my $c;
 GetOptions(
 	"container=s" => \$c
@@ -39,5 +39,4 @@ my $t = Template::Alloy->new(
 	ABSOLUTE => 1,
 );
 $t->process('/opt/floday/containers/riuk/children/web/children/php/setup/php/php-fpm.conf.tt', $definition->{parameters}, $phpConf) or die $t->error;
-die 'The container doesn\'t exist' if !$container->isExisting;
-$container->put($phpConf, '/etc/php/php-fpm.conf') or die "Copy of file failed";
+$container->put($phpConf, '/etc/php/php-fpm.conf');

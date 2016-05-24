@@ -13,7 +13,7 @@ use strict;
 
 $Data::Dumper::Indent = 1;
 
-my $runlist = YAML::Tiny->read('/usr/lib/floday/runlist.yml');
+my $runlist = YAML::Tiny->read('/var/lib/floday/runlist.yml');
 my $c;
 GetOptions(
 	"container=s" => \$c
