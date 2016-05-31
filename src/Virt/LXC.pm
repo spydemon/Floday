@@ -49,7 +49,7 @@ sub getConfig {
 	open CONF, '<' . $this->getLxcPath . '/config';
 	my @results;
 	for (<CONF>) {
-		/^$attr = (.*)$/ and push @results, $1
+		/^$attr\W*=\W*(.*)$/ and push @results, $1
 	};
 	return @results;
 }
@@ -57,7 +57,7 @@ sub getConfig {
 sub isRunning {
 	my ($this) = @_;
 	defined $this->{'utsname'} or croak 'Utsname is missing';
-	grep {$_ eq $this->{'utsname'}} getRunningContainers;
+	grep {$this->{'utsname'}} getRunningContainers;
 }
 
 sub isExisting {
