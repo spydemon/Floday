@@ -8,7 +8,6 @@ if (!$web->isExisting) {
 	$web->setTemplate('alpine');
 	$web->deploy;
 	$web->put('Virt.LXC.d/web/interfaces', '/etc/network/interfaces');
-	$blog->put('Virt.LXC.d/web/lighttpd.conf', '/etc/lighttpd/lighttpd.conf');
 	$web->start;
 	$web->exec('rc-update add networking');
 	$web->stop;
@@ -18,6 +17,7 @@ if (!$web->isExisting) {
 		my ($status, $stdout, $stderr) = $web->exec($_);
 		say "-------\nOUT : $stdout\nERR : $stderr\n-------\n";
 	}
+	$web->put('Virt.LXC.d/web/lighttpd.conf', '/etc/lighttpd/lighttpd.conf');
 	$web->put('Virt.LXC.d/web/hello.html', '/var/www/localhost/htdocs');
 	$web->stop;
 	`iptables -t nat -A PREROUTING -d 192.168.1.151 -p tcp --dport 80 -j DNAT --to-destination 10.0.3.5`
