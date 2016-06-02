@@ -33,7 +33,7 @@ my $hostIp = $runlist->[1]->{$h}->{parameters}->{external_ipv4};
 
 my @websites;
 for (values %{$definition->{applications}}) {
-	push @websites, $_->{parameters} if $_->{parameters}{type} eq 'php';
+	push @websites, $_->{parameters} if $_->{parameters}{type} eq 'riuk-http-php';
 }
 my @cmd = ('apk update', 'apk upgrade', 'apk add lighttpd', 'rc-update add lighttpd');
 for (@cmd) {
