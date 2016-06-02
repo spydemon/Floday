@@ -57,19 +57,19 @@ sub getConfig {
 sub isRunning {
 	my ($this) = @_;
 	defined $this->{'utsname'} or croak 'Utsname is missing';
-	grep {$this->{'utsname'}} getRunningContainers;
+	grep {/^$this->{'utsname'}$/} getRunningContainers;
 }
 
 sub isExisting {
 	my ($this) = @_;
 	defined $this->{'utsname'} or croak 'Utsname is missing';
-	grep {$_ eq $this->{'utsname'}} getExistingContainers;
+	grep {/^$this->{'utsname'}$/} getExistingContainers;
 }
 
 sub isStopped {
 	my ($this) = @_;
 	defined $this->{'utsname'} or croak 'Utsname is missing';
-	grep {$_ eq $this->{'utsname'}} getStoppedContainers;
+	grep {/^$this->{'utsname'}$/} getStoppedContainers;
 }
 
 sub deploy {
@@ -77,7 +77,7 @@ sub deploy {
 	defined $this->{'utsname'} or croak 'Utsname is missing';
 	defined $this->{'template'} or croak 'Template is missing';
 	$this->isExisting and croak "Container with the $this->{'utsname'} utsname already exists";
-	$this->_qx("lxc-create -t $this->{'template'} -n $this->{'utsname'}", wantarray);
+	$this->_qx("lxc-create -n $this->{'utsname'} -t $this->{'template'}", wantarray);
 }
 
 sub destroy {
