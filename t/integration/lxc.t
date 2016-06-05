@@ -6,7 +6,7 @@ use Virt::LXC;
 use Test::More;
 use Test::Exception;
 
-my $container = Virt::LXC->new('lxc-test');
+my $container = Virt::LXC->new(utsname => 'lxc-test');
 $container->setTemplate('alpine');
 $container->destroy if $container->isExisting;
 ok !$container->isExisting, 'isExisting return false.';
@@ -15,7 +15,7 @@ throws_ok {$container->getConfig('lxc.network.ipv4')}
   qr/Unexisting container/, 'Error throwed because container is not existing.';
 
 $container->deploy;
-ok $container->isExisting, 'isExisting returns wrongly false.';
+ok $container->isExisting, 'isExisting returns true.';
 ok grep{'lxc-test'} `lxc-ls -1`, 'Container is not created.';
 ok grep{'lxc-test'} $container->getExistingContainers, 'Container is present in getExistingContainers.';
 ok grep{'lxc-test'} $container->getStoppedContainers, 'Container is present in getStoppedContainers.';

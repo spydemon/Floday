@@ -1,8 +1,38 @@
 package Virt::LXC;
+use v5.20;
 use File::Temp;
 use Carp;
+use Moo;
 
-use v5.20;
+has utsname => (
+	'is' => 'ro',
+	'required' => 1,
+	'reader' => 'getUtsname'
+);
+
+has template => (
+	'is' => 'rwp',
+	'reader' => '_getTemplate',
+	'writer' => 'setTemplate'
+);
+
+has lxcpath => (
+	'is' => 'rwp',
+	'reader' => '_getLxcPath',
+	'writer'=> 'setLxcPath',
+);
+
+sub getLxcPath {
+	my ($this) = @_;
+	return $this->_getLxcPath if defined $this->_getLxcPath;
+	'/var/lib/lxc/' . $this->getUtsname;
+}
+
+sub getTemplate {
+	my ($this) = @_;
+	croak 'Template is not provided for $this->getUtsname container.' unless $this->_getTemplate;
+	$this->_getTemplate;
+}
 
 sub _qx {
 	my ($this, $cmd, $wantarray) = @_;
@@ -14,15 +44,6 @@ sub _qx {
 	say $cmd;
 	$wantarray and return ($result, $stdout, join('', <F>));
 	return $result;
-}
-
-sub new {
-	my %this;
-	my ($class, $utsname) = @_;
-	defined $utsname or croak 'Utsname is mandatory for LXC container';
-	$this{'utsname'} = $utsname;
-	bless(\%this, $class);
-	return \%this;
 }
 
 sub getExistingContainers {
@@ -37,15 +58,9 @@ sub getStoppedContainers {
 	map{chomp $_; $_} `lxc-ls -1 --stopped`
 }
 
-sub getLxcPath {
-	my ($this) = @_;
-	defined $this->{lxcpath} and return $this->{lxcpath};
-	return "/var/lib/lxc/$this->{utsname}";
-}
-
 sub getConfig {
 	my ($this, $attr) = @_;
-	$this->isExisting or croak 'Unexisting container';
+	$this->isExisting() or croak 'Unexisting container';
 	open CONF, '<' . $this->getLxcPath . '/config';
 	my @results;
 	for (<CONF>) {
@@ -56,54 +71,57 @@ sub getConfig {
 
 sub isRunning {
 	my ($this) = @_;
-	defined $this->{'utsname'} or croak 'Utsname is missing';
-	grep {/^$this->{'utsname'}$/} getRunningContainers;
+	my $name = $this->getUtsname;
+	grep {/^$name$/} getRunningContainers;
 }
 
 sub isExisting {
 	my ($this) = @_;
-	defined $this->{'utsname'} or croak 'Utsname is missing';
-	grep {/^$this->{'utsname'}$/} getExistingContainers;
+	my $name = $this->getUtsname;
+	grep {/^$name$/} getExistingContainers;
 }
 
 sub isStopped {
 	my ($this) = @_;
-	defined $this->{'utsname'} or croak 'Utsname is missing';
-	grep {/^$this->{'utsname'}$/} getStoppedContainers;
+	my $name = $this->getUtsname;
+	grep {/^$name$/} getStoppedContainers;
 }
 
 sub deploy {
 	my ($this) = @_;
-	defined $this->{'utsname'} or croak 'Utsname is missing';
-	defined $this->{'template'} or croak 'Template is missing';
-	$this->isExisting and croak "Container with the $this->{'utsname'} utsname already exists";
-	$this->_qx("lxc-create -n $this->{'utsname'} -t $this->{'template'}", wantarray);
+	$this->isExisting and croak "Container with the $this->getUtsname utsname already exists";
+	my $utsName = $this->getUtsname;
+	my $template = $this->getTemplate;
+	$this->_qx("lxc-create -n $utsName -t $template", wantarray);
 }
 
 sub destroy {
 	my ($this) = @_;
-	defined $this->{'utsname'} or croak 'Utsname is missing';
 	$this->isRunning and $this->stop;
-	$this->_qx("lxc-destroy -n $this->{'utsname'}", wantarray);
+	my $utsName = $this->getUtsname;
+	$this->_qx("lxc-destroy -n $utsName", wantarray);
 }
 
 sub stop {
 	my ($this) = @_;
-	$this->isRunning or croak "Container $this->{'utsname'} is not running";
+	my $utsName = $this->getUtsname;
+	$this->isRunning or croak "Container $utsName is not running";
 	$this->_qx("lxc-stop -n $this->{'utsname'}", wantarray);
 }
 
 sub start {
 	my ($this) = @_;
-	$this->isRunning and croak "Container $this->{'utsname'} is already running";
-	$this->isExisting or croak "Container $this->{'utsname'} doesn't exist";
-	$this->_qx("lxc-start -n $this->{'utsname'}", wantarray);
+	my $utsName = $this->getUtsname;
+	$this->isRunning and croak "Container $utsName is already running";
+	$this->isExisting or croak "Container $utsName doesn't exist";
+	$this->_qx("lxc-start -n $utsName", wantarray);
 }
 
 sub exec {
 	my ($this, $cmd) = @_;
-	$this->isRunning or confess 'Can\'t execute something in a non running container.';
-	$this->_qx("lxc-attach -n $this->{'utsname'} -- $cmd", wantarray);
+	my $utsName = $this->getUtsname;
+	$this->isRunning or croak 'Can\'t execute something in a non running container.';
+	$this->_qx("lxc-attach -n $utsName -- $cmd", wantarray);
 }
 
 sub put {
@@ -117,20 +135,10 @@ sub put {
 	`cp -R $input $dest`;
 }
 
-sub setTemplate {
-	my ($this, $templateName) = @_;
-	$this->{template} = $templateName;
-}
-
-sub setLxcPath {
-	my ($this, $path) = @_;
-	$this->{lxcpath} = $path;
-}
-
 sub setConfig {
 	my ($this, $attr, $value) = @_;
-	defined $this->{'utsname'} or croak 'Utsname is missing';
-	$this->isExisting or croak "Container $this->{'utsname'} doesn't exist";
+	my $utsName = $this->getUtsname;
+	$this->isExisting or croak "Container $utsName doesn't exist";
 	my $written = 0;
 	open CONF_R, '<' . $this->getLxcPath . '/config';
 	open CONF_W, '>' . $this->getLxcPath . '/config_r';
