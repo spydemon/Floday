@@ -25,7 +25,7 @@ for (split /-/, $a) {
 }
 
 ## Get directly a container object
-my $container = Virt::LXC->new($definition->{parameters}{name});
+my $container = Virt::LXC->new('utsname' => $definition->{parameters}{name});
 $container->start if $container->isStopped;
 
 ## Get with a user-friendly way configuration of the parent.

@@ -22,8 +22,8 @@ ok grep{'lxc-test'} $container->getStoppedContainers, 'Container is present in g
 ok grep{'lxc-test'} $container->getRunningContainers == 0, 'Container is absent of getRunningContainers.';
 ok !$container->isRunning, 'isRunning returns false.';
 ok $container->isStopped, 'Container is considered as stopped.';
-my @containerConfig = $container->getConfig('lxc.network.link');
-is $containerConfig[0], 'lxcbr0', 'Can fetch a configuration value.';
+my @containerConfig = $container->getConfig('lxc.utsname');
+is $containerConfig[0], 'lxc-test', 'Can fetch a configuration value.';
 
 $container->start;
 ok !$container->isStopped, 'Container is not considered as stopped.';

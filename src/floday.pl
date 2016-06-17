@@ -121,7 +121,7 @@ sub getScriptsByPriorities {
 
 sub launch {
 	my ($c) = @_;
-	my $container = Virt::LXC->new($c->{parameters}{name});
+	my $container = Virt::LXC->new('utsname' => $c->{parameters}{name});
 	my %startupScripts = getScriptsByPriorities($c->{setup});
 	if ($container->isExisting) {
 			$container->destroy;
