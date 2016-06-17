@@ -28,7 +28,7 @@ my $runList = {
 						'ipv4' => '10.0.3.5',
 						'gateway' => '10.0.3.1',
 						'netmask' => '255.255.255.0',
-						'template' => 'alpine'
+						'template' => 'alpine -- --release v3.3'
 					},
 					'setup' => {
 						'network' => {
@@ -52,7 +52,7 @@ my $runList = {
 								'ipv4' => '10.0.3.6',
 								'gateway' => '10.0.3.1',
 								'netmask' => '255.255.255.0',
-								'template' => 'alpine',
+								'template' => 'alpine -- --release v3.3',
 								'hostname' => 'test.keh.keh'
 							},
 							'setup' => {
@@ -81,7 +81,7 @@ my $runList = {
 								'ipv4' => '10.0.3.7',
 								'gateway' => '10.0.3.1',
 								'netmask' => '255.255.255.0',
-								'template' => 'alpine',
+								'template' => 'alpine -- --release v3.3',
 								'hostname' => 'test2.keh.keh'
 							},
 							'setup' => {
@@ -121,18 +121,15 @@ sub getScriptsByPriorities {
 
 sub launch {
 	my ($c) = @_;
-	my $container = Virt::LXC->new($c->{parameters}{name});
+	my $container = Virt::LXC->new('utsname' => $c->{parameters}{name});
 	my %startupScripts = getScriptsByPriorities($c->{setup});
 	if ($container->isExisting) {
 			$container->destroy;
 	}
-		$container->setTemplate($c->{parameters}{template});
-		`echo "Creation of the $c->{parameters}{name} container." >> /tmp/com.txt`;
-		my ($state, $stdout, $stderr) = $container->deploy;
-		`echo "Container created" >> /tmp/com.txt` if $state;
-		die $stderr unless $state;
+	$container->setTemplate($c->{parameters}{template});
+	my ($state, $stdout, $stderr) = $container->deploy;
+	die $stderr unless $state;
 	for(sort keys %startupScripts) {
-		`echo "$startupScripts{$_}->{exec} --container $c->{parameters}{name}" >> /tmp/com.txt`;
 		say `$startupScripts{$_}->{exec} --container $c->{parameters}{name}`;
 	}
 	$container->stop if $container->isRunning;

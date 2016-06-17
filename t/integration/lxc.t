@@ -6,7 +6,7 @@ use Virt::LXC;
 use Test::More;
 use Test::Exception;
 
-my $container = Virt::LXC->new('lxc-test');
+my $container = Virt::LXC->new(utsname => 'lxc-test');
 $container->setTemplate('alpine');
 $container->destroy if $container->isExisting;
 ok !$container->isExisting, 'isExisting return false.';
@@ -15,15 +15,15 @@ throws_ok {$container->getConfig('lxc.network.ipv4')}
   qr/Unexisting container/, 'Error throwed because container is not existing.';
 
 $container->deploy;
-ok $container->isExisting, 'isExisting returns wrongly false.';
+ok $container->isExisting, 'isExisting returns true.';
 ok grep{'lxc-test'} `lxc-ls -1`, 'Container is not created.';
 ok grep{'lxc-test'} $container->getExistingContainers, 'Container is present in getExistingContainers.';
 ok grep{'lxc-test'} $container->getStoppedContainers, 'Container is present in getStoppedContainers.';
 ok grep{'lxc-test'} $container->getRunningContainers == 0, 'Container is absent of getRunningContainers.';
 ok !$container->isRunning, 'isRunning returns false.';
 ok $container->isStopped, 'Container is considered as stopped.';
-my @containerConfig = $container->getConfig('lxc.network.link');
-is $containerConfig[0], 'lxcbr0', 'Can fetch a configuration value.';
+my @containerConfig = $container->getConfig('lxc.utsname');
+is $containerConfig[0], 'lxc-test', 'Can fetch a configuration value.';
 
 $container->start;
 ok !$container->isStopped, 'Container is not considered as stopped.';

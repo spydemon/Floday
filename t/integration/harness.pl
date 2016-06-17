@@ -15,7 +15,7 @@ my %args = (
 
 my $harness = TAP::Harness->new(\%args);
 my @testFiles;
-my $filter = $ARGV[0] // '';
+my $filter = $ARGV[0] // '.*';
 opendir(DIR,$ENV{FLODAY_T}.'integration/');
 while (readdir DIR) {
 	/^$filter\.t$/ and push @testFiles, $ENV{FLODAY_T}.'integration/'.$_

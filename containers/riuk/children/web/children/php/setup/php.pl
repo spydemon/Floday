@@ -26,7 +26,7 @@ for (split /-/, $a) {
 	$definition = $definition->{applications}->{$_};
 }
 
-my $container = Virt::LXC->new($definition->{parameters}{name});
+my $container = Virt::LXC->new('utsname' => $definition->{parameters}{name});
 $container->start if $container->isStopped;
 
 my @cmd = ('apk update', 'apk upgrade', 'apk add php-fpm', 'rc-update add php-fpm');

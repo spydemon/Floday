@@ -25,7 +25,7 @@ for (split /-/, $a) {
 }
 
 ## Get directly a container object
-my $container = Virt::LXC->new($definition->{parameters}{name});
+my $container = Virt::LXC->new('utsname' => $definition->{parameters}{name});
 $container->start if $container->isStopped;
 
 ## Get with a user-friendly way configuration of the parent.
@@ -33,7 +33,7 @@ my $hostIp = $runlist->[1]->{$h}->{parameters}->{external_ipv4};
 
 my @websites;
 for (values %{$definition->{applications}}) {
-	push @websites, $_->{parameters} if $_->{parameters}{type} eq 'php';
+	push @websites, $_->{parameters} if $_->{parameters}{type} eq 'riuk-http-php';
 }
 my @cmd = ('apk update', 'apk upgrade', 'apk add lighttpd', 'rc-update add lighttpd');
 for (@cmd) {
