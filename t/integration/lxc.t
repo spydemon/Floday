@@ -5,6 +5,7 @@ use strict;
 use Virt::LXC;
 use Test::More;
 use Test::Exception;
+use Log::Any::Adapter('File', 'log.txt');
 
 my $container = Virt::LXC->new(utsname => 'lxc-test');
 $container->setTemplate('alpine');
@@ -12,7 +13,7 @@ $container->destroy if $container->isExisting;
 ok !$container->isExisting, 'isExisting return false.';
 is $container->getLxcPath, '/var/lib/lxc/lxc-test', 'LxcPath has the good default value.';
 throws_ok {$container->getConfig('lxc.network.ipv4')}
-  qr/Unexisting container/, 'Error throwed because container is not existing.';
+  qr/Container lxc-test doesn't exist/, 'Error throwed because container is not existing.';
 
 $container->deploy;
 ok $container->isExisting, 'isExisting returns true.';
