@@ -1,2 +1,3 @@
 *.swp
 tags
+t/integration/log.txt
