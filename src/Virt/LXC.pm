@@ -12,7 +12,7 @@ has utsname => (
 );
 
 has template => (
-	'is' => 'rwp',
+	'is' => 'rw',
 	'reader' => '_getTemplate',
 	'writer' => 'setTemplate'
 );
@@ -36,8 +36,10 @@ sub getLxcPath {
 
 sub getTemplate {
 	my ($this) = @_;
-	$this->log->errorf('%s: getTemplate: template not provided', $this->getUtsname);
-	croak 'Template is not provided for $this->getUtsname container.' unless $this->_getTemplate;
+	if (!$this->_getTemplate) {
+		$this->log->errorf('%s: getTemplate: template not provided', $this->getUtsname);
+		croak 'Template is not provided for $this->getUtsname container.';
+	}
 	$this->_getTemplate;
 }
 
