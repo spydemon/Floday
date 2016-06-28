@@ -1,8 +1,9 @@
 package Floday::Setup;
+use lib '/opt/floday/src/';
 use v5.20;
 use Moo;
-use Log::Any;
 use YAML::Tiny;
+use Virt::LXC;
 
 has name => (
 	'is' => 'ro',
@@ -11,6 +12,13 @@ has name => (
 	'writter' => '_setName',
 	#TODO: disallow also -- in isa instruction.
 	'isa' => sub {die unless $_[0] =~ /^\w[\w-]*\w$/},
+);
+
+has lxcInstance => (
+	'is' => 'ro',
+	'reader' => 'getLxcInstance',
+	'default' => sub { Virt::LXC->new('utsname' => $_[0]->getName) },
+	'lazy' => 1
 );
 
 has runlistPath => (
@@ -33,9 +41,8 @@ sub getParameter {
 	#TODO: test parameter validity.
 	my ($this, $parameter) = @_;
 	my $value = $this->getDefinition->{parameters}{$parameter};
-	#TODO: undef is not working well right now.
-	if (defined $value) {
-		$this->log->warningf('%s: get undefined $parameter parameter', $this->getName, $parameter);
+	if (!defined $value) {
+		$this->log->warningf('%s: get undefined %s parameter', $this->getName, $parameter);
 	} else {
 		$this->log->debugf('%s: get parameter %s with value: %s', $this->getName, $parameter, $value);
 	}
@@ -54,7 +61,7 @@ sub getRunlist {
 
 sub _fetchDefinition {
 	my ($this) = @_;
-	$this->log->infof('%s: fetching definition');
+	$this->log->infof('%s: fetching container definition', $this->getName);
 	my ($h, $a) = $this->getName =~ /(.*?)-(.*)/;
 	my $runlist = $this->getRunlist;
 	my $definition = $runlist->[1]->{$h};
