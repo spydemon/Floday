@@ -5,11 +5,11 @@ use Moo;
 use YAML::Tiny;
 use Virt::LXC;
 
-has name => (
+has containerName => (
 	'is' => 'ro',
 	'required' => 1,
-	'reader' => 'getName',
-	'writter' => '_setName',
+	'reader' => 'getContainerName',
+	'writter' => '_setContainerName',
 	#TODO: disallow also -- in isa instruction.
 	'isa' => sub {die unless $_[0] =~ /^\w[\w-]*\w$/},
 );
@@ -17,7 +17,7 @@ has name => (
 has lxcInstance => (
 	'is' => 'ro',
 	'reader' => 'getLxcInstance',
-	'default' => sub { Virt::LXC->new('utsname' => $_[0]->getName) },
+	'default' => sub { Virt::LXC->new('utsname' => $_[0]->getContainerName) },
 	'lazy' => 1
 );
 
@@ -42,9 +42,9 @@ sub getParameter {
 	my ($this, $parameter) = @_;
 	my $value = $this->getDefinition->{parameters}{$parameter};
 	if (!defined $value) {
-		$this->log->warningf('%s: get undefined %s parameter', $this->getName, $parameter);
+		$this->log->warningf('%s: get undefined %s parameter', $this->getContainerName, $parameter);
 	} else {
-		$this->log->debugf('%s: get parameter %s with value: %s', $this->getName, $parameter, $value);
+		$this->log->debugf('%s: get parameter %s with value: %s', $this->getContainerName, $parameter, $value);
 	}
 	return $value;
 }
@@ -61,8 +61,8 @@ sub getRunlist {
 
 sub _fetchDefinition {
 	my ($this) = @_;
-	$this->log->infof('%s: fetching container definition', $this->getName);
-	my ($h, $a) = $this->getName =~ /(.*?)-(.*)/;
+	$this->log->infof('%s: fetching container definition', $this->getContainerName);
+	my ($h, $a) = $this->getContainerName =~ /(.*?)-(.*)/;
 	my $runlist = $this->getRunlist;
 	my $definition = $runlist->[1]->{$h};
 	for (split /-/, $a) {
