@@ -1,9 +1,12 @@
 package Floday::Setup;
+
 use lib '/opt/floday/src/';
 use v5.20;
+use File::Temp;
 use Moo;
-use YAML::Tiny;
+use Template::Alloy;
 use Virt::LXC;
+use YAML::Tiny;
 
 has containerName => (
 	'is' => 'ro',
@@ -57,6 +60,17 @@ sub getParameter {
 		$this->log->debugf('%s: get parameter %s with value: %s', $this->getContainerName, $parameter, $value);
 	}
 	return $value;
+}
+
+sub generateFile {
+	my ($this, $template, $data, $location) = @_;
+	$this->log->infof('%s: generate %s from %s', $this->getContainerName, $location, $template);
+	my $i = File::Temp->new();
+	my $t = Template::Alloy->new(
+		ABSOLUTE => 1,
+	);
+	$t->process($template, $data, $i) or die $t->error;
+	$this->getLxcInstance->put($i, $location);
 }
 
 sub _fetchDefinition {
