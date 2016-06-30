@@ -34,7 +34,17 @@ has log => (
 
 sub getDefinition {
 	my ($this) = @_;
-	return $this->{definition} // $this->_fetchDefinition;
+	return $this->{definition} //= $this->_fetchDefinition;
+}
+
+sub getParentContainer {
+	my ($this) = @_;
+	$this->{parent} //= $this->_fetchParentContainer;
+}
+
+sub getRunlist {
+	my ($this) = @_;
+	return $this->{runlist} //= $this->_fetchRunlist;
 }
 
 sub getParameter {
@@ -49,16 +59,6 @@ sub getParameter {
 	return $value;
 }
 
-sub getParentDefinition {
-	my ($this) = @_;
-	return $this->{parentRunlist} // $this->_fetchRunlist;
-}
-
-sub getRunlist {
-	my ($this) = @_;
-	return $this->{runlist} //= $this->_fetchRunlist;
-}
-
 sub _fetchDefinition {
 	my ($this) = @_;
 	$this->log->infof('%s: fetching container definition', $this->getContainerName);
@@ -66,17 +66,22 @@ sub _fetchDefinition {
 	my $runlist = $this->getRunlist;
 	my $definition = $runlist->[1]->{$h};
 	for (split /-/, $a) {
-		$this->{parentDefinition} = $definition if defined $definition;
 		$definition = $definition->{applications}->{$_};
 	}
-	$this->{definition} = $definition;
 	return $definition;
 }
 
 sub _fetchRunlist {
 	my ($this) = @_;
-	my $runlist = YAML::Tiny->read($this->getRunlistPath);
-	return $runlist;
+	YAML::Tiny->read($this->getRunlistPath);
+}
+
+sub _fetchParentContainer {
+	my ($this) = @_;
+	my ($parentName) = $this->getContainerName =~ /^(.*)-.*$/;
+	if (defined $parentName) {
+		return Floday::Setup->new(containerName => $parentName);
+	}
 }
 
 1;

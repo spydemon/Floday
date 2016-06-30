@@ -21,4 +21,7 @@ TODO: {
 my $lxc = $container->getLxcInstance();
 like($lxc->getUtsname, qr/integration-web-test/, 'Virt::LXC instance fetched seems good.');
 
+my $parentType = $container->getParentContainer->getParameter('type');
+like($parentType, qr/riuk-http/, 'Parent fetch seems to work.');
+
 done_testing;
