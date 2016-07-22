@@ -4,7 +4,6 @@ use v5.20;
 use strict;
 use Floday::Setup;
 use YAML::Tiny;
-use Template::Alloy;
 use Log::Any::Adapter('File', 'log.txt');
 
 my $container = Floday::Setup->new('containerName', $ARGV[1]);
@@ -30,14 +29,8 @@ for (@cmd) {
 my $ipv4 = $container->getParameter('ipv4');
 `iptables -t nat -A PREROUTING -d $hostIp -p tcp --dport 80 -j DNAT --to-destination $ipv4`;
 
-## Parse in a user-friendly way a configuration file with an hash.
-my $configuration = File::Temp->new();
-my $t = Template::Alloy->new(
-	ABSOLUTE => 1,
-);
 my $data = {
 	'containers' => \@websites
 };
-$t->process('/opt/floday/containers/riuk/children/web/setup/lighttpd/lighttpd.conf.tt', $data, $configuration) or die $t->error;
-$lxc->put($configuration, '/etc/lighttpd/lighttpd.conf');
+$container->generateFile('/opt/floday/containers/riuk/children/web/setup/lighttpd/lighttpd.conf.tt', $data, '/etc/lighttpd/lighttpd.conf');
 
