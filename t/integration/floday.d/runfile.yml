@@ -1,0 +1,23 @@
+--- runfile
+---
+
+hosts:
+    spyzone:
+        parameters:
+            type: riuk
+            external_ipv4: 192.168.15.151
+        applications:
+            web:
+                parameters:
+                    type: http
+                applications:
+                    test:
+                        parameters:
+                            type: php
+                            data_in: floday.d/integration-web-test/php
+                            hostname: test.keh.keh
+                    secondtest:
+                        parameters:
+                            type: php
+                            data_in: floday.d/integration-web-secondtest/php
+                            hostname: secondtest.keh.keh

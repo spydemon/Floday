@@ -2,8 +2,11 @@
 
 use v5.20;
 use strict;
+
 use Virt::LXC;
 use Test::More;
+use Test::Exception;
+use Log::Any::Adapter('File', 'log.txt');
 
 my @containers = ('integration-web', 'integration-web-test', 'integration-web-secondtest');
 for (@containers) {
@@ -11,7 +14,14 @@ for (@containers) {
 	$c->isExisting and $c->destroy;
 }
 
-`../../src/floday.pl --host integration` or die $!;
+my $err = `../../src/floday.pl 2>&1 1>/dev/null`;
+ok $err =~ /Host to launch is missing/, 'Error throwed because host cli parameter is missing.';
+$err = `../../src/floday.pl --host integration 2>&1 1>/dev/null`;
+ok $err =~ /Runfile is missing/, 'Error throwed because runfile cli parameter is missing.';
+$err = `../../src/floday.pl --host integration --runfile /notexisting 2>&1 1>/dev/null`;
+ok $err =~ /Runfile is not readable/, 'Error throwed because runfile is not readable.';
+
+`../../src/floday.pl --host integration --runfile /opt/floday/t/integration/floday.d/runfile.yml` or die $!;
 
 sleep 5;
 ok `lxc-info -n integration-web -i -H`, '10.0.3.5';

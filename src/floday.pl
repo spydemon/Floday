@@ -4,10 +4,19 @@ use v5.20;
 use strict;
 
 use Data::Dumper;
+use Getopt::Long;
+use Log::Any qw($log);
+use Log::Any::Adapter('File', 'log.txt');
+use Moo;
 use Virt::LXC;
 use YAML::Tiny;
 
 $Data::Dumper::Indent = 1;
+
+has log => (
+	is => 'ro',
+	default => sub {Log::Any->get_logger}
+);
 
 #{{{Runlist
 my $runList = {
@@ -28,7 +37,7 @@ my $runList = {
 						'ipv4' => '10.0.3.5',
 						'gateway' => '10.0.3.1',
 						'netmask' => '255.255.255.0',
-						'template' => 'alpine -- --release v3.3'
+						'template' => 'alpine'
 					},
 					'setup' => {
 						'network' => {
@@ -52,7 +61,7 @@ my $runList = {
 								'ipv4' => '10.0.3.6',
 								'gateway' => '10.0.3.1',
 								'netmask' => '255.255.255.0',
-								'template' => 'alpine -- --release v3.3',
+								'template' => 'alpine',
 								'hostname' => 'test.keh.keh'
 							},
 							'setup' => {
@@ -81,7 +90,7 @@ my $runList = {
 								'ipv4' => '10.0.3.7',
 								'gateway' => '10.0.3.1',
 								'netmask' => '255.255.255.0',
-								'template' => 'alpine -- --release v3.3',
+								'template' => 'alpine',
 								'hostname' => 'test2.keh.keh'
 							},
 							'setup' => {
@@ -121,6 +130,7 @@ sub getScriptsByPriorities {
 
 sub launch {
 	my ($c) = @_;
+	$log->infof('%s: launching', $c->{parameters}{name});
 	my $container = Virt::LXC->new('utsname' => $c->{parameters}{name});
 	my %startupScripts = getScriptsByPriorities($c->{setup});
 	if ($container->isExisting) {
@@ -140,12 +150,21 @@ sub launch {
 }
 
 sub initHost {
+	my ($runfile, $host) = @_;
 	my $yaml = YAML::Tiny->new(%$runList);
 	$yaml->write('/var/lib/floday/runlist.yml');
-	my ($host) = @_;
+	$host = $runList->{hosts}{integration};
 	for (values %{$host->{applications}}) {
 		launch($_);
 	}
 }
 
-initHost($runList->{hosts}{integration});
+my $host;
+my $runfile;
+
+GetOptions('host=s', \$host, 'runfile=s', \$runfile);
+$host // die('Host to launch is missing');
+$runfile // die('Runfile is missing');
+-r $runfile or die('Runfile is not readable');
+
+initHost($runfile, $host);
