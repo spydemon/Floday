@@ -7,6 +7,22 @@ use Moo;
 use Virt::LXC;
 use YAML::Tiny;
 
+has runfile => (
+	is => 'ro',
+	required => 1,
+	isa => sub {
+		die 'runfile is not readable' unless -r $_[0];
+	}
+);
+
+has hostname => (
+	is => 'ro',
+	required => 1,
+	isa => sub {
+		die 'invalid hostname to run' unless $_[0] =~ /^[a-zA-Z0-9]*$/;
+	}
+);
+
 #{{{Runlist
 my $runList = {
 	'hosts' => {
@@ -139,10 +155,10 @@ sub launch {
 }
 
 sub initHost {
-	my ($runfile, $host) = @_;
+	my ($this, $runfile, $host) = @_;
 	my $yaml = YAML::Tiny->new(%$runList);
 	$yaml->write('/var/lib/floday/runlist.yml');
-	$host = $runList->{hosts}{integration};
+	$host = $runList->{hosts}{$host};
 	for (values %{$host->{applications}}) {
 		launch($_);
 	}
