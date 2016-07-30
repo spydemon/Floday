@@ -2,13 +2,18 @@ package Floday::Deploy;
 
 use v5.20;
 
+use Data::Dumper;
+use Floday::Helper::Runlist;
 use Log::Any qw($log);
 use Moo;
 use Virt::LXC;
 use YAML::Tiny;
 
+$Data::Dumper::Indent = 1;
+
 has runfile => (
 	is => 'ro',
+	reader => 'getRunfile',
 	required => 1,
 	isa => sub {
 		die 'runfile is not readable' unless -r $_[0];
@@ -17,109 +22,26 @@ has runfile => (
 
 has hostname => (
 	is => 'ro',
+	reader => 'getHostname',
 	required => 1,
 	isa => sub {
 		die 'invalid hostname to run' unless $_[0] =~ /^[a-zA-Z0-9]*$/;
 	}
 );
 
-#{{{Runlist
-my $runList = {
-	'hosts' => {
-		'integration' => {
-			'parameters' => {
-				'type' => 'riuk',
-				'name' => 'integration',
-				'external_ipv4' => '192.168.15.151'
-			},
-			'applications' => {
-				web => {
-					'parameters' => {
-						'type' => 'riuk-http',
-						'name' => 'integration-web',
-						'bridge' => 'lxcbr0',
-						'iface' => 'eth0',
-						'ipv4' => '10.0.3.5',
-						'gateway' => '10.0.3.1',
-						'netmask' => '255.255.255.0',
-						'template' => 'alpine'
-					},
-					'setup' => {
-						'network' => {
-							'exec' => '/opt/floday/containers/riuk/children/core/setup/network.pl',
-							'priority' => 10
-						},
-						'lighttpd' => {
-							'exec' => '/opt/floday/containers/riuk/children/web/setup/lighttpd.pl',
-							'priority' => 20
-						}
-					},
-					'applications' => {
-						'test' => {
-							'parameters' => {
-								'type' => 'riuk-http-php',
-								'name' => 'integration-web-test',
-								'data_in' => 'floday.d/integration-web-test/php',
-								'data_out' => '/var/www',
-								'bridge' => 'lxcbr0',
-								'iface' => 'eth0',
-								'ipv4' => '10.0.3.6',
-								'gateway' => '10.0.3.1',
-								'netmask' => '255.255.255.0',
-								'template' => 'alpine',
-								'hostname' => 'test.keh.keh'
-							},
-							'setup' => {
-								'network' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/network.pl',
-									'priority' => 10
-								},
-								'php' => {
-									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setup/php.pl',
-									'priority' => 20
-								},
-								'data' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/data.pl',
-									'priority' => 30
-								}
-							}
-						},
-						'secondtest' => {
-							'parameters' => {
-								'type' => 'riuk-http-php',
-								'name' => 'integration-web-secondtest',
-								'data_in' => 'floday.d/integration-web-secondtest/php',
-								'data_out' => '/var/www',
-								'bridge' => 'lxcbr0',
-								'iface' => 'eth0',
-								'ipv4' => '10.0.3.7',
-								'gateway' => '10.0.3.1',
-								'netmask' => '255.255.255.0',
-								'template' => 'alpine',
-								'hostname' => 'test2.keh.keh'
-							},
-							'setup' => {
-								'network' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/network.pl',
-									'priority' => 10
-								},
-								'php' => {
-									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setup/php.pl',
-									'priority' => 20
-								},
-								'data' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/data.pl',
-									'priority' => 30
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-};
-#}}}
+has runlist => (
+	is => 'rw',
+	lazy => 1,
+	builder => '_initializeRunlist',
+	reader => 'getRunlist'
+);
+
+has log => (
+	is => 'ro',
+	default => sub {
+	  Log::Any->get_logger;
+  }
+);
 
 sub getScriptsByPriorities {
 	my ($scripts) = @_;
@@ -154,14 +76,23 @@ sub launch {
 	}
 }
 
-sub initHost {
-	my ($this, $runfile, $host) = @_;
-	my $yaml = YAML::Tiny->new(%$runList);
+sub startDeployment {
+	my ($this) = @_;
+	$this->log->warningf('Deploying %s host.', $this->getHostname);
+	my $runlist = $this->getRunlist;
+	my $plainRunlist = $runlist->getPlainData;
+	my $yaml = YAML::Tiny->new(%$plainRunlist);
 	$yaml->write('/var/lib/floday/runlist.yml');
-	$host = $runList->{hosts}{$host};
-	for (values %{$host->{applications}}) {
+	my $applications = $plainRunlist->{hosts}{$this->getHostname}{applications};
+	$this->log->info(Dumper $applications);
+	for (values %{$applications}) {
 		launch($_);
 	}
 }
 
+sub _initializeRunlist {
+	my ($this) = @_;
+	Floday::Helper::Runlist->new(runfile => $this->getRunfile);
+}
 
+1
