@@ -8,6 +8,9 @@ use Test::More;
 use Test::Exception;
 use Log::Any::Adapter('File', 'log.txt');
 
+my $runlist = '/var/lib/floday/runlist.yml';
+-f $runlist and `rm $runlist`;
+
 my @containers = ('integration-web', 'integration-web-test', 'integration-web-secondtest');
 for (@containers) {
 	my $c = Virt::LXC->new('utsname' => $_);
@@ -35,5 +38,7 @@ for (@containers) {
 	my $c = Virt::LXC->new('utsname' => $_);
 	$c->isExisting and $c->destroy;
 }
+
+`rm $runlist`;
 
 done_testing;
