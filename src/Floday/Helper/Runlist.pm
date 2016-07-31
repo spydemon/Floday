@@ -1,6 +1,15 @@
 package Floday::Helper::Runlist;
 
+use Data::Dumper;
+use Log::Any;
 use Moo;
+
+has log => (
+	is => 'ro',
+	default => sub {
+		Log::Any->get_logger;
+	}
+);
 
 has runfile => (
 	is => 'ro',
@@ -13,7 +22,7 @@ has runfile => (
 has runlist => (
 	is => 'rw',
 	lazy => 1,
-	default => '_initializeRunlist',
+	builder => '_initializeRunlist',
 	reader => 'getRunlist'
 );
 
@@ -116,11 +125,23 @@ my $runlist = {
 #}}}
 
 sub _initializeRunlist {
-	\$runlist;
+	$runlist;
 }
 
 sub getPlainData {
 	$runlist;
+}
+
+sub getApplicationsOf {
+	my ($this, $containerName) = @_;
+	my @containerPath = split /-/, $containerName;
+	my $childrenType = 'hosts';
+	my $runlist = $this->getRunlist;
+	for (@containerPath) {
+		$runlist = $runlist->{$childrenType}{$_};
+		$childrenType = 'applications';
+	}
+	sort map{$_ = $containerName . '-' . $_; $_} keys %{$runlist->{applications}};
 }
 
 1

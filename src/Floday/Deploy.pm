@@ -81,7 +81,7 @@ sub startDeployment {
 	$this->log->warningf('Deploying %s host.', $this->getHostname);
 	my $runlist = $this->getRunlist;
 	my $plainRunlist = $runlist->getPlainData;
-	my $yaml = YAML::Tiny->new(%$plainRunlist);
+	my $yaml = YAML::Tiny->new(%{$runlist->getPlainData});
 	$yaml->write('/var/lib/floday/runlist.yml');
 	my $applications = $plainRunlist->{hosts}{$this->getHostname}{applications};
 	$this->log->info(Dumper $applications);
