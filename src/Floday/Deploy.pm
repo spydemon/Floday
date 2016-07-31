@@ -43,36 +43,25 @@ has log => (
   }
 );
 
-sub getScriptsByPriorities {
-	my ($scripts) = @_;
-	my %output;
-	while(my ($key, $value) = each %$scripts) {
-		$output{$value->{priority}} = {
-			'exec' => $value->{exec},
-			'name' => $key
-		};
-	}
-	return %output;
-}
-
 sub launch {
-	my ($c) = @_;
-	$log->infof('%s: launching', $c->{parameters}{name});
-	my $container = Virt::LXC->new('utsname' => $c->{parameters}{name});
-	my %startupScripts = getScriptsByPriorities($c->{setup});
+	my ($this, $applicationName) = @_;
+	my %parameters = $this->getRunlist->getParametersForApplication($applicationName);
+	$log->infof('Launching %s application.', $parameters{name});
+	my $container = Virt::LXC->new('utsname' => $parameters{name});
+	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($parameters{name});
 	if ($container->isExisting) {
-			$container->destroy;
+		$container->destroy;
 	}
-	$container->setTemplate($c->{parameters}{template});
+	$container->setTemplate($parameters{template});
 	my ($state, $stdout, $stderr) = $container->deploy;
 	die $stderr unless $state;
 	for(sort keys %startupScripts) {
-		say `$startupScripts{$_}->{exec} --container $c->{parameters}{name}`;
+		say `$startupScripts{$_}->{exec} --container $parameters{name}`;
 	}
 	$container->stop if $container->isRunning;
 	$container->start;
-	for (values %{$c->{applications}}) {
-		launch ($_);
+	for ($this->getRunlist->getApplicationsOf($parameters{name})) {
+		$this->launch ($_);
 	}
 }
 
@@ -83,11 +72,10 @@ sub startDeployment {
 	my $plainRunlist = $runlist->getPlainData;
 	my $yaml = YAML::Tiny->new(%{$runlist->getPlainData});
 	$yaml->write('/var/lib/floday/runlist.yml');
-	my $applications = $plainRunlist->{hosts}{$this->getHostname}{applications};
-	$this->log->info(Dumper $applications);
-	for (values %{$applications}) {
-		launch($_);
+	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
+		$this->launch($_);
 	}
+	$this->log->warningf('%s deployed.', $this->getHostname);
 }
 
 sub _initializeRunlist {

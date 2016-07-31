@@ -124,24 +124,49 @@ my $runlist = {
 };
 #}}}
 
-sub _initializeRunlist {
-	$runlist;
-}
-
 sub getPlainData {
 	$runlist;
 }
 
 sub getApplicationsOf {
-	my ($this, $containerName) = @_;
-	my @containerPath = split /-/, $containerName;
+	my ($this, $applicationName) = @_;
+	my $definition = $this->getDefinitionOf($applicationName);
+	sort map{$_ = $applicationName . '-' . $_; $_} keys %{$definition->{applications}};
+}
+
+sub getDefinitionOf {
+	my ($this, $applicationName) = @_;
+	$this->log->debugf('Asking definition of: %s', $applicationName);
+	my @containerPath = split /-/, $applicationName;
 	my $childrenType = 'hosts';
-	my $runlist = $this->getRunlist;
+	my $definition = $this->getRunlist;
 	for (@containerPath) {
-		$runlist = $runlist->{$childrenType}{$_};
+		$definition = $definition->{$childrenType}{$_};
 		$childrenType = 'applications';
 	}
-	sort map{$_ = $containerName . '-' . $_; $_} keys %{$runlist->{applications}};
+	return $definition;
+}
+
+sub getParametersForApplication {
+	my ($this, $applicationName) = @_;
+	%{$this->getDefinitionOf($applicationName)->{parameters}};
+}
+
+sub getSetupsByPriorityForApplication {
+	my ($this, $applicationName) = @_;
+	my %setups = %{$this->getDefinitionOf($applicationName)->{setup}};
+	my %sortedScripts;
+	while (my($key, $value) = each %setups) {
+		$sortedScripts{$value->{priority}} = {
+		  'exec' => $value->{exec},
+		  'name' => $key
+	  };
+  }
+  return %sortedScripts;
+}
+
+sub _initializeRunlist {
+	$runlist;
 }
 
 1
