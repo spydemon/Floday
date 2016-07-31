@@ -32,5 +32,5 @@ my $ipv4 = $container->getParameter('ipv4');
 my $data = {
 	'containers' => \@websites
 };
-$container->generateFile('/opt/floday/containers/riuk/children/web/setup/lighttpd/lighttpd.conf.tt', $data, '/etc/lighttpd/lighttpd.conf');
+$container->generateFile('/opt/floday/containers/riuk/children/web/setups/lighttpd/lighttpd.conf.tt', $data, '/etc/lighttpd/lighttpd.conf');
 

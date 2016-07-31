@@ -47,13 +47,13 @@ my $runlist = {
 						'netmask' => '255.255.255.0',
 						'template' => 'alpine'
 					},
-					'setup' => {
+					'setups' => {
 						'network' => {
-							'exec' => '/opt/floday/containers/riuk/children/core/setup/network.pl',
+							'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
 							'priority' => 10
 						},
 						'lighttpd' => {
-							'exec' => '/opt/floday/containers/riuk/children/web/setup/lighttpd.pl',
+							'exec' => '/opt/floday/containers/riuk/children/web/setups/lighttpd.pl',
 							'priority' => 20
 						}
 					},
@@ -72,17 +72,17 @@ my $runlist = {
 								'template' => 'alpine',
 								'hostname' => 'test.keh.keh'
 							},
-							'setup' => {
+							'setups' => {
 								'network' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/network.pl',
+									'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
 									'priority' => 10
 								},
 								'php' => {
-									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setup/php.pl',
+									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setups/php.pl',
 									'priority' => 20
 								},
 								'data' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/data.pl',
+									'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl',
 									'priority' => 30
 								}
 							}
@@ -101,17 +101,17 @@ my $runlist = {
 								'template' => 'alpine',
 								'hostname' => 'test2.keh.keh'
 							},
-							'setup' => {
+							'setups' => {
 								'network' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/network.pl',
+									'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
 									'priority' => 10
 								},
 								'php' => {
-									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setup/php.pl',
+									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setups/php.pl',
 									'priority' => 20
 								},
 								'data' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setup/data.pl',
+									'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl',
 									'priority' => 30
 								}
 							}
@@ -154,7 +154,7 @@ sub getParametersForApplication {
 
 sub getSetupsByPriorityForApplication {
 	my ($this, $applicationName) = @_;
-	my %setups = %{$this->getDefinitionOf($applicationName)->{setup}};
+	my %setups = %{$this->getDefinitionOf($applicationName)->{setups}};
 	my %sortedScripts;
 	while (my($key, $value) = each %setups) {
 		$sortedScripts{$value->{priority}} = {

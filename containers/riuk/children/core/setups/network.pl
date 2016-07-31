@@ -12,7 +12,7 @@ my $lxc = $container->getLxcInstance;
 my $definition = $container->getDefinition;
 $lxc->start if $lxc->isStopped;
 
-$container->generateFile('/opt/floday/containers/riuk/children/core/setup/network.tt', $definition->{parameters}, '/etc/network/interfaces');
+$container->generateFile('/opt/floday/containers/riuk/children/core/setups/network.tt', $definition->{parameters}, '/etc/network/interfaces');
 
 $lxc->exec('rc-update add networking');
 $lxc->stop;
