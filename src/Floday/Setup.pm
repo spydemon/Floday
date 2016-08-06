@@ -2,7 +2,10 @@ package Floday::Setup;
 
 use lib '/opt/floday/src/';
 use v5.20;
+
+use Data::Dumper;
 use File::Temp;
+use Floday::Helper::Runlist;
 use Moo;
 use Template::Alloy;
 use Virt::LXC;
@@ -24,6 +27,20 @@ has lxcInstance => (
 	'lazy' => 1
 );
 
+has runfilePath => (
+	#default => '/etc/floday/runfile.yml',
+	default => '/opt/floday/t/integration/floday.d/runfile.yml',
+	is => 'ro',
+	reader => 'getRunfilePath'
+);
+
+has runlist => (
+	is => 'rw',
+	reader => 'getRunlist',
+	builder => '_initializeRunlist',
+	lazy => 1
+);
+
 has runlistPath => (
 	'is' => 'ro',
 	'default' => '/var/lib/floday/runlist.yml',
@@ -37,7 +54,7 @@ has log => (
 
 sub getDefinition {
 	my ($this) = @_;
-	return $this->{definition} //= $this->_fetchDefinition;
+	$this->getRunlist->getDefinitionOf($this->getContainerName);
 }
 
 sub getParentContainer {
@@ -45,21 +62,22 @@ sub getParentContainer {
 	$this->{parent} //= $this->_fetchParentContainer;
 }
 
-sub getRunlist {
-	my ($this) = @_;
-	return $this->{runlist} //= $this->_fetchRunlist;
-}
-
 sub getParameter {
 	#TODO: test parameter validity.
 	my ($this, $parameter) = @_;
-	my $value = $this->getDefinition->{parameters}{$parameter};
+	my %parameters = $this->getParameters;
+	my $value = $parameters{$parameter};
 	if (!defined $value) {
 		$this->log->warningf('%s: get undefined %s parameter', $this->getContainerName, $parameter);
 	} else {
 		$this->log->debugf('%s: get parameter %s with value: %s', $this->getContainerName, $parameter, $value);
 	}
 	return $value;
+}
+
+sub getParameters {
+	my ($this) = @_;
+	$this->getRunlist->getParametersForApplication($this->getContainerName);
 }
 
 sub generateFile {
@@ -73,29 +91,18 @@ sub generateFile {
 	$this->getLxcInstance->put($i, $location);
 }
 
-sub _fetchDefinition {
-	my ($this) = @_;
-	$this->log->infof('%s: fetching container definition', $this->getContainerName);
-	my ($h, $a) = $this->getContainerName =~ /(.*?)-(.*)/;
-	my $runlist = $this->getRunlist;
-	my $definition = $runlist->[1]->{$h};
-	for (split /-/, $a) {
-		$definition = $definition->{applications}->{$_};
-	}
-	return $definition;
-}
-
-sub _fetchRunlist {
-	my ($this) = @_;
-	YAML::Tiny->read($this->getRunlistPath);
-}
-
 sub _fetchParentContainer {
 	my ($this) = @_;
 	my ($parentName) = $this->getContainerName =~ /^(.*)-.*$/;
 	if (defined $parentName) {
-		return Floday::Setup->new(containerName => $parentName);
+		return Floday::Setup->new(containerName => $parentName, runfilePath => $this->getRunfilePath);
 	}
+}
+
+sub _initializeRunlist {
+	my ($this) = @_;
+	$this->log->infof("Runfile %s", $this->getRunfilePath);
+	my $test = Floday::Helper::Runlist->new(runfile => $this->getRunfilePath);
 }
 
 1;

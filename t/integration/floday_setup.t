@@ -9,8 +9,9 @@ use Test::Exception;
 use Log::Any::Adapter('File', 'log.txt');
 use Data::Dumper;
 
-my $container = Floday::Setup->new('containerName' => 'integration-web-test');
+my $container = Floday::Setup->new(containerName => 'integration-web-test', runfilePath => '/opt/floday/t/integration/floday.d/runfile.yml');
 my $lxc = $container->getLxcInstance;
+$lxc->destroy if $lxc->isExisting;
 $lxc->setTemplate($container->getParameter('template'));
 $lxc->deploy;
 
@@ -28,7 +29,7 @@ like($lxc->getUtsname, qr/integration-web-test/, 'Virt::LXC instance fetched see
 my $parentType = $container->getParentContainer->getParameter('type');
 like($parentType, qr/riuk-http/, 'Parent fetch seems to work.');
 
-$container->generateFile(getcwd . '/floday_setup.d/test.tt', $container->getDefinition->{parameters}, '/tmp/test.txt');
+$container->generateFile(getcwd . '/floday_setup.d/test.tt', {$container->getParameters}, '/tmp/test.txt');
 like(`cat /var/lib/lxc/integration-web-test/rootfs/tmp/test.txt`, qr/Hello integration-web-test !/, 'generateFile seems to work.');
 
 $lxc->destroy;
