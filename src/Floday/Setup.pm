@@ -3,6 +3,7 @@ package Floday::Setup;
 use lib '/opt/floday/src/';
 use v5.20;
 
+use Carp;
 use Data::Dumper;
 use File::Temp;
 use Floday::Helper::Runlist;
@@ -64,11 +65,13 @@ sub getParentContainer {
 
 sub getParameter {
 	#TODO: test parameter validity.
+	#TODO: undefined value non fatal.
 	my ($this, $parameter) = @_;
 	my %parameters = $this->getParameters;
 	my $value = $parameters{$parameter};
 	if (!defined $value) {
-		$this->log->warningf('%s: get undefined %s parameter', $this->getContainerName, $parameter);
+		$this->log->errorf('%s: get undefined %s parameter', $this->getContainerName, $parameter);
+		croak 'undefined ' . $parameter . ' parameter asked for ' . $this->getContainerName . ' container.';
 	} else {
 		$this->log->debugf('%s: get parameter %s with value: %s', $this->getContainerName, $parameter, $value);
 	}

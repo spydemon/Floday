@@ -24,6 +24,9 @@ TODO: {
 	throws_ok { $container->getParameter('invalid~~{name'); }
 		qr/.*/, 'All non alphanumeric chars should be invalid?';
 }
+throws_ok { $container->getParameter('yolooo'); }
+	qr/undefined yolooo parameter asked for integration-web-test container./, 'Error throwed when unexsting parameter is asked.';
+
 like($lxc->getUtsname, qr/integration-web-test/, 'Virt::LXC instance fetched seems good.');
 
 my $parentType = $container->getParentContainer->getParameter('type');
