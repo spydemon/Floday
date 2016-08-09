@@ -18,14 +18,12 @@ $lxc->deploy;
 my $iface = $container->getParameter('iface');
 
 like($iface, qr/eth0/, 'Container parameter fetched.');
-TODO: {
-	throws_ok { $container->getParameter('invalid name'); }
-		qr/.*/, 'Espace in parameter name are invalid.';
-	throws_ok { $container->getParameter('invalid~~{name'); }
-		qr/.*/, 'All non alphanumeric chars should be invalid?';
-}
+throws_ok { $container->getParameter('invalid name'); }
+	qr/Parameter "invalid name" asked has an invalid name/, 'Espaces in parameter name is invalid.';
+throws_ok { $container->getParameter('invalid~~{name'); }
+	qr/Parameter "invalid~~{name" asked has an invalid name/, 'All non alphanumeric chars should be invalid';
 throws_ok { $container->getParameter('yolooo'); }
-	qr/undefined yolooo parameter asked for integration-web-test container./, 'Error throwed when unexsting parameter is asked.';
+	qr/undefined "yolooo" parameter asked for integration-web-test container./, 'Error throwed when unexsting parameter is asked.';
 
 like($lxc->getUtsname, qr/integration-web-test/, 'Virt::LXC instance fetched seems good.');
 

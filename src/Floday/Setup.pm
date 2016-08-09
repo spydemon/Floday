@@ -12,13 +12,14 @@ use Template::Alloy;
 use Virt::LXC;
 use YAML::Tiny;
 
+#TODO: we should use the "application" name instead of "container".
+
 has containerName => (
 	'is' => 'ro',
 	'required' => 1,
 	'reader' => 'getContainerName',
 	'writter' => '_setContainerName',
-	#TODO: disallow also -- in isa instruction.
-	'isa' => sub {die unless $_[0] =~ /^\w[\w-]*\w$/},
+	'isa' => sub {die unless $_[0] =~ /^(?:\w-?)+\w$/}
 );
 
 has lxcInstance => (
@@ -33,6 +34,13 @@ has runfilePath => (
 	default => '/opt/floday/t/integration/floday.d/runfile.yml',
 	is => 'ro',
 	reader => 'getRunfilePath'
+);
+
+has parent => (
+	builder => '_fetchParentContainer',
+	is => 'ro',
+	lazy => 1,
+	reader => 'getParentContainer'
 );
 
 has runlist => (
@@ -58,22 +66,17 @@ sub getDefinition {
 	$this->getRunlist->getDefinitionOf($this->getContainerName);
 }
 
-sub getParentContainer {
-	my ($this) = @_;
-	$this->{parent} //= $this->_fetchParentContainer;
-}
-
 sub getParameter {
-	#TODO: test parameter validity.
 	#TODO: undefined value non fatal.
 	my ($this, $parameter) = @_;
+	croak 'Parameter "' . $parameter . '" asked has an invalid name' if $parameter !~ /^\w{1,}$/;
 	my %parameters = $this->getParameters;
 	my $value = $parameters{$parameter};
 	if (!defined $value) {
 		$this->log->errorf('%s: get undefined %s parameter', $this->getContainerName, $parameter);
-		croak 'undefined ' . $parameter . ' parameter asked for ' . $this->getContainerName . ' container.';
+		croak 'undefined "' . $parameter . '" parameter asked for ' . $this->getContainerName . ' container.';
 	} else {
-		$this->log->debugf('%s: get parameter %s with value: %s', $this->getContainerName, $parameter, $value);
+		$this->log->debugf('%s: get parameter "%s" with value: "%s"', $this->getContainerName, $parameter, $value);
 	}
 	return $value;
 }
@@ -96,16 +99,19 @@ sub generateFile {
 
 sub _fetchParentContainer {
 	my ($this) = @_;
+	$this->log->debugf('%s: asking parent application', $this->getContainerName);
 	my ($parentName) = $this->getContainerName =~ /^(.*)-.*$/;
 	if (defined $parentName) {
 		return Floday::Setup->new(containerName => $parentName, runfilePath => $this->getRunfilePath);
+	} else {
+		croak "This container doesn't have parent.";
 	}
 }
 
 sub _initializeRunlist {
 	my ($this) = @_;
 	$this->log->infof("Runfile %s", $this->getRunfilePath);
-	my $test = Floday::Helper::Runlist->new(runfile => $this->getRunfilePath);
+	Floday::Helper::Runlist->new(runfile => $this->getRunfilePath);
 }
 
 1;
