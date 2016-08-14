@@ -3,7 +3,7 @@
 use v5.20;
 use warnings;
 use Cwd;
-use Floday::Setup;
+use Floday::Setup 'ALLOW_UNDEF';
 use Test::More;
 use Test::Exception;
 use Log::Any::Adapter('File', 'log.txt');
@@ -24,7 +24,7 @@ throws_ok { $application->getParameter('invalid~~{name'); }
 	qr/Parameter "invalid~~{name" asked has an invalid name/, 'All non alphanumeric chars should be invalid';
 throws_ok { $application->getParameter('yolooo'); }
 	qr/undefined "yolooo" parameter asked for integration-web-test application./, 'Error throwed when unexsting parameter is asked.';
-
+$application->getParameter('yolooo', ALLOW_UNDEF);
 like($lxc->getUtsname, qr/integration-web-test/, 'Virt::LXC instance fetched seems good.');
 
 my $parentType = $application->getParentApplication->getParameter('type');

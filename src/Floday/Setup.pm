@@ -4,13 +4,15 @@ use lib '/opt/floday/src/';
 use v5.20;
 
 use Carp;
-use Data::Dumper;
-use File::Temp;
+use Exporter qw(import);
 use Floday::Helper::Runlist;
 use Moo;
 use Template::Alloy;
 use Virt::LXC;
-use YAML::Tiny;
+
+use constant ALLOW_UNDEF => 1;
+
+our @EXPORT_OK = ('ALLOW_UNDEF');
 
 has applicationName => (
 	'is' => 'ro',
@@ -70,12 +72,11 @@ sub getDefinition {
 }
 
 sub getParameter {
-	#TODO: undefined value non fatal.
-	my ($this, $parameter) = @_;
+	my ($this, $parameter, $flags) = @_;
 	croak 'Parameter "' . $parameter . '" asked has an invalid name' if $parameter !~ /^\w{1,}$/;
 	my %parameters = $this->getParameters;
 	my $value = $parameters{$parameter};
-	if (!defined $value) {
+	if (!defined $value and $flags != ALLOW_UNDEF) {
 		$this->log->errorf('%s: get undefined %s parameter', $this->getApplicationName, $parameter);
 		croak 'undefined "' . $parameter . '" parameter asked for ' . $this->getApplicationName . ' application.';
 	} else {
