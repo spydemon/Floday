@@ -12,20 +12,23 @@ use Template::Alloy;
 use Virt::LXC;
 use YAML::Tiny;
 
-#TODO: we should use the "application" name instead of "container".
-
-has containerName => (
+has applicationName => (
 	'is' => 'ro',
 	'required' => 1,
-	'reader' => 'getContainerName',
-	'writter' => '_setContainerName',
-	'isa' => sub {die unless $_[0] =~ /^(?:\w-?)+\w$/}
+	'reader' => 'getApplicationName',
+	'writter' => '_setApplicationName',
+	'isa' => sub {die unless $_[0] =~ /
+	  ^         #start of the line
+	  (?:\w-?)+ #should contain at least one letter and no double dash
+	  \w$       #should finish with a letter
+	  /x
+	}
 );
 
 has lxcInstance => (
 	'is' => 'ro',
 	'reader' => 'getLxcInstance',
-	'default' => sub { Virt::LXC->new('utsname' => $_[0]->getContainerName) },
+	'default' => sub { Virt::LXC->new('utsname' => $_[0]->getApplicationName) },
 	'lazy' => 1
 );
 
@@ -37,10 +40,10 @@ has runfilePath => (
 );
 
 has parent => (
-	builder => '_fetchParentContainer',
+	builder => '_fetchParentApplication',
 	is => 'ro',
 	lazy => 1,
-	reader => 'getParentContainer'
+	reader => 'getParentApplication'
 );
 
 has runlist => (
@@ -63,7 +66,7 @@ has log => (
 
 sub getDefinition {
 	my ($this) = @_;
-	$this->getRunlist->getDefinitionOf($this->getContainerName);
+	$this->getRunlist->getDefinitionOf($this->getApplicationName);
 }
 
 sub getParameter {
@@ -73,22 +76,22 @@ sub getParameter {
 	my %parameters = $this->getParameters;
 	my $value = $parameters{$parameter};
 	if (!defined $value) {
-		$this->log->errorf('%s: get undefined %s parameter', $this->getContainerName, $parameter);
-		croak 'undefined "' . $parameter . '" parameter asked for ' . $this->getContainerName . ' container.';
+		$this->log->errorf('%s: get undefined %s parameter', $this->getApplicationName, $parameter);
+		croak 'undefined "' . $parameter . '" parameter asked for ' . $this->getApplicationName . ' application.';
 	} else {
-		$this->log->debugf('%s: get parameter "%s" with value: "%s"', $this->getContainerName, $parameter, $value);
+		$this->log->debugf('%s: get parameter "%s" with value: "%s"', $this->getApplicationName, $parameter, $value);
 	}
 	return $value;
 }
 
 sub getParameters {
 	my ($this) = @_;
-	$this->getRunlist->getParametersForApplication($this->getContainerName);
+	$this->getRunlist->getParametersForApplication($this->getApplicationName);
 }
 
 sub generateFile {
 	my ($this, $template, $data, $location) = @_;
-	$this->log->infof('%s: generate %s from %s', $this->getContainerName, $location, $template);
+	$this->log->infof('%s: generate %s from %s', $this->getApplicationName, $location, $template);
 	my $i = File::Temp->new();
 	my $t = Template::Alloy->new(
 		ABSOLUTE => 1,
@@ -97,14 +100,14 @@ sub generateFile {
 	$this->getLxcInstance->put($i, $location);
 }
 
-sub _fetchParentContainer {
+sub _fetchParentApplication {
 	my ($this) = @_;
-	$this->log->debugf('%s: asking parent application', $this->getContainerName);
-	my ($parentName) = $this->getContainerName =~ /^(.*)-.*$/;
+	$this->log->debugf('%s: asking parent application', $this->getApplicationName);
+	my ($parentName) = $this->getApplicationName =~ /^(.*)-.*$/;
 	if (defined $parentName) {
-		return Floday::Setup->new(containerName => $parentName, runfilePath => $this->getRunfilePath);
+		return Floday::Setup->new(applicationName => $parentName, runfilePath => $this->getRunfilePath);
 	} else {
-		croak "This container doesn't have parent.";
+		croak "This application doesn't have parent.";
 	}
 }
 

@@ -7,12 +7,12 @@ use strict;
 use Floday::Setup;
 use Log::Any::Adapter('File', 'log.txt');
 
-my $container = Floday::Setup->new('containerName', $ARGV[1]);
-my $lxc = $container->getLxcInstance;
-my $definition = $container->getDefinition;
+my $application = Floday::Setup->new('applicationName', $ARGV[1]);
+my $lxc = $application->getLxcInstance;
+my $definition = $application->getDefinition;
 $lxc->start if $lxc->isStopped;
 
-$container->generateFile('/opt/floday/containers/riuk/children/core/setups/network.tt', $definition->{parameters}, '/etc/network/interfaces');
+$application->generateFile('/opt/floday/containers/riuk/children/core/setups/network.tt', $definition->{parameters}, '/etc/network/interfaces');
 
 $lxc->exec('rc-update add networking');
 $lxc->stop;

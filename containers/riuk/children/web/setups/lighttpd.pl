@@ -6,13 +6,13 @@ use Floday::Setup;
 use YAML::Tiny;
 use Log::Any::Adapter('File', 'log.txt');
 
-my $container = Floday::Setup->new('containerName', $ARGV[1]);
-my $lxc = $container->getLxcInstance;
-my $definition = $container->getDefinition;
+my $application = Floday::Setup->new('applicationName', $ARGV[1]);
+my $lxc = $application->getLxcInstance;
+my $definition = $application->getDefinition;
 $lxc->start if $lxc->isStopped;
 
 my ($h, $a) = $ARGV[1] =~ /(.*?)-(.*)/;
-## Get the definition of the current container.
+## Get the definition of the current application.
 my $runlist = YAML::Tiny->read('/var/lib/floday/runlist.yml');
 
 ## Get with a user-friendly way configuration of the parent.
@@ -26,11 +26,11 @@ my @cmd = ('apk update', 'apk upgrade', 'apk add lighttpd', 'rc-update add light
 for (@cmd) {
 	$lxc->exec($_);
 }
-my $ipv4 = $container->getParameter('ipv4');
+my $ipv4 = $application->getParameter('ipv4');
 `iptables -t nat -A PREROUTING -d $hostIp -p tcp --dport 80 -j DNAT --to-destination $ipv4`;
 
 my $data = {
 	'containers' => \@websites
 };
-$container->generateFile('/opt/floday/containers/riuk/children/web/setups/lighttpd/lighttpd.conf.tt', $data, '/etc/lighttpd/lighttpd.conf');
+$application->generateFile('/opt/floday/containers/riuk/children/web/setups/lighttpd/lighttpd.conf.tt', $data, '/etc/lighttpd/lighttpd.conf');
 
