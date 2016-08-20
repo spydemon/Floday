@@ -1,0 +1,55 @@
+#!/usr/bin/env perl
+
+use v5.20;
+
+use Data::Dumper;
+use Getopt::Long;
+
+my $CACHE_FOLDER = '/tmp/floday/lxc-flodayalpine';
+
+my ($path, $name, $rootfs);
+GetOptions("path=s" => \$path,
+  "name=s" => \$name,
+  "rootfs=s" => \$rootfs
+);
+
+my %templateArguments= (@ARGV);
+
+sub deployAPKIndex {
+	return if (-d "$CACHE_FOLDER/apkIndex");
+	my $APKArchive = getFile('APKINDEX.tar.gz');
+	`mkdir -p $CACHE_FOLDER/apkIndex`;
+	`tar -xf $APKArchive -C $CACHE_FOLDER/apkIndex`;
+}
+
+sub getAlpineVersionToUse {
+	'v' . $templateArguments{version} if $templateArguments{version} =~ /^[0-9]{1,2}\.[0-9]{1}$/
+	  or die "The version of alpine to use is mandatory";
+}
+
+sub getArchitectureToUse {
+	$templateArguments{architecture} // 'x86_64';
+}
+
+sub getFile {
+	my ($packageName) = @_;
+	my $repositoryAddress = getMainRepositoryAddress();
+	my $pathForDownloadedFile = "$CACHE_FOLDER/files";
+	if (!-f "$pathForDownloadedFile/$packageName") {
+		say "Downloading $packageName package.";
+		`wget --show-progress -q -P $pathForDownloadedFile $repositoryAddress/$packageName`;
+	} else {
+		say "Fetching $packageName from cache.";
+	}
+	return "$pathForDownloadedFile/$packageName";
+}
+
+sub getPackage {
+	deployAPKIndex();
+}
+
+sub getMainRepositoryAddress {
+	'https://wiki.alpinelinux.org/cgi-bin/dl.cgi/' . getAlpineVersionToUse . '/main/' . getArchitectureToUse;
+}
+
+getPackage('test');
