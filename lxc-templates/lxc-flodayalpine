@@ -3,6 +3,7 @@
 use v5.20;
 
 use Data::Dumper;
+use File::Slurp;
 use Getopt::Long;
 
 my $CACHE_FOLDER = '/tmp/floday/lxc-flodayalpine';
@@ -16,10 +17,12 @@ GetOptions("path=s" => \$path,
 my %templateArguments= (@ARGV);
 
 sub deployAPKIndex {
-	return if (-d "$CACHE_FOLDER/apkIndex");
-	my $APKArchive = getFile('APKINDEX.tar.gz');
-	`mkdir -p $CACHE_FOLDER/apkIndex`;
-	`tar -xf $APKArchive -C $CACHE_FOLDER/apkIndex`;
+	if (!-d "$CACHE_FOLDER/apkIndex") {
+		my $APKArchive = getFile('APKINDEX.tar.gz');
+		`mkdir -p $CACHE_FOLDER/apkIndex`;
+		`tar -xf $APKArchive -C $CACHE_FOLDER/apkIndex`;
+	}
+	return "$CACHE_FOLDER/apkIndex/APKINDEX";
 }
 
 sub getAlpineVersionToUse {
@@ -36,7 +39,6 @@ sub getFile {
 	my $repositoryAddress = getMainRepositoryAddress();
 	my $pathForDownloadedFile = "$CACHE_FOLDER/files";
 	if (!-f "$pathForDownloadedFile/$packageName") {
-		say "Downloading $packageName package.";
 		`wget --show-progress -q -P $pathForDownloadedFile $repositoryAddress/$packageName`;
 	} else {
 		say "Fetching $packageName from cache.";
@@ -45,11 +47,24 @@ sub getFile {
 }
 
 sub getPackage {
-	deployAPKIndex();
+	my ($target) = @_;
+	my $index = read_file(deployAPKIndex());
+	while (
+	  $index =~ /
+	    ^P:(?P<name>.*)\n		#Get the next software name present in the index.
+	    ^V:(?P<version>.*)\n	#Get the next software version present in the index.
+	    /mgx
+	) {
+		if ($+{name} eq $target) {
+			return getFile("$+{name}-$+{version}.apk");
+		}
+	}
+	die("Package $target was not found in APKIndex.");
 }
 
 sub getMainRepositoryAddress {
-	'https://wiki.alpinelinux.org/cgi-bin/dl.cgi/' . getAlpineVersionToUse . '/main/' . getArchitectureToUse;
+	'https://wiki.alpinelinux.org/cgi-bin/dl.cgi/' . getAlpineVersionToUse() . '/main/' . getArchitectureToUse();
 }
 
-getPackage('test');
+say getPackage('alpine-keys');
+say getPackage('apk-tools-static');
