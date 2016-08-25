@@ -98,5 +98,18 @@ sub _installPackage_alpinekeys {
 	}
 }
 
+sub _installPackage_apktoolsstatic {
+	`echo $rootfs/sbin/apk.static.*.pub`         #Get the path of the file corresponding to apk.static signed hash.
+	  =~ /
+	    (?P<signatureToCheck>^.*                 #Capture the absolute path without the \n at the end of the line.
+	      (?P<keyToUse>alpine-devel[^\/]*)       #The name of the key used for the signature is present in the hash name.
+	    )
+	  \s$/x;
+	my $fileToCheck = "$rootfs/sbin/apk.static";
+	my $keyToUseForChecking = "$rootfs/etc/apk/keys/$+{keyToUse}";
+	`openssl dgst -sha1 -verify $keyToUseForChecking -signature $+{signatureToCheck} $fileToCheck`;
+	$? and die('The check of apk.static authenticity failed');
+}
+
 installPackage('alpine-keys');
 installPackage('apk-tools-static');
