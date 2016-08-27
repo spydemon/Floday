@@ -1,10 +1,13 @@
 #!/usr/bin/env perl
 
 use v5.20;
+use autodie qw(:all);
 
 use Data::Dumper;
 use File::Slurp;
 use Getopt::Long;
+#TODO: use secure backtricks.
+use IPC::System::Simple qw(capture);
 
 my $CACHE_FOLDER = '/tmp/floday/lxc-flodayalpine';
 
@@ -36,7 +39,7 @@ sub getArchitectureToUse {
 
 sub getFile {
 	my ($packageName) = @_;
-	my $repositoryAddress = getMainRepositoryAddress();
+	my $repositoryAddress = getMainRepositoryAddress() . '/' . getArchitectureToUse();
 	my $pathForDownloadedFile = "$CACHE_FOLDER/files";
 	if (!-f "$pathForDownloadedFile/$packageName") {
 		`wget --show-progress -q -P $pathForDownloadedFile $repositoryAddress/$packageName`;
@@ -63,7 +66,16 @@ sub getPackage {
 }
 
 sub getMainRepositoryAddress {
-	'https://wiki.alpinelinux.org/cgi-bin/dl.cgi/' . getAlpineVersionToUse() . '/main/' . getArchitectureToUse();
+	'https://wiki.alpinelinux.org/cgi-bin/dl.cgi/' . getAlpineVersionToUse() . '/main/';
+}
+
+sub initSystem {
+	my $apkRepoToUse = getMainRepositoryAddress();
+	my $arch = getArchitectureToUse();
+	`mkdir -p $CACHE_FOLDER/apk && ln -s $CACHE_FOLDER/apk $rootfs/etc/apk/cache `;
+	`echo $apkRepoToUse > $rootfs/etc/apk/repositories`;
+	open my $fh, '-|', "$rootfs/sbin/apk.static -U add --initdb --root $rootfs --arch $arch alpine-base";
+	print $_ while(<$fh>);
 }
 
 sub installPackage {
@@ -113,3 +125,4 @@ sub _installPackage_apktoolsstatic {
 
 installPackage('alpine-keys');
 installPackage('apk-tools-static');
+initSystem();
