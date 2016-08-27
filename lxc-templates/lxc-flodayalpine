@@ -19,6 +19,10 @@ GetOptions("path=s" => \$path,
 
 my %templateArguments= (@ARGV);
 
+sub afterInstall {
+	`rm $rootfs/etc/apk/cache`;
+}
+
 sub deployAPKIndex {
 	if (!-d "$CACHE_FOLDER/apkIndex") {
 		my $APKArchive = getFile('APKINDEX.tar.gz');
@@ -126,3 +130,4 @@ sub _installPackage_apktoolsstatic {
 installPackage('alpine-keys');
 installPackage('apk-tools-static');
 initSystem();
+afterInstall();
