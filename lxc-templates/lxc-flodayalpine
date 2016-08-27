@@ -1,13 +1,12 @@
 #!/usr/bin/env perl
 
-use v5.20;
-use autodie qw(:all);
+use v5.006;
 
-use Data::Dumper;
+use Backticks;
 use File::Slurp;
 use Getopt::Long;
-#TODO: use secure backtricks.
-use IPC::System::Simple qw(capture);
+
+$Backticks::autodie = 1;
 
 my $CACHE_FOLDER = '/tmp/floday/lxc-flodayalpine';
 
@@ -46,9 +45,7 @@ sub getFile {
 	my $repositoryAddress = getMainRepositoryAddress() . '/' . getArchitectureToUse();
 	my $pathForDownloadedFile = "$CACHE_FOLDER/files";
 	if (!-f "$pathForDownloadedFile/$packageName") {
-		`wget --show-progress -q -P $pathForDownloadedFile $repositoryAddress/$packageName`;
-	} else {
-		say "Fetching $packageName from cache.";
+		`wget -q -P $pathForDownloadedFile $repositoryAddress/$packageName`;
 	}
 	return "$pathForDownloadedFile/$packageName";
 }
@@ -66,7 +63,7 @@ sub getPackage {
 			return getFile("$+{name}-$+{version}.apk");
 		}
 	}
-	die("Package $target was not found in APKIndex.");
+	die("Package $target was not found in APKIndex");
 }
 
 sub getMainRepositoryAddress {
@@ -101,17 +98,18 @@ sub _installPackage_alpinekeys {
 	  'alpine-devel@lists.alpinelinux.org-524d27bb.rsa.pub' => '1bb2a846c0ea4ca9d0e7862f970863857fc33c32f5506098c636a62a726a847b',
 	  'alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub' => '12f899e55a7691225603d6fb3324940fc51cd7f133e7ead788663c2b7eecb00c'
 	);
-	while (`echo $rootfs/etc/apk/keys/*.pub`    #We get all signatures presents in the keys folder.
-	  =~ /
+	my $keyList = `echo $rootfs/etc/apk/keys/*.pub`;
+	my $keyChecked = 0;
+	while ($keyList =~ /
 	    (?P<keyPathToUse>.*?                    #keyPathToUse will contain the absolute path of the next key.
 	      (?P<keyNameToUse>alpine-devel.*?)     #keyNameToUse will contain only the name of the next key.
 	    )
 	  \s/gx
 	) {
-		if (`cd $rootfs/etc/apk/keys && echo "$keys{$+{keyNameToUse}} $+{keyNameToUse}" | sha256sum -c -` and $?) {
-			die("Key $+{keyNameToUse} authenticity check failed.");
-		}
+		`cd $rootfs/etc/apk/keys && echo "$keys{$+{keyNameToUse}} $+{keyNameToUse}" | sha256sum -c -`;
+		$keyChecked += 1;
 	}
+	die ('Too much key signatures are in this template') if ($keyChecked != keys %keys);
 }
 
 sub _installPackage_apktoolsstatic {
@@ -124,7 +122,6 @@ sub _installPackage_apktoolsstatic {
 	my $fileToCheck = "$rootfs/sbin/apk.static";
 	my $keyToUseForChecking = "$rootfs/etc/apk/keys/$+{keyToUse}";
 	`openssl dgst -sha1 -verify $keyToUseForChecking -signature $+{signatureToCheck} $fileToCheck`;
-	$? and die('The check of apk.static authenticity failed');
 }
 
 installPackage('alpine-keys');
