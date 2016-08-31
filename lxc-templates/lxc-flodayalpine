@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-use v5.006;
+use v5.010;
 
 use Backticks;
 use File::Slurp;
@@ -18,10 +18,6 @@ GetOptions("path=s" => \$path,
 
 my %templateArguments= (@ARGV);
 
-sub afterInstall {
-	`rm $rootfs/etc/apk/cache`;
-}
-
 sub deployAPKIndex {
 	if (!-d "$CACHE_FOLDER/apkIndex") {
 		my $APKArchive = getFile('APKINDEX.tar.gz');
@@ -29,6 +25,21 @@ sub deployAPKIndex {
 		`tar -xf $APKArchive -C $CACHE_FOLDER/apkIndex`;
 	}
 	return "$CACHE_FOLDER/apkIndex/APKINDEX";
+}
+
+sub generateLXCConfiguration{
+	#TODO : Apply restriction by apparmor and seccomp.
+	#TODO : randomize (u|g)id but check for conflicts.
+	my $id = getUserId();
+	open($configurationFile, '>', "$path/config");
+	my @configurationEntries = (
+	  "lxc.mount.entry = $CACHE_FOLDER/apk $rootfs/etc/apk/cache none bind 0.0",
+	  "lxc.mount.auto = proc:mixed",
+	  "lxc.rootfs = $rootfs",
+	  "lxc.id_map = u 0 $id 100",
+	  "lxc.id_map = g 0 $id 100"
+	);
+	say{$configurationFile} $_ foreach @configurationEntries;
 }
 
 sub getAlpineVersionToUse {
@@ -57,13 +68,18 @@ sub getPackage {
 	  $index =~ /
 	    ^P:(?P<name>.*)\n		#Get the next software name present in the index.
 	    ^V:(?P<version>.*)\n	#Get the next software version present in the index.
-	    /mgx
+	  /mgx
 	) {
 		if ($+{name} eq $target) {
 			return getFile("$+{name}-$+{version}.apk");
 		}
 	}
 	die("Package $target was not found in APKIndex");
+}
+
+sub getUserId {
+	#TODO: manage collisions
+	state $id = int(rand(1000)+1) * 100 + 100000;
 }
 
 sub getMainRepositoryAddress {
@@ -75,7 +91,8 @@ sub initSystem {
 	my $arch = getArchitectureToUse();
 	`mkdir -p $CACHE_FOLDER/apk && ln -s $CACHE_FOLDER/apk $rootfs/etc/apk/cache `;
 	`echo $apkRepoToUse > $rootfs/etc/apk/repositories`;
-	open my $fh, '-|', "$rootfs/sbin/apk.static -U add --initdb --root $rootfs --arch $arch alpine-base";
+	#TODO: update of repo only when needed.
+	open (my $fh, '-|', "$rootfs/sbin/apk.static -U add --initdb --root $rootfs --arch $arch alpine-base");
 	print $_ while(<$fh>);
 }
 
@@ -88,6 +105,16 @@ sub installPackage {
 		no strict 'refs';
 		&{"_installPackage_$packageName"}();
 	}
+}
+
+sub manageSystemConfiguration {
+	my $id = getUserId();
+	`rm $rootfs/etc/apk/cache && mkdir -p $rootfs/etc/apk/cache`;
+	#TODO : resolv.conf should be provided in container instantation.
+	`cp /etc/resolv.conf $rootfs/etc/resolv.conf`;
+	`chmod 750 $path`;
+	`chown :$id $path`;
+	`chown -R $id:$id $rootfs`;
 }
 
 sub _installPackage_alpinekeys {
@@ -127,4 +154,5 @@ sub _installPackage_apktoolsstatic {
 installPackage('alpine-keys');
 installPackage('apk-tools-static');
 initSystem();
-afterInstall();
+generateLXCConfiguration();
+manageSystemConfiguration();
