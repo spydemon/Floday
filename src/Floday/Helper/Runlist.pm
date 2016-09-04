@@ -45,7 +45,7 @@ my $runlist = {
 						'ipv4' => '10.0.3.5',
 						'gateway' => '10.0.3.1',
 						'netmask' => '255.255.255.0',
-						'template' => 'alpine'
+						'template' => 'flodayalpine -- version 3.4'
 					},
 					'setups' => {
 						'network' => {
@@ -69,7 +69,7 @@ my $runlist = {
 								'ipv4' => '10.0.3.6',
 								'gateway' => '10.0.3.1',
 								'netmask' => '255.255.255.0',
-								'template' => 'alpine',
+								'template' => 'flodayalpine -- version 3.4',
 								'hostname' => 'test.keh.keh'
 							},
 							'setups' => {
@@ -98,7 +98,7 @@ my $runlist = {
 								'ipv4' => '10.0.3.7',
 								'gateway' => '10.0.3.1',
 								'netmask' => '255.255.255.0',
-								'template' => 'alpine',
+								'template' => 'flodayalpine -- version 3.4',
 								'hostname' => 'test2.keh.keh'
 							},
 							'setups' => {
