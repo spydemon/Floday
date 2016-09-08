@@ -89,7 +89,7 @@ sub getMainRepositoryAddress {
 sub initSystem {
 	my $apkRepoToUse = getMainRepositoryAddress();
 	my $arch = getArchitectureToUse();
-	`mkdir -p $CACHE_FOLDER/apk && ln -s $CACHE_FOLDER/apk $rootfs/etc/apk/cache `;
+	`mkdir -p $CACHE_FOLDER/apk && chmod a+rw $CACHE_FOLDER/apk && ln -s $CACHE_FOLDER/apk $rootfs/etc/apk/cache `;
 	`echo $apkRepoToUse > $rootfs/etc/apk/repositories`;
 	#TODO: update of repo only when needed.
 	open (my $fh, '-|', "$rootfs/sbin/apk.static -U add --initdb --root $rootfs --arch $arch alpine-base");
