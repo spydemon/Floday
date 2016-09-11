@@ -8,7 +8,7 @@ use Test::Exception;
 use Log::Any::Adapter('File', 'log.txt');
 
 my $container = Virt::LXC->new(utsname => 'lxc-test');
-$container->setTemplate('alpine');
+$container->setTemplate('flodayalpine -- version 3.4');
 $container->destroy if $container->isExisting;
 ok !$container->isExisting, 'isExisting return false.';
 is $container->getLxcPath, '/var/lib/lxc/lxc-test', 'LxcPath has the good default value.';
