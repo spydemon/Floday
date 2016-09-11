@@ -100,13 +100,19 @@ sub getStoppedContainers {
 }
 
 sub getConfig {
-	my ($this, $attr) = @_;
+	my ($this, $attr, $filter) = @_;
 	$this->_checkContainerIsExisting;
 	open CONF, '<' . $this->getLxcPath . '/config';
 	my @results;
 	for (<CONF>) {
-		/^$attr\W*=\W*(.*)$/ and push @results, $1
-	};
+		if (/^$attr\W*=\W*(?P<value>.*)$/) {
+			if (defined $filter) {
+				$+{value} =~ $filter and push @results, $1;
+			} else {
+				push @results, $+{value};
+			}
+		}
+	}
 	$this->log->debugf('%s: getConfig %s: %s', $this->getUtsname, $attr, \@results);
 	return @results;
 }

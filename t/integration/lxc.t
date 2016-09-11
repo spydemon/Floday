@@ -51,6 +51,8 @@ is $configValues[0], '42', 'Creation of a new configuration attribute.';
 $container->setConfig('lxc.network.ipv4', '42.42.42.42');
 @configValues = $container->getConfig('lxc.network.ipv4');
 is $configValues[0], '42.42.42.42', 'Update of a configuration attribute.';
+my ($sequenceFilterTest) = $container->getConfig('lxc.id_map', qr/^u 0 (\d+) .*$/);
+ok grep{/^\d+$/} $sequenceFilterTest, 'Fetching configuration with filter.';
 
 $container->destroy;
 ok grep{'lxc-test'} $container->getExistingContainers == 0, 'Container is absent of getExistingContainers.';
