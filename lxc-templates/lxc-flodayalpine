@@ -33,11 +33,15 @@ sub generateLXCConfiguration{
 	my $id = getUserId();
 	open($configurationFile, '>', "$path/config");
 	my @configurationEntries = (
-	  "lxc.mount.entry = $CACHE_FOLDER/apk $rootfs/etc/apk/cache none bind 0.0",
+	  "lxc.id_map = u 0 $id 100000",
+	  "lxc.id_map = g 0 $id 100000",
 	  "lxc.mount.auto = proc:mixed",
+	  "lxc.mount.entry = $CACHE_FOLDER/apk $rootfs/etc/apk/cache none bind 0.0",
+	  "lxc.network.type = veth",
+	  "lxc.network.flags = up",
+	  "lxc.network.link = lxcbr0",
 	  "lxc.rootfs = $rootfs",
-	  "lxc.id_map = u 0 $id 100",
-	  "lxc.id_map = g 0 $id 100"
+	  "lxc.utsname = $name"
 	);
 	say{$configurationFile} $_ foreach @configurationEntries;
 }
