@@ -33,6 +33,7 @@ sub generateLXCConfiguration{
 	my $id = getUserId();
 	open($configurationFile, '>', "$path/config");
 	my @configurationEntries = (
+	  #TODO : 100000 should be a configuration variable!
 	  "lxc.id_map = u 0 $id 100000",
 	  "lxc.id_map = g 0 $id 100000",
 	  "lxc.mount.auto = proc:mixed",
@@ -83,7 +84,7 @@ sub getPackage {
 
 sub getUserId {
 	#TODO: manage collisions
-	state $id = int(rand(1000)+1) * 100 + 100000;
+	state $id = int(rand(1000)+1) * 100000 + 100000;
 }
 
 sub getMainRepositoryAddress {

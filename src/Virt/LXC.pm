@@ -113,6 +113,7 @@ sub getConfig {
 			}
 		}
 	}
+	#TODO : fail by default if no results are found.
 	$this->log->debugf('%s: getConfig %s: %s', $this->getUtsname, $attr, \@results);
 	return @results;
 }
@@ -187,6 +188,7 @@ sub exec {
 
 sub put {
 	my ($this, $input, $dest) = @_;
+	my ($uid) = $this->getConfig('lxc.id_map', qr/^u 0 (\d+)/);
 	$this->_checkContainerIsExisting;
 	if (!-r $input) {
 		$this->log->errorf('%s: put %s: not readable', $this->getUtsname, $input);
@@ -201,6 +203,7 @@ sub put {
 	-d $1 or `mkdir -p $1`;
 	$this->log->infof('%s: put: %s on %s', $this->getUtsname, $input, $dest);
 	`cp -R $input $dest`;
+	`chown -R $uid:$uid $dest`;
 }
 
 sub setConfig {
