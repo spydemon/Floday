@@ -1,9 +1,14 @@
 package Virt::LXC;
 use v5.20;
-use File::Temp;
+
 use Carp;
-use Moo;
+use Exporter qw(import);
+use File::Temp;
 use Log::Any ();
+use Moo;
+
+use constant ALLOW_UNDEF => 0x01;
+our @EXPORT_OK = ('ALLOW_UNDEF');
 
 has utsname => (
 	'is' => 'ro',
@@ -100,9 +105,13 @@ sub getStoppedContainers {
 }
 
 sub getConfig {
-	my ($this, $attr, $filter) = @_;
+	my ($this, $attr, $filter, $flags) = @_;
+	if (defined $filter and ref($filter) ne 'Regexp') {
+		croak '$filter should be a regular expresion';
+	}
+	my $allowUndef = defined ($flags) && $flags & ALLOW_UNDEF;
 	$this->_checkContainerIsExisting;
-	open CONF, '<' . $this->getLxcPath . '/config';
+	open CONF, '<', $this->getLxcPath . '/config';
 	my @results;
 	for (<CONF>) {
 		if (/^$attr\W*=\W*(?P<value>.*)$/) {
@@ -113,8 +122,10 @@ sub getConfig {
 			}
 		}
 	}
-	#TODO : fail by default if no results are found.
 	$this->log->debugf('%s: getConfig %s: %s', $this->getUtsname, $attr, \@results);
+	if (!@results && !$allowUndef) {
+		croak "'$attr' attribute was not found in lxc configuration file";
+	}
 	return @results;
 }
 

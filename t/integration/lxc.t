@@ -2,7 +2,7 @@
 
 use v5.20;
 use strict;
-use Virt::LXC;
+use Virt::LXC qw(ALLOW_UNDEF);
 use Test::More;
 use Test::Exception;
 use Log::Any::Adapter('File', 'log.txt');
@@ -53,6 +53,9 @@ $container->setConfig('lxc.network.ipv4', '42.42.42.42');
 is $configValues[0], '42.42.42.42', 'Update of a configuration attribute.';
 my ($sequenceFilterTest) = $container->getConfig('lxc.id_map', qr/^u 0 (\d+) .*$/);
 ok grep{/^\d+$/} $sequenceFilterTest, 'Fetching configuration with filter.';
+throws_ok {$container->getConfig('lxc.non-existing')}
+  qr/'lxc.non-existing' attribute was not found in lxc configuration file/;
+is $container->getConfig('lxc.non-existing', undef, ALLOW_UNDEF), 0, 'GetConfig with ALLOW_UNDEF';
 
 $container->destroy;
 ok grep{'lxc-test'} $container->getExistingContainers == 0, 'Container is absent of getExistingContainers.';
