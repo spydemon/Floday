@@ -3,6 +3,7 @@ package Floday::Setup;
 use lib '/opt/floday/src/';
 use v5.20;
 
+use Backticks;
 use Carp;
 use Exporter qw(import);
 use Floday::Helper::Runlist;
@@ -11,6 +12,8 @@ use Template::Alloy;
 use Virt::LXC;
 
 use constant ALLOW_UNDEF => 1;
+
+$Backticks::autodie = 1;
 
 our @EXPORT_OK = ('ALLOW_UNDEF');
 
@@ -72,11 +75,13 @@ sub getDefinition {
 }
 
 sub getParameter {
+	#TODO: use Perl subrouting signature feature instead of doing this shit.
+	push (@_, 0) if (@_ == 2);
 	my ($this, $parameter, $flags) = @_;
 	croak 'Parameter "' . $parameter . '" asked has an invalid name' if $parameter !~ /^\w{1,}$/;
 	my %parameters = $this->getParameters;
 	my $value = $parameters{$parameter};
-	if (!defined $value and $flags != ALLOW_UNDEF) {
+	if (!defined $value && $flags != ALLOW_UNDEF) {
 		$this->log->errorf('%s: get undefined %s parameter', $this->getApplicationName, $parameter);
 		croak 'undefined "' . $parameter . '" parameter asked for ' . $this->getApplicationName . ' application.';
 	} else {
