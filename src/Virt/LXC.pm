@@ -1,14 +1,16 @@
 package Virt::LXC;
 use v5.20;
 
+use Backticks;
 use Carp;
 use Exporter qw(import);
-use File::Temp;
 use Log::Any ();
 use Moo;
 
 use constant ALLOW_UNDEF => 0x01;
 our @EXPORT_OK = ('ALLOW_UNDEF');
+
+$Backticks::autodie = 1;
 
 has utsname => (
 	'is' => 'ro',
@@ -49,16 +51,14 @@ sub getTemplate {
 }
 
 sub _qx {
+	local $Backticks::autodie = 0;
 	my ($this, $cmd, $wantarray) = @_;
 	my $stderr = File::Temp->new();
 	$this->log->tracef('%s: _qx: `%s`', $this->getUtsname, $cmd);
-	my $stdout = `$cmd 2>$stderr`;
-	my $result = !$?;
-	seek $stderr, 0, 0;
-	open F,'<',$stderr;
-	$this->log->tracef('%s: _qx res: %s/%s/%s', $this->getUtsname, $result, $stdout, join('', <F>));
-	$wantarray and return ($result, $stdout, join('', <F>));
-	return $result;
+	my $exec = `$cmd`;
+	$this->log->tracef('%s: _qx res: %s/%s/%s', $this->getUtsname, $exec->exitcode, $exec->stdout, $exec->stderr);
+	$wantarray and return ($exec->exitcode, $exec->stdout, $exec->stderr);
+	return !$exec->exitcode;
 }
 
 sub _checkContainerIsRunning {
@@ -93,15 +93,15 @@ sub _checkContainerIsNotExisting {
 
 
 sub getExistingContainers {
-	map{chomp $_; $_} `lxc-ls -1`;
+	split("\n", `lxc-ls -1`);
 }
 
 sub getRunningContainers {
-	map{chomp $_; $_} `lxc-ls -1 --running`
+	split("\n", `lxc-ls -1 --running`);
 }
 
 sub getStoppedContainers {
-	map{chomp $_; $_} `lxc-ls -1 --stopped`
+	split("\n", `lxc-ls -1 --stopped`);
 }
 
 sub getConfig {
