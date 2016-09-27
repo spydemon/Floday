@@ -3,6 +3,8 @@
 use v5.010;
 
 use Backticks;
+use Carp;
+use Config::Tiny;
 use File::Slurp;
 use Getopt::Long;
 
@@ -31,11 +33,11 @@ sub generateLXCConfiguration{
 	#TODO : Apply restriction by apparmor and seccomp.
 	#TODO : randomize (u|g)id but check for conflicts.
 	my $id = getUserId();
+	my $range = getFlodayConfigurationValue('id_range');
 	open($configurationFile, '>', "$path/config");
 	my @configurationEntries = (
-	  #TODO : 100000 should be a configuration variable!
-	  "lxc.id_map = u 0 $id 100000",
-	  "lxc.id_map = g 0 $id 100000",
+	  "lxc.id_map = u 0 $id $range",
+	  "lxc.id_map = g 0 $id $range",
 	  "lxc.mount.auto = proc:mixed",
 	  "lxc.mount.entry = $CACHE_FOLDER/apk $rootfs/etc/apk/cache none bind 0.0",
 	  "lxc.network.type = veth",
@@ -66,6 +68,16 @@ sub getFile {
 	return "$pathForDownloadedFile/$packageName";
 }
 
+sub getFlodayConfigurationValue {
+	my ($attribute) = @_;
+	state $config = Config::Tiny->read('/etc/floday/floday.cfg');
+	$property = $config->{lxc}->{$attribute};
+	if (!defined $property) {
+		croak("The property lxc/$attribute was asked but is not defined in Floday configuration file");
+	}
+	return $property;
+}
+
 sub getPackage {
 	my ($target) = @_;
 	my $index = read_file(deployAPKIndex());
@@ -84,7 +96,9 @@ sub getPackage {
 
 sub getUserId {
 	#TODO: manage collisions
-	state $id = int(rand(1000)+1) * 100000 + 100000;
+	my $range = getFlodayConfigurationValue('id_range');
+	my $groups = getFlodayConfigurationValue('id_groups');
+	state $id = int(rand($groups)+1) * $range + $range;
 }
 
 sub getMainRepositoryAddress {
