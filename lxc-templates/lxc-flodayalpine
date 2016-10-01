@@ -2,6 +2,7 @@
 
 use v5.010;
 use warnings FATAL => 'all';
+use strict;
 
 use Backticks;
 use Carp;
@@ -34,7 +35,7 @@ sub generateLXCConfiguration{
 	#TODO : Apply restriction by apparmor and seccomp.
 	my $id = getUserId();
 	my $range = getFlodayConfigurationValue('id_range');
-	open($configurationFile, '>', "$LXC_PATH/config");
+	open(my $configurationFile, '>', "$LXC_PATH/config");
 	my @configurationEntries = (
 	  "lxc.id_map = u 0 $id $range",
 	  "lxc.id_map = g 0 $id $range",
@@ -71,7 +72,7 @@ sub getFile {
 sub getFlodayConfigurationValue {
 	my ($attribute) = @_;
 	state $config = Config::Tiny->read('/etc/floday/floday.cfg');
-	$property = $config->{lxc}->{$attribute};
+	my $property = $config->{lxc}->{$attribute};
 	if (!defined $property) {
 		croak("The property lxc/$attribute was asked but is not defined in Floday configuration file");
 	}
