@@ -109,22 +109,19 @@ sub getConfig {
 	if (defined $filter and ref($filter) ne 'Regexp') {
 		croak '$filter should be a regular expresion';
 	}
+    $filter //= qr/(.*)/;
 	my $allowUndef = defined ($flags) && $flags & ALLOW_UNDEF;
 	$this->_checkContainerIsExisting;
 	open CONF, '<', $this->getLxcPath . '/config';
 	my @results;
 	for (<CONF>) {
 		if (/^$attr\W*=\W*(?P<value>.*)$/) {
-			if (defined $filter) {
-				$+{value} =~ $filter and push @results, $1;
-			} else {
-				push @results, $+{value};
-			}
+			push @results, $+{value} =~ $filter;
 		}
 	}
-	$this->log->debugf('%s: getConfig %s: %s', $this->getUtsname, $attr, \@results);
+	$this->log->debugf('%s: getConfig \'%s\' with pattern \'%s\': %s', $this->getUtsname, $attr, $filter, \@results);
 	if (!@results && !$allowUndef) {
-		croak "'$attr' attribute was not found in lxc configuration file";
+		croak "'$attr' attribute was not found in lxc configuration file with filter $filter";
 	}
 	return @results;
 }
@@ -167,7 +164,6 @@ sub destroy {
 
 sub stop {
 	my ($this) = @_;
-	my $utsName = $this->getUtsname;
 	if (!$this->isRunning) {
 		$this->log->warningf('%s: stop: already stopped', $this->getUtsname);
 		return;

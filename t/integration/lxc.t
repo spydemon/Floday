@@ -2,10 +2,11 @@
 
 use v5.20;
 use strict;
-use Virt::LXC qw(ALLOW_UNDEF);
-use Test::More;
-use Test::Exception;
+
 use Log::Any::Adapter('File', 'log.txt');
+use Test::Exception;
+use Test::More;
+use Virt::LXC qw(ALLOW_UNDEF);
 
 my $container = Virt::LXC->new(utsname => 'lxc-test');
 $container->setTemplate('flodayalpine -- version 3.4');
@@ -25,6 +26,8 @@ ok !$container->isRunning, 'isRunning returns false.';
 ok $container->isStopped, 'Container is considered as stopped.';
 my @containerConfig = $container->getConfig('lxc.utsname');
 is $containerConfig[0], 'lxc-test', 'Can fetch a configuration value.';
+is_deeply {$container->getConfig('lxc.id_map', qr/u (\d+) \d+ (\d+)/)},
+	{0, 100000}, 'Check multi select configuration value.';
 
 $container->start;
 ok !$container->isStopped, 'Container is not considered as stopped.';
@@ -54,7 +57,7 @@ is $configValues[0], '42.42.42.42', 'Update of a configuration attribute.';
 my ($sequenceFilterTest) = $container->getConfig('lxc.id_map', qr/^u 0 (\d+) .*$/);
 ok grep{/^\d+$/} $sequenceFilterTest, 'Fetching configuration with filter.';
 throws_ok {$container->getConfig('lxc.non-existing')}
-  qr/'lxc.non-existing' attribute was not found in lxc configuration file/;
+  qr/'lxc.non-existing' attribute was not found in lxc configuration file with filter (?^u:(.*))/;
 is $container->getConfig('lxc.non-existing', undef, ALLOW_UNDEF), 0, 'GetConfig with ALLOW_UNDEF';
 
 $container->destroy;
