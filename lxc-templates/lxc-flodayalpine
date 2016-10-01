@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use v5.010;
+use warnings FATAL => 'all';
 
 use Backticks;
 use Carp;
@@ -12,10 +13,10 @@ $Backticks::autodie = 1;
 
 my $CACHE_FOLDER = '/tmp/floday/lxc-flodayalpine';
 
-my ($path, $name, $rootfs);
-GetOptions("path=s" => \$path,
-  "name=s" => \$name,
-  "rootfs=s" => \$rootfs
+my ($LXC_PATH, $LXC_NAME, $LXC_ROOTFS);
+GetOptions("path=s" => \$LXC_PATH,
+  "name=s" => \$LXC_NAME,
+  "rootfs=s" => \$LXC_ROOTFS
 );
 
 my %templateArguments= (@ARGV);
@@ -31,20 +32,19 @@ sub deployAPKIndex {
 
 sub generateLXCConfiguration{
 	#TODO : Apply restriction by apparmor and seccomp.
-	#TODO : randomize (u|g)id but check for conflicts.
 	my $id = getUserId();
 	my $range = getFlodayConfigurationValue('id_range');
-	open($configurationFile, '>', "$path/config");
+	open($configurationFile, '>', "$LXC_PATH/config");
 	my @configurationEntries = (
 	  "lxc.id_map = u 0 $id $range",
 	  "lxc.id_map = g 0 $id $range",
 	  "lxc.mount.auto = proc:mixed",
-	  "lxc.mount.entry = $CACHE_FOLDER/apk $rootfs/etc/apk/cache none bind 0.0",
+	  "lxc.mount.entry = $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache none bind 0.0",
 	  "lxc.network.type = veth",
 	  "lxc.network.flags = up",
 	  "lxc.network.link = lxcbr0",
-	  "lxc.rootfs = $rootfs",
-	  "lxc.utsname = $name"
+	  "lxc.rootfs = $LXC_ROOTFS",
+	  "lxc.utsname = $LXC_NAME"
 	);
 	say{$configurationFile} $_ foreach @configurationEntries;
 }
@@ -108,17 +108,17 @@ sub getMainRepositoryAddress {
 sub initSystem {
 	my $apkRepoToUse = getMainRepositoryAddress();
 	my $arch = getArchitectureToUse();
-	`mkdir -p $CACHE_FOLDER/apk && chmod a+rw $CACHE_FOLDER/apk && ln -s $CACHE_FOLDER/apk $rootfs/etc/apk/cache `;
-	`echo $apkRepoToUse > $rootfs/etc/apk/repositories`;
+	`mkdir -p $CACHE_FOLDER/apk && chmod a+rw $CACHE_FOLDER/apk && ln -s $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache `;
+	`echo $apkRepoToUse > $LXC_ROOTFS/etc/apk/repositories`;
 	#TODO: update of repo only when needed.
-	open (my $fh, '-|', "$rootfs/sbin/apk.static -U add --initdb --root $rootfs --arch $arch alpine-base");
+	open (my $fh, '-|', "$LXC_ROOTFS/sbin/apk.static -U add --initdb --root $LXC_ROOTFS --arch $arch alpine-base");
 	print $_ while(<$fh>);
 }
 
 sub installPackage {
 	my ($packageName) = @_;
 	my $packagePath = getPackage($packageName);
-	`tar -xf '$packagePath' -C '$rootfs' 2>/dev/null`;
+	`tar -xf '$packagePath' -C '$LXC_ROOTFS' 2>/dev/null`;
 	$packageName =~ s/\W//g;
 	if (defined &{"_installPackage_$packageName"}) {
 		no strict 'refs';
@@ -128,12 +128,12 @@ sub installPackage {
 
 sub manageSystemConfiguration {
 	my $id = getUserId();
-	`rm $rootfs/etc/apk/cache && mkdir -p $rootfs/etc/apk/cache`;
+	`rm $LXC_ROOTFS/etc/apk/cache && mkdir -p $LXC_ROOTFS/etc/apk/cache`;
 	#TODO : resolv.conf should be provided in container instantation.
-	`cp /etc/resolv.conf $rootfs/etc/resolv.conf`;
-	`chmod 750 $path`;
-	`chown :$id $path`;
-	`chown -R $id:$id $rootfs`;
+	`cp /etc/resolv.conf $LXC_ROOTFS/etc/resolv.conf`;
+	`chmod 750 $LXC_PATH`;
+	`chown :$id $LXC_PATH`;
+	`chown -R $id:$id $LXC_ROOTFS`;
 }
 
 sub _installPackage_alpinekeys {
@@ -144,7 +144,7 @@ sub _installPackage_alpinekeys {
 	  'alpine-devel@lists.alpinelinux.org-524d27bb.rsa.pub' => '1bb2a846c0ea4ca9d0e7862f970863857fc33c32f5506098c636a62a726a847b',
 	  'alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub' => '12f899e55a7691225603d6fb3324940fc51cd7f133e7ead788663c2b7eecb00c'
 	);
-	my $keyList = `echo $rootfs/etc/apk/keys/*.pub`;
+	my $keyList = `echo $LXC_ROOTFS/etc/apk/keys/*.pub`;
 	my $keyChecked = 0;
 	while ($keyList =~ /
 	    (?P<keyPathToUse>.*?                    #keyPathToUse will contain the absolute path of the next key.
@@ -152,21 +152,21 @@ sub _installPackage_alpinekeys {
 	    )
 	  \s/gx
 	) {
-		`cd $rootfs/etc/apk/keys && echo "$keys{$+{keyNameToUse}} $+{keyNameToUse}" | sha256sum -c -`;
+		`cd $LXC_ROOTFS/etc/apk/keys && echo "$keys{$+{keyNameToUse}} $+{keyNameToUse}" | sha256sum -c -`;
 		$keyChecked += 1;
 	}
 	die ('Too much key signatures are in this template') if ($keyChecked != keys %keys);
 }
 
 sub _installPackage_apktoolsstatic {
-	`echo $rootfs/sbin/apk.static.*.pub`         #Get the path of the file corresponding to apk.static signed hash.
+	`echo $LXC_ROOTFS/sbin/apk.static.*.pub`         #Get the path of the file corresponding to apk.static signed hash.
 	  =~ /
 	    (?P<signatureToCheck>^.*                 #Capture the absolute path without the \n at the end of the line.
 	      (?P<keyToUse>alpine-devel[^\/]*)       #The name of the key used for the signature is present in the hash name.
 	    )
 	  \s$/x;
-	my $fileToCheck = "$rootfs/sbin/apk.static";
-	my $keyToUseForChecking = "$rootfs/etc/apk/keys/$+{keyToUse}";
+	my $fileToCheck = "$LXC_ROOTFS/sbin/apk.static";
+	my $keyToUseForChecking = "$LXC_ROOTFS/etc/apk/keys/$+{keyToUse}";
 	`openssl dgst -sha1 -verify $keyToUseForChecking -signature $+{signatureToCheck} $fileToCheck`;
 }
 
