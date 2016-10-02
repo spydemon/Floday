@@ -1,3 +1,4 @@
 *.swp
+.idea
 tags
 t/integration/log.txt
