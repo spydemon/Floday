@@ -12,8 +12,7 @@ use Getopt::Long;
 
 $Backticks::autodie = 1;
 
-my $CACHE_FOLDER = '/tmp/floday/lxc-flodayalpine';
-
+my $CACHE_FOLDER = getFlodayConfigurationValue('cache_folder');
 my ($LXC_PATH, $LXC_NAME, $LXC_ROOTFS);
 GetOptions("path=s" => \$LXC_PATH,
   "name=s" => \$LXC_NAME,
