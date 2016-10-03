@@ -4,11 +4,14 @@ use v5.010;
 use warnings FATAL => 'all';
 use strict;
 
+#TODO: wired behavior with APKINDEX that doesnt't seem updated in some cases.
+
 use Backticks;
 use Carp;
 use Config::Tiny;
 use File::Slurp;
 use Getopt::Long;
+use Virt::LXC;
 
 $Backticks::autodie = 1;
 
@@ -18,6 +21,7 @@ GetOptions("path=s" => \$LXC_PATH,
   "name=s" => \$LXC_NAME,
   "rootfs=s" => \$LXC_ROOTFS
 );
+my $LXC_UG_ID = getUserId();
 
 my %templateArguments= (@ARGV);
 
@@ -32,12 +36,11 @@ sub deployAPKIndex {
 
 sub generateLXCConfiguration{
 	#TODO : Apply restriction by apparmor and seccomp.
-	my $id = getUserId();
 	my $range = getFlodayConfigurationValue('id_range');
 	open(my $configurationFile, '>', "$LXC_PATH/config");
 	my @configurationEntries = (
-	  "lxc.id_map = u 0 $id $range",
-	  "lxc.id_map = g 0 $id $range",
+	  "lxc.id_map = u 0 $LXC_UG_ID $range",
+	  "lxc.id_map = g 0 $LXC_UG_ID $range",
 	  "lxc.mount.auto = proc:mixed",
 	  "lxc.mount.entry = $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache none bind 0.0",
 	  "lxc.network.type = veth",
@@ -83,8 +86,8 @@ sub getPackage {
 	my $index = read_file(deployAPKIndex());
 	while (
 	  $index =~ /
-	    ^P:(?P<name>.*)\n		#Get the next software name present in the index.
-	    ^V:(?P<version>.*)\n	#Get the next software version present in the index.
+	    ^P:(?P<name>.*)\n        #Get the next software name present in the index.
+	    ^V:(?P<version>.*)\n     #Get the next software version present in the index.
 	  /mgx
 	) {
 		if ($+{name} eq $target) {
@@ -95,10 +98,26 @@ sub getPackage {
 }
 
 sub getUserId {
-	#TODO: manage collisions
+	my @alreadyUsedUgid;
+	for (Virt::LXC->getExistingContainers()) {
+		if ($_ ne $LXC_NAME) {
+			push @alreadyUsedUgid, Virt::LXC->new(utsname => $_)->getConfig('lxc.id_map', qr/^u \d+ (\d+) (\d+)$/);
+		}
+	}
 	my $range = getFlodayConfigurationValue('id_range');
 	my $groups = getFlodayConfigurationValue('id_groups');
-	state $id = int(rand($groups)+1) * $range + $range;
+	REGENERATE_ID: for (1...10) {
+		my @alreadyUsedUgidCopy = @alreadyUsedUgid;
+		my $candidateId = int(rand($groups)+1) * $range + $range;
+		while(my ($currentStartId, $currentRange) = splice(@alreadyUsedUgidCopy, 0, 2)) {
+			if (($candidateId + $range) < $currentStartId || $candidateId > ($currentStartId + $currentRange)) {
+				next;
+			}
+			next REGENERATE_ID;
+		}
+		return $candidateId;
+	}
+	die('10 id collisions occured with already existing LXC containers. Maybe should you increase lxc.id_groups?');
 }
 
 sub getMainRepositoryAddress {
@@ -127,13 +146,12 @@ sub installPackage {
 }
 
 sub manageSystemConfiguration {
-	my $id = getUserId();
 	`rm $LXC_ROOTFS/etc/apk/cache && mkdir -p $LXC_ROOTFS/etc/apk/cache`;
 	#TODO : resolv.conf should be provided in container instantation.
 	`cp /etc/resolv.conf $LXC_ROOTFS/etc/resolv.conf`;
 	`chmod 750 $LXC_PATH`;
-	`chown :$id $LXC_PATH`;
-	`chown -R $id:$id $LXC_ROOTFS`;
+	`chown :$LXC_UG_ID $LXC_PATH`;
+	`chown -R $LXC_UG_ID:$LXC_UG_ID $LXC_ROOTFS`;
 }
 
 sub _installPackage_alpinekeys {
