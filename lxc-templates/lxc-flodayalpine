@@ -11,6 +11,7 @@ use Carp;
 use Config::Tiny;
 use File::Slurp;
 use Getopt::Long;
+use List::Util qw<pairs>;
 use Virt::LXC;
 
 $Backticks::autodie = 1;
@@ -97,23 +98,22 @@ sub getPackage {
 	die("Package $target was not found in APKIndex");
 }
 
+#TODO: should be unit tested.
 sub getUserId {
-	my @alreadyUsedUgid;
-	for (Virt::LXC->getExistingContainers()) {
-		if ($_ ne $LXC_NAME) {
-			push @alreadyUsedUgid, Virt::LXC->new(utsname => $_)->getConfig('lxc.id_map', qr/^u \d+ (\d+) (\d+)$/);
-		}
-	}
+	my @alreadyUsedUgid =
+	  map {Virt::LXC->new(utsname => $_)->getConfig('lxc.id_map', qr/^u \d+ (\d+) (\d+)$/)}
+	  grep {$_ ne $LXC_NAME}
+	  Virt::LXC->getExistingContainers();
 	my $range = getFlodayConfigurationValue('id_range');
 	my $groups = getFlodayConfigurationValue('id_groups');
 	REGENERATE_ID: for (1...10) {
 		my @alreadyUsedUgidCopy = @alreadyUsedUgid;
-		my $candidateId = int(rand($groups)+1) * $range + $range;
-		while(my ($currentStartId, $currentRange) = splice(@alreadyUsedUgidCopy, 0, 2)) {
-			if (($candidateId + $range) < $currentStartId || $candidateId > ($currentStartId + $currentRange)) {
-				next;
+		my $candidateId = int(rand($groups)+1) * $range;
+		foreach (pairs @alreadyUsedUgidCopy) {
+			my ($currentStartId, $currentRange) = @$_;
+			if ($currentStartId < ($candidateId + $range) && $candidateId < ($currentStartId + $currentRange)) {
+				next REGENERATE_ID;
 			}
-			next REGENERATE_ID;
 		}
 		return $candidateId;
 	}
