@@ -9,7 +9,7 @@ use strict;
 use Backticks;
 use Carp;
 use Config::Tiny;
-use File::Slurp;
+use File::Slurp qw<read_file>;
 use Getopt::Long;
 use List::Util qw<pairs>;
 use Virt::LXC;
@@ -39,11 +39,13 @@ sub generateLXCConfiguration{
 	#TODO : Apply restriction by apparmor and seccomp.
 	my $range = getFlodayConfigurationValue('id_range');
 	open(my $configurationFile, '>', "$LXC_PATH/config");
+	`touch $LXC_ROOTFS/dev/urandom`;
 	my @configurationEntries = (
 	  "lxc.id_map = u 0 $LXC_UG_ID $range",
 	  "lxc.id_map = g 0 $LXC_UG_ID $range",
 	  "lxc.mount.auto = proc:mixed",
 	  "lxc.mount.entry = $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache none bind 0.0",
+	  "lxc.mount.entry = /dev/urandom $LXC_ROOTFS/dev/urandom none bind",
 	  "lxc.network.type = veth",
 	  "lxc.network.flags = up",
 	  "lxc.network.link = lxcbr0",
@@ -74,6 +76,7 @@ sub getFile {
 
 sub getFlodayConfigurationValue {
 	my ($attribute) = @_;
+	#TODO: the path should not be hardcoded.
 	state $config = Config::Tiny->read('/etc/floday/floday.cfg');
 	my $property = $config->{lxc}->{$attribute};
 	if (!defined $property) {
@@ -148,7 +151,7 @@ sub installPackage {
 sub manageSystemConfiguration {
 	`rm $LXC_ROOTFS/etc/apk/cache && mkdir -p $LXC_ROOTFS/etc/apk/cache`;
 	#TODO : resolv.conf should be provided in container instantation.
-	`cp /etc/resolv.conf $LXC_ROOTFS/etc/resolv.conf`;
+	`echo "nameserver 8.8.8.8" > $LXC_ROOTFS/etc/resolv.conf`;
 	`chmod 750 $LXC_PATH`;
 	`chown :$LXC_UG_ID $LXC_PATH`;
 	`chown -R $LXC_UG_ID:$LXC_UG_ID $LXC_ROOTFS`;
