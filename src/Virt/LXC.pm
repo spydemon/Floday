@@ -109,7 +109,7 @@ sub getConfig {
 	if (defined $filter and ref($filter) ne 'Regexp') {
 		croak '$filter should be a regular expresion';
 	}
-    $filter //= qr/(.*)/;
+	$filter //= qr/(.*)/;
 	my $allowUndef = defined ($flags) && $flags & ALLOW_UNDEF;
 	$this->_checkContainerIsExisting;
 	open CONF, '<', $this->getLxcPath . '/config';
@@ -182,7 +182,7 @@ sub start {
 		return;
 	}
 	$this->log->infof('%s: start', $this->getUtsname);
-	$this->_qx("lxc-start -n $utsName", wantarray);
+	$this->_qx("lxc-start -d -n $utsName", wantarray);
 	$this->log->infof('%s: started', $this->getUtsname);
 }
 
