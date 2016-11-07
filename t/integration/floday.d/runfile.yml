@@ -1,8 +1,6 @@
---- runfile
 ---
-
 hosts:
-    spyzone:
+    integration:
         parameters:
             type: riuk
             external_ipv4: 192.168.15.151

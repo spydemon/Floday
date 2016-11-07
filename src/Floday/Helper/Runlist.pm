@@ -1,8 +1,11 @@
 package Floday::Helper::Runlist;
 
+use v5.20;
+
 use Data::Dumper;
 use Log::Any;
 use Moo;
+use YAML::Tiny;
 
 has log => (
 	is => 'ro',
@@ -16,6 +19,7 @@ has runfile => (
 	isa => sub {
 		die 'runfile is not readable' unless -r $_[0];
 	},
+	reader => 'getRunFile',
 	required => 1,
 );
 
@@ -166,6 +170,13 @@ sub getSetupsByPriorityForApplication {
 }
 
 sub _initializeRunlist {
+	my ($this) = @_;
+	my $hosts = YAML::Tiny->read($this->getRunFile())->[0]{hosts};
+	for (keys %$hosts) {
+		my $attributes = $hosts->{$_};
+		$attributes->{parameters}{name} = $_;
+		say Dumper $attributes;
+	}
 	$runlist;
 }
 
