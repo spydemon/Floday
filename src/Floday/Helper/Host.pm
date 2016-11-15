@@ -8,7 +8,9 @@ has attributesFromRunfile => (
   is => 'ro',
   isa => sub {
      my $hostName = $_[0]->{parameters}{name};
-     die "Invalid name '$hostName' for host initialization" if $hostName !~ /^[a-zA-Z]+$/;
+     my $hostType = $_[0]->{parameters}{type};
+     die "Invalid name '$hostName' for host initialization" if $hostName !~ /^\w+$/;
+     die "Invalid type '$hostType' for host initialization" if $hostType !~ /^\w+$/;
   },
   reader => 'getAttributesFromRunfile'
 );

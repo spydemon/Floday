@@ -10,19 +10,29 @@ use Floday::Helper::Host;
 
 my $attributesWithGoodName = {
   'parameters' => {
-    'name' => 'agoodname'
+    'name' => 'agoodname',
+    'type' => 'riuk'
+  }
+};
+
+my $attributesWithWrongType = {
+  'parameters' => {
+    'name' => 'agoodname',
+    'type' => 'riuk-xx'
   }
 };
 
 my $attributesWithWrongName = {
   'parameters' => {
-    'name' => 'yol0~~'
+    'name' => 'yol0~~',
+    'type' => 'riuk'
   }
 };
 
 my $attributesWithoutName = {
   'parameters' => {
-    'type' => 'riuk-php'
+    'type' => 'riuk-php',
+    'type' => 'riuk'
   }
 };
 
@@ -33,5 +43,8 @@ throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithW
 throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithoutName)}
   qr/Invalid name '' for host initialization/,
   'Check exception at invalid hostname.';
+throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithWrongType)}
+  qr/Invalid type 'riuk-xx' for host initialization/,
+  'Check exception at invalid container type.';
 
 done_testing;
