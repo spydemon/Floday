@@ -58,5 +58,9 @@ throws_ok {my $host = Floday::Helper::Host->new('attributesFromRunfile' => $attr
 `mv /etc/floday/floday.cfg.back /etc/floday/floday.cfg`;
 
 my $host = Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithGoodName);
+ok ($host->_getFlodayConfig('path') eq '/etc/floday/containers', 'Check Floday configuration fetching.');
+throws_ok {$host->_getFlodayConfig('nonexisting')}
+  qr/Undefined 'nonexisting' key in Floday configuration container section/,
+  'Check Floday configuration fetch with non existing key';
 
 done_testing;
