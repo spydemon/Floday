@@ -1,6 +1,10 @@
 #!/usr/bin/env perl
 
 use v5.20;
+use warnings;
+use strict;
+
+use Data::Dumper;
 
 use Log::Any::Adapter('File', 'log.txt');
 use Test::More;
@@ -46,5 +50,13 @@ throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWitho
 throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithWrongType)}
   qr/Invalid type 'riuk-xx' for host initialization/,
   'Check exception at invalid container type.';
+
+`mv /etc/floday/floday.cfg /etc/floday/floday.cfg.back`;
+throws_ok {my $host = Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithGoodName)}
+  qr/Unable to load Floday configuration/,
+  'Check exception when configuration file is missing.';
+`mv /etc/floday/floday.cfg.back /etc/floday/floday.cfg`;
+
+my $host = Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithGoodName);
 
 done_testing;
