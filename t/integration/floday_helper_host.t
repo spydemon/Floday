@@ -15,7 +15,8 @@ use Floday::Helper::Host;
 my $attributesWithGoodName = {
   'parameters' => {
     'name' => 'agoodname',
-    'type' => 'riuk'
+    'type' => 'riuk',
+    'external_ipv4' => '10.11.22.33'
   }
 };
 
@@ -37,6 +38,15 @@ my $attributesWithoutName = {
   'parameters' => {
     'type' => 'riuk-php',
     'type' => 'riuk'
+  }
+};
+
+my $attributesWithUnexistingParam = {
+  'parameters' => {
+    'name' => 'agoodname',
+    'type' => 'riuk',
+    'external_ipv4' => '10.11.22.33',
+    'unknown_param' => 'a value'
   }
 };
 
@@ -62,5 +72,12 @@ ok ($host->_getFlodayConfig('path') eq '/etc/floday/containers', 'Check Floday c
 throws_ok {$host->_getFlodayConfig('nonexisting')}
   qr/Undefined 'nonexisting' key in Floday configuration container section/,
   'Check Floday configuration fetch with non existing key';
+
+#Test _mergeConfig function:
+cmp_ok ($host->toHash()->{'parameters'}{'external_ipv4'}{'value'}, 'eq', '10.11.22.33', 'Check runfile parameters integration in runlist.');
+cmp_ok ($host->toHash()->{'parameters'}{'useless_param'}{'value'}, 'eq', 'we dont care', 'Check default runlist parameters values.');
+throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithUnexistingParam)->toHash()}
+  qr/Parameter 'unknown_param' present in runfile but that doesn't exist in container definition/,
+  'Check exception on unexisting parameter in container definition.';
 
 done_testing;

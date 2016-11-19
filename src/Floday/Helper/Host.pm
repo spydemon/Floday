@@ -4,6 +4,7 @@ use v5.20;
 
 use Config::Tiny;
 use Moo;
+use YAML::Tiny;
 
 has attributesFromRunfile => (
   is => 'ro',
@@ -27,6 +28,29 @@ has flodayConfigFile => (
   reader => '_getFlodayConfigFile'
 );
 
+sub toHash {
+	my ($this) = @_;
+	#TODO: manage recursivity:
+	my $containerConfig = $this->_getContainerConfig($this->getAttributesFromRunfile()->{parameters}{name});
+	#TODO: check integrity.
+	#TODO: clean parameters format.
+	return $containerConfig;
+}
+
+sub _getContainerConfig {
+	my ($this, $containerNamePath, $configuration) = @_;
+	my $containerDefinitionPath = _getContainerConfigFilePath();
+	my $plainConfig = YAML::Tiny->read($containerDefinitionPath);
+	$this->_mergeConfig($containerNamePath, $plainConfig->[0]);
+}
+
+sub _getContainerConfigFilePath {
+	my ($this, $containerNamePath) = @_;
+	#TODO: manage real implementation.
+	#join('/', $this->_getFlodayConfig('path'), $containerNamePath, 'config.yml');
+	return '/etc/floday/containers/riuk/config.yml';
+}
+
 sub _getFlodayConfig {
 	my ($this, $key) = @_;
 	die ("Undefined key") unless defined $key;
@@ -35,4 +59,19 @@ sub _getFlodayConfig {
 	return $value;
 }
 
+sub _mergeConfig {
+	my ($this, $containerNamePath, $containerConfig) = @_;
+	my $attributesFromRunfile;
+	$attributesFromRunfile->{$this->getAttributesFromRunfile()->{parameters}{name}} = $this->getAttributesFromRunfile();
+	for (split '-', $containerNamePath . '-') {
+		$attributesFromRunfile = $attributesFromRunfile->{$_}{parameters};
+	}
+	$containerConfig->{parameters}{name}{value} = undef;
+	$containerConfig->{parameters}{type}{value} = undef;
+	for (keys %$attributesFromRunfile) {
+		die ("Parameter '$_' present in runfile but that doesn't exist in container definition") unless defined $containerConfig->{parameters}{$_};
+		$containerConfig->{parameters}{$_}{value} = $attributesFromRunfile->{$_};
+	}
+	return $containerConfig;
+}
 1
