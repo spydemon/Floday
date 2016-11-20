@@ -43,14 +43,10 @@ has flodayConfigFile => (
 sub toHash {
 	my ($this) = @_;
 	my $containerNamePath = $this->_getContainerNamePathToManage();
-	my $containerConfig = $this->_getContainerConfig($containerNamePath);
-	my $containerAttributeFromRunfile;
-	$containerAttributeFromRunfile->{$this->getAttributesFromRunfile->{parameters}{name}}{applications} = $this->getAttributesFromRunfile();
-	for (split '-', $containerNamePath) {
-		$containerAttributeFromRunfile = $containerAttributeFromRunfile->{$_}{applications};
-	}
+	my $containerConfig = $this->_getContainerDefinition($containerNamePath);
+	my $containerAttributeFromRunfile = $this->_getInstanceToManageRunfileConfiguration();
 	if (defined $containerAttributeFromRunfile->{applications}) {
-		for (keys %$containerAttributeFromRunfile->{applications}) {
+		for (keys %{$containerAttributeFromRunfile->{applications}}) {
 			$containerAttributeFromRunfile->{applications}{$_}{parameters}{name} =  $_;
 			$containerConfig->{applications}{$_} =
 			  Floday::Helper::Host->new(
@@ -65,11 +61,11 @@ sub toHash {
 	return $containerConfig;
 }
 
-sub _getContainerConfig {
+sub _getContainerDefinition {
 	my ($this, $containerNamePath) = @_;
 	my $containerDefinitionPath = $this->_getContainerConfigFilePath($containerNamePath);
 	my $plainConfig = YAML::Tiny->read($containerDefinitionPath);
-	$this->_mergeConfig($containerNamePath, $plainConfig->[0]);
+	$this->_mergeConfig($plainConfig->[0]);
 }
 
 sub _getContainerConfigFilePath {
@@ -81,6 +77,16 @@ sub _getContainerConfigFilePath {
 	  (map {'children/' . $_} @containersType),
 	  'config.yml'
 	);
+}
+
+sub _getInstanceToManageRunfileConfiguration {
+	my ($this) = @_;
+	my $attributesFromRunfile;
+	$attributesFromRunfile->{applications}{$this->getAttributesFromRunfile->{parameters}{name}} = $this->getAttributesFromRunfile();
+	for (split '-', $this->_getContainerNamePathToManage()) {
+		$attributesFromRunfile = $attributesFromRunfile->{applications}{$_};
+	}
+	return $attributesFromRunfile;
 }
 
 sub _getContainerTypePath {
@@ -104,12 +110,8 @@ sub _getFlodayConfig {
 }
 
 sub _mergeConfig {
-	my ($this, $containerNamePath, $containerConfig) = @_;
-	my $runfileConfig;
-	$runfileConfig->{applications}{$this->getAttributesFromRunfile()->{parameters}{name}} = $this->getAttributesFromRunfile();
-	for (split '-', $containerNamePath . '-') {
-		$runfileConfig = $runfileConfig->{applications}{$_};
-	}
+	my ($this, $containerConfig) = @_;
+	my $runfileConfig = $this->_getInstanceToManageRunfileConfiguration();
 	$runfileConfig = $runfileConfig->{'parameters'};
 	$containerConfig->{parameters}{name}{value} = undef;
 	$containerConfig->{parameters}{type}{value} = undef;
