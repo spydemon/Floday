@@ -50,6 +50,27 @@ my $attributesWithUnexistingParam = {
   }
 };
 
+my $attributesWithChild = {
+  'parameters' => {
+    'name' => 'agoodname',
+    'type' => 'riuk',
+    'external_ipv4' => '10.11.22.35'
+  },
+  'applications' => {
+    'website1' => {
+      'parameters' => {
+        'type' => 'web',
+        'arbitrary_param' => '1'
+      }
+    },
+    'website2' => {
+      'parameters' => {
+        'type' => 'ror'
+      }
+    }
+  }
+};
+
 ok (Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithGoodName), 'A instance is correctly created.');
 throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithWrongName)}
   qr/Invalid name 'yol0~~' for host initialization/,
@@ -68,7 +89,7 @@ throws_ok {my $host = Floday::Helper::Host->new('attributesFromRunfile' => $attr
 `mv /etc/floday/floday.cfg.back /etc/floday/floday.cfg`;
 
 my $host = Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithGoodName);
-ok ($host->_getFlodayConfig('path') eq '/etc/floday/containers', 'Check Floday configuration fetching.');
+cmp_ok ($host->_getFlodayConfig('path'), 'eq', '/etc/floday/containers', 'Check Floday configuration fetching.');
 throws_ok {$host->_getFlodayConfig('nonexisting')}
   qr/Undefined 'nonexisting' key in Floday configuration container section/,
   'Check Floday configuration fetch with non existing key';
@@ -79,5 +100,10 @@ cmp_ok ($host->toHash()->{'parameters'}{'useless_param'}{'value'}, 'eq', 'we don
 throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithUnexistingParam)->toHash()}
   qr/Parameter 'unknown_param' present in runfile but that doesn't exist in container definition/,
   'Check exception on unexisting parameter in container definition.';
+
+#Test _getContainerTypePath:
+my $complexHost = Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithChild);
+cmp_ok $complexHost->_getContainerTypePath('agoodname-website1'), 'eq', 'riuk-web', 'Check containerTypePath resolution.';
+cmp_ok $complexHost->_getContainerTypePath('agoodname-website2'), 'eq', 'riuk-ror', 'Check containerTypePath resolution.';
 
 done_testing;

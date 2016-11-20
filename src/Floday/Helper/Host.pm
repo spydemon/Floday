@@ -38,17 +38,33 @@ sub toHash {
 }
 
 sub _getContainerConfig {
-	my ($this, $containerNamePath, $configuration) = @_;
-	my $containerDefinitionPath = _getContainerConfigFilePath();
+	my ($this, $containerNamePath) = @_;
+	my $containerDefinitionPath = $this->_getContainerConfigFilePath($containerNamePath);
 	my $plainConfig = YAML::Tiny->read($containerDefinitionPath);
 	$this->_mergeConfig($containerNamePath, $plainConfig->[0]);
 }
 
 sub _getContainerConfigFilePath {
 	my ($this, $containerNamePath) = @_;
-	#TODO: manage real implementation.
-	#join('/', $this->_getFlodayConfig('path'), $containerNamePath, 'config.yml');
-	return '/etc/floday/containers/riuk/config.yml';
+	my @containersType = split '-', $this->_getContainerTypePath($containerNamePath);
+	join('/',
+	  $this->_getFlodayConfig('path'),
+	  shift @containersType,
+	  (map {'children/' . $_} @containersType),
+	  'config.yml'
+	);
+}
+
+sub _getContainerTypePath {
+	my ($this, $containerNamePath) = @_;
+	my @containerTypePath;
+	my $runfileConfig;
+	$runfileConfig->{applications}{$this->getAttributesFromRunfile()->{parameters}{name}} = $this->getAttributesFromRunfile();
+	for (split ('-', $containerNamePath)) {
+		$runfileConfig = $runfileConfig->{applications}{$_};
+		push @containerTypePath, $runfileConfig->{parameters}{type};
+	}
+	join '-', @containerTypePath;
 }
 
 sub _getFlodayConfig {
