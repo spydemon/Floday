@@ -1,0 +1,5 @@
+parameters:
+	arbitrary_param:
+		mandatory: false
+	second_arbitrary_param:
+		mandatory: false

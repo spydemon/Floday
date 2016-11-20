@@ -18,6 +18,18 @@ has attributesFromRunfile => (
   reader => 'getAttributesFromRunfile'
 );
 
+has containerNamePathToManage => (
+  default => sub {
+    my ($this) = @_;
+    $this->getAttributesFromRunfile()->{parameters}{name};
+  },
+  is => 'ro',
+  isa => sub {
+    die if $_[0] !~ /^[\w-]+$/;
+  },
+  reader => '_getContainerNamePathToManage'
+);
+
 has flodayConfigFile => (
   builder => sub {
     my $cfg = Config::Tiny->read('/etc/floday/floday.cfg');
@@ -30,8 +42,24 @@ has flodayConfigFile => (
 
 sub toHash {
 	my ($this) = @_;
-	#TODO: manage recursivity:
-	my $containerConfig = $this->_getContainerConfig($this->getAttributesFromRunfile()->{parameters}{name});
+	my $containerNamePath = $this->_getContainerNamePathToManage();
+	my $containerConfig = $this->_getContainerConfig($containerNamePath);
+	my $containerAttributeFromRunfile;
+	$containerAttributeFromRunfile->{$this->getAttributesFromRunfile->{parameters}{name}}{applications} = $this->getAttributesFromRunfile();
+	for (split '-', $containerNamePath) {
+		$containerAttributeFromRunfile = $containerAttributeFromRunfile->{$_}{applications};
+	}
+	if (defined $containerAttributeFromRunfile->{applications}) {
+		for (keys %$containerAttributeFromRunfile->{applications}) {
+			$containerAttributeFromRunfile->{applications}{$_}{parameters}{name} =  $_;
+			$containerConfig->{applications}{$_} =
+			  Floday::Helper::Host->new(
+			    'attributesFromRunfile' => $this->getAttributesFromRunfile,
+			    'containerNamePathToManage' => $this->_getContainerNamePathToManage() . '-' . $_
+			  )->toHash()
+			;
+		}
+	}
 	#TODO: check integrity.
 	#TODO: clean parameters format.
 	return $containerConfig;
@@ -77,17 +105,19 @@ sub _getFlodayConfig {
 
 sub _mergeConfig {
 	my ($this, $containerNamePath, $containerConfig) = @_;
-	my $attributesFromRunfile;
-	$attributesFromRunfile->{$this->getAttributesFromRunfile()->{parameters}{name}} = $this->getAttributesFromRunfile();
+	my $runfileConfig;
+	$runfileConfig->{applications}{$this->getAttributesFromRunfile()->{parameters}{name}} = $this->getAttributesFromRunfile();
 	for (split '-', $containerNamePath . '-') {
-		$attributesFromRunfile = $attributesFromRunfile->{$_}{parameters};
+		$runfileConfig = $runfileConfig->{applications}{$_};
 	}
+	$runfileConfig = $runfileConfig->{'parameters'};
 	$containerConfig->{parameters}{name}{value} = undef;
 	$containerConfig->{parameters}{type}{value} = undef;
-	for (keys %$attributesFromRunfile) {
+	for (keys %$runfileConfig) {
 		die ("Parameter '$_' present in runfile but that doesn't exist in container definition") unless defined $containerConfig->{parameters}{$_};
-		$containerConfig->{parameters}{$_}{value} = $attributesFromRunfile->{$_};
+		$containerConfig->{parameters}{$_}{value} = $runfileConfig->{$_};
 	}
 	return $containerConfig;
 }
+
 1

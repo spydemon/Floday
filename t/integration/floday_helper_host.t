@@ -5,10 +5,12 @@ use warnings;
 use strict;
 
 use Data::Dumper;
+$Data::Dumper::Indent = 1;
 
 use Log::Any::Adapter('File', 'log.txt');
-use Test::More;
+use Test::Deep;
 use Test::Exception;
+use Test::More;
 
 use Floday::Helper::Host;
 
@@ -60,13 +62,61 @@ my $attributesWithChild = {
     'website1' => {
       'parameters' => {
         'type' => 'web',
-        'arbitrary_param' => '1'
       }
     },
     'website2' => {
       'parameters' => {
-        'type' => 'ror'
+        'type' => 'sftp',
+        'arbitrary_param' => '1'
       }
+    }
+  }
+};
+
+my $complexHostToHashResult = {
+  'applications' => {
+    'website2' => {
+      'parameters' => {
+        'name' => {
+          'value' => 'website2'
+        },
+        'type' => {
+          'value' => 'sftp'
+        },
+        'second_arbitrary_param' => {
+          'mandatory' => 'false'
+        },
+        'arbitrary_param' => {
+          'mandatory' => 'false',
+          'value' => '1'
+        }
+      }
+    },
+    'website1' => {
+      'parameters' => {
+        'name' => {
+          'value' => 'website1'
+        },
+        'type' => {
+          'value' => 'web'
+        }
+      }
+    }
+  },
+  'parameters' => {
+    'external_ipv4' => {
+      'value' => '10.11.22.35',
+      'required' => 'true'
+    },
+    'type' => {
+      'value' => 'riuk'
+    },
+    'useless_param' => {
+      'required' => 'false',
+      'value' => 'we dont care'
+    },
+    'name' => {
+      'value' => 'agoodname'
     }
   }
 };
@@ -104,6 +154,9 @@ throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithU
 #Test _getContainerTypePath:
 my $complexHost = Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithChild);
 cmp_ok $complexHost->_getContainerTypePath('agoodname-website1'), 'eq', 'riuk-web', 'Check containerTypePath resolution.';
-cmp_ok $complexHost->_getContainerTypePath('agoodname-website2'), 'eq', 'riuk-ror', 'Check containerTypePath resolution.';
+cmp_ok $complexHost->_getContainerTypePath('agoodname-website2'), 'eq', 'riuk-sftp', 'Check containerTypePath resolution.';
+
+#Test toHash
+cmp_deeply $complexHost->toHash(), $complexHostToHashResult, 'Check toHash result.';
 
 done_testing;
