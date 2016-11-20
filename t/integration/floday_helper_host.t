@@ -121,40 +121,43 @@ my $complexHostToHashResult = {
   }
 };
 
-ok (Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithGoodName), 'A instance is correctly created.');
-throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithWrongName)}
+ok (Floday::Helper::Host->new('runfile' => $attributesWithGoodName), 'A instance is correctly created.');
+throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithWrongName)}
   qr/Invalid name 'yol0~~' for host initialization/,
   'Check exception at invalid hostname.';
-throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithoutName)}
+throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithoutName)}
   qr/Invalid name '' for host initialization/,
   'Check exception at invalid hostname.';
-throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithWrongType)}
+throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithWrongType)}
   qr/Invalid type 'riuk-xx' for host initialization/,
   'Check exception at invalid container type.';
 
 `mv /etc/floday/floday.cfg /etc/floday/floday.cfg.back`;
-throws_ok {my $host = Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithGoodName)}
+throws_ok {my $host = Floday::Helper::Host->new('runfile' => $attributesWithGoodName)}
   qr/Unable to load Floday configuration/,
   'Check exception when configuration file is missing.';
 `mv /etc/floday/floday.cfg.back /etc/floday/floday.cfg`;
 
-my $host = Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithGoodName);
+my $host = Floday::Helper::Host->new('runfile' => $attributesWithGoodName);
 cmp_ok ($host->_getFlodayConfig('path'), 'eq', '/etc/floday/containers', 'Check Floday configuration fetching.');
 throws_ok {$host->_getFlodayConfig('nonexisting')}
   qr/Undefined 'nonexisting' key in Floday configuration container section/,
   'Check Floday configuration fetch with non existing key';
 
-#Test _mergeConfig function:
+#Test _mergeDefinition function:
 cmp_ok ($host->toHash()->{'parameters'}{'external_ipv4'}{'value'}, 'eq', '10.11.22.33', 'Check runfile parameters integration in runlist.');
 cmp_ok ($host->toHash()->{'parameters'}{'useless_param'}{'value'}, 'eq', 'we dont care', 'Check default runlist parameters values.');
-throws_ok {Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithUnexistingParam)->toHash()}
+throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithUnexistingParam)->toHash()}
   qr/Parameter 'unknown_param' present in runfile but that doesn't exist in container definition/,
   'Check exception on unexisting parameter in container definition.';
 
-#Test _getContainerTypePath:
-my $complexHost = Floday::Helper::Host->new('attributesFromRunfile' => $attributesWithChild);
-cmp_ok $complexHost->_getContainerTypePath('agoodname-website1'), 'eq', 'riuk-web', 'Check containerTypePath resolution.';
-cmp_ok $complexHost->_getContainerTypePath('agoodname-website2'), 'eq', 'riuk-sftp', 'Check containerTypePath resolution.';
+#Test _getContainerPath:
+my $complexHost = Floday::Helper::Host->new('runfile' => $attributesWithChild);
+$complexHost->{instancePathToManage} = 'agoodname-website1';
+cmp_ok $complexHost->_getContainerPath(), 'eq', 'riuk-web', 'Check containerTypePath resolution.';
+$complexHost->{instancePathToManage} = 'agoodname-website2';
+cmp_ok $complexHost->_getContainerPath(), 'eq', 'riuk-sftp', 'Check containerTypePath resolution.';
+$complexHost->{instancePathToManage} = 'agoodname';
 
 #Test toHash
 cmp_deeply $complexHost->toHash(), $complexHostToHashResult, 'Check toHash result.';

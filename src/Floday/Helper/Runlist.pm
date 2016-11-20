@@ -2,6 +2,8 @@ package Floday::Helper::Runlist;
 
 use v5.20;
 
+use Floday::Helper::Host;
+
 use Data::Dumper;
 use Log::Any;
 use Moo;
@@ -172,10 +174,11 @@ sub getSetupsByPriorityForApplication {
 sub _initializeRunlist {
 	my ($this) = @_;
 	my $hosts = YAML::Tiny->read($this->getRunFile())->[0]{hosts};
+	my @hostsInitialized;
 	for (keys %$hosts) {
 		my $attributes = $hosts->{$_};
 		$attributes->{parameters}{name} = $_;
-		say Dumper $attributes;
+		push @hostsInitialized, Floday::Helper::Host->new('runfile' => $attributes)->toHash();
 	}
 	$runlist;
 }

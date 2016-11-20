@@ -6,7 +6,7 @@ use Config::Tiny;
 use Moo;
 use YAML::Tiny;
 
-has attributesFromRunfile => (
+has runfile => (
   is => 'ro',
   isa => sub {
      no warnings 'uninitialized';
@@ -15,26 +15,27 @@ has attributesFromRunfile => (
      die "Invalid name '$hostName' for host initialization" if $hostName !~ /^\w+$/;
      die "Invalid type '$hostType' for host initialization" if $hostType !~ /^\w+$/;
   },
-  reader => 'getAttributesFromRunfile'
+  reader => '_getAttributesFromRunfile'
 );
 
-has containerNamePathToManage => (
+has instancePathToManage => (
   default => sub {
     my ($this) = @_;
-    $this->getAttributesFromRunfile()->{parameters}{name};
+    $this->_getAttributesFromRunfile()->{parameters}{name};
   },
   is => 'ro',
   isa => sub {
     die if $_[0] !~ /^[\w-]+$/;
   },
-  reader => '_getContainerNamePathToManage'
+  lazy => 1, #The lazyness is a trick for ensuring us that this attribute is load after "runfile" one.
+  reader => '_getInstancePathToManage'
 );
 
 has flodayConfigFile => (
   builder => sub {
     my $cfg = Config::Tiny->read('/etc/floday/floday.cfg');
     die ("Unable to load Floday configuration file ($Config::Tiny::errstr)") unless defined $cfg;
-	return $cfg;
+    return $cfg;
   },
   is => 'ro',
   reader => '_getFlodayConfigFile'
@@ -42,35 +43,37 @@ has flodayConfigFile => (
 
 sub toHash {
 	my ($this) = @_;
-	my $containerNamePath = $this->_getContainerNamePathToManage();
-	my $containerConfig = $this->_getContainerDefinition($containerNamePath);
-	my $containerAttributeFromRunfile = $this->_getInstanceToManageRunfileConfiguration();
-	if (defined $containerAttributeFromRunfile->{applications}) {
-		for (keys %{$containerAttributeFromRunfile->{applications}}) {
-			$containerAttributeFromRunfile->{applications}{$_}{parameters}{name} =  $_;
-			$containerConfig->{applications}{$_} =
+	my $runlist = $this->_getInstanceDefinition();
+	my $currentInstanceAttributesFromRunfile = $this->_getInstanceToManageRunfileAttributes();
+	if (defined $currentInstanceAttributesFromRunfile->{applications}) {
+		for (keys %{$currentInstanceAttributesFromRunfile->{applications}}) {
+			$currentInstanceAttributesFromRunfile->{applications}{$_}{parameters}{name} =  $_;
+			$runlist->{applications}{$_} =
 			  Floday::Helper::Host->new(
-			    'attributesFromRunfile' => $this->getAttributesFromRunfile,
-			    'containerNamePathToManage' => $this->_getContainerNamePathToManage() . '-' . $_
+			    'runfile' => $this->_getAttributesFromRunfile,
+			    'instancePathToManage' => $this->_getInstancePathToManage() . '-' . $_
 			  )->toHash()
 			;
 		}
 	}
+	#TODO: manage inheritance.
 	#TODO: check integrity.
 	#TODO: clean parameters format.
-	return $containerConfig;
+	return $runlist;
 }
 
-sub _getContainerDefinition {
-	my ($this, $containerNamePath) = @_;
-	my $containerDefinitionPath = $this->_getContainerConfigFilePath($containerNamePath);
-	my $plainConfig = YAML::Tiny->read($containerDefinitionPath);
-	$this->_mergeConfig($plainConfig->[0]);
+sub _getInstanceDefinition {
+	my ($this) = @_;
+	my $containerDefinition = YAML::Tiny->read(
+	  $this->_getContainerDefinitionFilePath()
+	);
+	#Create instance definition.
+	$this->_mergeDefinition($containerDefinition->[0]);
 }
 
-sub _getContainerConfigFilePath {
-	my ($this, $containerNamePath) = @_;
-	my @containersType = split '-', $this->_getContainerTypePath($containerNamePath);
+sub _getContainerDefinitionFilePath {
+	my ($this) = @_;
+	my @containersType = split '-', $this->_getContainerPath();
 	join('/',
 	  $this->_getFlodayConfig('path'),
 	  shift @containersType,
@@ -79,22 +82,20 @@ sub _getContainerConfigFilePath {
 	);
 }
 
-sub _getInstanceToManageRunfileConfiguration {
+sub _getInstanceToManageRunfileAttributes {
 	my ($this) = @_;
-	my $attributesFromRunfile;
-	$attributesFromRunfile->{applications}{$this->getAttributesFromRunfile->{parameters}{name}} = $this->getAttributesFromRunfile();
-	for (split '-', $this->_getContainerNamePathToManage()) {
+	my $attributesFromRunfile->{applications}{$this->_getAttributesFromRunfile->{parameters}{name}} = $this->_getAttributesFromRunfile();
+	for (split '-', $this->_getInstancePathToManage()) {
 		$attributesFromRunfile = $attributesFromRunfile->{applications}{$_};
 	}
 	return $attributesFromRunfile;
 }
 
-sub _getContainerTypePath {
-	my ($this, $containerNamePath) = @_;
+sub _getContainerPath {
+	my ($this) = @_;
 	my @containerTypePath;
-	my $runfileConfig;
-	$runfileConfig->{applications}{$this->getAttributesFromRunfile()->{parameters}{name}} = $this->getAttributesFromRunfile();
-	for (split ('-', $containerNamePath)) {
+	my $runfileConfig->{applications}{$this->_getAttributesFromRunfile()->{parameters}{name}} = $this->_getAttributesFromRunfile();
+	for (split ('-', $this->_getInstancePathToManage())) {
 		$runfileConfig = $runfileConfig->{applications}{$_};
 		push @containerTypePath, $runfileConfig->{parameters}{type};
 	}
@@ -109,17 +110,17 @@ sub _getFlodayConfig {
 	return $value;
 }
 
-sub _mergeConfig {
-	my ($this, $containerConfig) = @_;
-	my $runfileConfig = $this->_getInstanceToManageRunfileConfiguration();
-	$runfileConfig = $runfileConfig->{'parameters'};
-	$containerConfig->{parameters}{name}{value} = undef;
-	$containerConfig->{parameters}{type}{value} = undef;
-	for (keys %$runfileConfig) {
-		die ("Parameter '$_' present in runfile but that doesn't exist in container definition") unless defined $containerConfig->{parameters}{$_};
-		$containerConfig->{parameters}{$_}{value} = $runfileConfig->{$_};
+sub _mergeDefinition {
+	my ($this, $containerDefinition) = @_;
+	my $runfileAttributes = $this->_getInstanceToManageRunfileAttributes();
+	$runfileAttributes = $runfileAttributes->{'parameters'};
+	$containerDefinition->{parameters}{name}{value} = undef;
+	$containerDefinition->{parameters}{type}{value} = undef;
+	for (keys %$runfileAttributes) {
+		die ("Parameter '$_' present in runfile but that doesn't exist in container definition") unless defined $containerDefinition->{parameters}{$_};
+		$containerDefinition->{parameters}{$_}{value} = $runfileAttributes->{$_};
 	}
-	return $containerConfig;
+	return $containerDefinition;
 }
 
 1
