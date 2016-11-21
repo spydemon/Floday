@@ -74,51 +74,69 @@ my $attributesWithChild = {
 };
 
 my $complexHostToHashResult = {
-  'applications' => {
-    'website2' => {
-      'parameters' => {
-        'name' => {
-          'value' => 'website2'
-        },
-        'type' => {
-          'value' => 'sftp'
-        },
-        'second_arbitrary_param' => {
-          'mandatory' => 'false'
-        },
-        'arbitrary_param' => {
-          'mandatory' => 'false',
-          'value' => '1'
-        }
-      }
-    },
-    'website1' => {
-      'parameters' => {
-        'name' => {
-          'value' => 'website1'
-        },
-        'type' => {
-          'value' => 'web'
-        }
-      }
-    }
-  },
   'parameters' => {
     'external_ipv4' => {
       'value' => '10.11.22.35',
       'required' => 'true'
     },
-    'type' => {
-      'value' => 'riuk'
-    },
     'useless_param' => {
-      'required' => 'false',
-      'value' => 'we dont care'
+      'value' => 'we dont care',
+      'required' => 'false'
     },
     'name' => {
       'value' => 'agoodname'
+    },
+    'type' => {
+      'value' => 'riuk'
     }
-  }
+  },
+  'applications' => {
+    'website2' => {
+      'parameters' => {
+        'type' => {
+          'value' => 'sftp'
+        },
+        'arbitrary_param' => {
+          'mandatory' => 'false',
+          'value' => '1'
+        },
+        'shouby' => {
+          'mandatory' => 'true'
+        },
+        'name' => {
+          'value' => 'website2'
+        },
+        'second_arbitrary_param' => {
+          'mandatory' => 'false'
+        }
+      },
+      'setups' => {
+        'network' => {
+          'priority' => '10',
+          'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl'
+        },
+        'data' => {
+          'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl',
+          'priority' => '50'
+        }
+      },
+      'inherit' => [
+        'riuk-core'
+      ]
+    },
+    'website1' => {
+      'parameters' => {
+        'type' => {
+          'value' => 'web'
+        },
+        'name' => {
+          'value' => 'website1'
+        }
+      },
+      'inherit' => []
+    }
+  },
+  'inherit' => []
 };
 
 ok (Floday::Helper::Host->new('runfile' => $attributesWithGoodName), 'A instance is correctly created.');

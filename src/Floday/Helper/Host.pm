@@ -3,6 +3,7 @@ package Floday::Helper::Host;
 use v5.20;
 
 use Config::Tiny;
+use Hash::Merge;
 use Moo;
 use YAML::Tiny;
 
@@ -56,24 +57,35 @@ sub toHash {
 			;
 		}
 	}
-	#TODO: manage inheritance.
 	#TODO: check integrity.
 	#TODO: clean parameters format.
 	return $runlist;
 }
 
+sub getContainerDefinition {
+	my ($this, $containerPath) = @_;
+	my $containerDefinition = YAML::Tiny->read(
+	  $this->_getContainerDefinitionFilePath($containerPath)
+	)->[0];
+	for (@{$containerDefinition->{inherit}}) {
+		$containerDefinition = Hash::Merge
+		  ->new('LEFT_PRECEDENT')
+		  ->merge($containerDefinition, $this->getContainerDefinition($_))
+		;
+	}
+	return $containerDefinition;
+}
+
 sub _getInstanceDefinition {
 	my ($this) = @_;
-	my $containerDefinition = YAML::Tiny->read(
-	  $this->_getContainerDefinitionFilePath()
-	);
+	my $containerDefinition = $this->getContainerDefinition($this->_getContainerPath());
 	#Create instance definition.
-	$this->_mergeDefinition($containerDefinition->[0]);
+	$this->_mergeDefinition($containerDefinition);
 }
 
 sub _getContainerDefinitionFilePath {
-	my ($this) = @_;
-	my @containersType = split '-', $this->_getContainerPath();
+	my ($this, $containerPath) = @_, $_[0]->_getContainerPath();
+	my @containersType = split '-', $containerPath;
 	join('/',
 	  $this->_getFlodayConfig('path'),
 	  shift @containersType,

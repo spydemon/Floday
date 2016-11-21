@@ -1,3 +1,5 @@
+inherit:
+	- riuk-core
 parameters:
 	arbitrary_param:
 		mandatory: false
