@@ -1,6 +1,8 @@
 #!/usr/bin/env perl
 
 use v5.20;
+use strict;
+use warnings;
 
 use Data::Dumper;
 use Log::Any::Adapter('File', 'log.txt');
@@ -17,13 +19,14 @@ my $runlist = {
 			'parameters' => {
 				'type' => 'riuk',
 				'name' => 'integration',
-				'external_ipv4' => '192.168.15.151'
+				'external_ipv4' => '192.168.15.151',
+				'useless_param' => 'we dont care'
 			},
 			'applications' => {
 				web => {
 					'parameters' => {
-						'type' => 'riuk-http',
-						'name' => 'integration-web',
+						'type' => 'web',
+						'name' => 'web',
 						'bridge' => 'lxcbr0',
 						'iface' => 'eth0',
 						'ipv4' => '10.0.3.5',
@@ -39,13 +42,17 @@ my $runlist = {
 						'lighttpd' => {
 							'exec' => '/opt/floday/containers/riuk/children/web/setups/lighttpd.pl',
 							'priority' => 20
+						},
+						'data' => {
+							'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl',
+							'priority' => 30
 						}
 					},
 					'applications' => {
 						'test' => {
 							'parameters' => {
-								'type' => 'riuk-http-php',
-								'name' => 'integration-web-test',
+								'type' => 'php',
+								'name' => 'test',
 								'data_in' => 'floday.d/integration-web-test/php',
 								'data_out' => '/var/www',
 								'bridge' => 'lxcbr0',
@@ -73,8 +80,8 @@ my $runlist = {
 						},
 						'secondtest' => {
 							'parameters' => {
-								'type' => 'riuk-http-php',
-								'name' => 'integration-web-secondtest',
+								'type' => 'php',
+								'name' => 'secondtest',
 								'data_in' => 'floday.d/integration-web-secondtest/php',
 								'data_out' => '/var/www',
 								'bridge' => 'lxcbr0',
@@ -109,11 +116,11 @@ my $runlist = {
 
 my $test = Floday::Helper::Runlist->new(runfile => 'floday.d/runfile.yml');
 my @children = $test->getApplicationsOf('integration-web');
-cmp_deeply(\@children, ['integration-web-secondtest', 'integration-web-test']), 'Test of getApplicationsOf seems good.';
+cmp_deeply(\@children, ['integration-web-secondtest', 'integration-web-test'], 'Test of getApplicationsOf seems good.');
 my %parameters = $test->getParametersForApplication('integration-web-secondtest');
 is $parameters{bridge}, 'lxcbr0', 'Test of getParametersForApplication seems good.';
 my %scripts = $test->getSetupsByPriorityForApplication('integration-web-test');
 cmp_deeply([sort keys %scripts], [10, 20, 30], 'getSetupsByPriorityForApplication seems to correctly apply priorities.');
-cmp_deeply($test->getPlainData(), $runlist, 'getPlainData return the expected runlist.');
+cmp_deeply($test->getRunlist(), $runlist, 'getPlainData return the expected runlist.');
 
 done_testing;

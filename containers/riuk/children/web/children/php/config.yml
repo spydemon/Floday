@@ -1,0 +1,13 @@
+setups:
+	php:
+		exec: /opt/floday/containers/riuk/children/web/children/php/setups/php.pl
+		priority: 20
+inherit:
+	- riuk-core
+parameters:
+	data_in:
+		mandatory: true
+	data_out:
+		value: /var/www
+	hostname:
+		mandatory: true

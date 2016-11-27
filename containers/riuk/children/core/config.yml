@@ -5,7 +5,25 @@ setups:
 		priority: 10
 	data:
 		exec: /opt/floday/containers/riuk/children/core/setups/data.pl
-		priority: 50
+		priority: 30
 parameters:
-	shouby:
+	data_in:
+		mandatory: false
+	data_out:
+		mandatory: false
+	bridge:
+		mantatory: true
+		value: lxcbr0
+	gateway:
 		mandatory: true
+	iface:
+		mandatory: true
+		value: eth0
+	ipv4:
+		mandatory: true
+	netmask:
+		mandatory: true
+		value: 255.255.255.0
+	template:
+		mandatory: true
+		value: flodayalpine -- version 3.4
