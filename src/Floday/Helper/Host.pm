@@ -2,10 +2,9 @@ package Floday::Helper::Host;
 
 use v5.20;
 
-use Config::Tiny;
+use Floday::Helper::Container;
 use Hash::Merge;
 use Moo;
-use YAML::Tiny;
 
 has runfile => (
   is => 'ro',
@@ -32,16 +31,6 @@ has instancePathToManage => (
   reader => '_getInstancePathToManage'
 );
 
-has flodayConfigFile => (
-  builder => sub {
-    my $cfg = Config::Tiny->read('/etc/floday/floday.cfg');
-    die ("Unable to load Floday configuration file ($Config::Tiny::errstr)") unless defined $cfg;
-    return $cfg;
-  },
-  is => 'ro',
-  reader => '_getFlodayConfigFile'
-);
-
 sub toHash {
 	my ($this) = @_;
 	my $runlist = $this->_getInstanceDefinition();
@@ -62,36 +51,11 @@ sub toHash {
 	return $runlist;
 }
 
-sub getContainerDefinition {
-	my ($this, $containerPath) = @_;
-	my $containerDefinition = YAML::Tiny->read(
-	  $this->_getContainerDefinitionFilePath($containerPath)
-	)->[0];
-	for (@{$containerDefinition->{inherit}}) {
-		$containerDefinition = Hash::Merge
-		  ->new('LEFT_PRECEDENT')
-		  ->merge($containerDefinition, $this->getContainerDefinition($_))
-		;
-	}
-	return $containerDefinition;
-}
-
 sub _getInstanceDefinition {
 	my ($this) = @_;
-	my $containerDefinition = $this->getContainerDefinition($this->_getContainerPath());
+	my $containerDefinition = Floday::Helper::Container->new()->getContainerDefinition($this->_getContainerPath());
 	#Create instance definition.
 	$this->_mergeDefinition($containerDefinition);
-}
-
-sub _getContainerDefinitionFilePath {
-	my ($this, $containerPath) = @_, $_[0]->_getContainerPath();
-	my @containersType = split '-', $containerPath;
-	join('/',
-	  $this->_getFlodayConfig('path'),
-	  shift @containersType,
-	  (map {'children/' . $_} @containersType),
-	  'config.yml'
-	);
 }
 
 sub _getInstanceToManageRunfileAttributes {
@@ -112,14 +76,6 @@ sub _getContainerPath {
 		push @containerTypePath, $runfileConfig->{parameters}{type};
 	}
 	join '-', @containerTypePath;
-}
-
-sub _getFlodayConfig {
-	my ($this, $key) = @_;
-	die ("Undefined key") unless defined $key;
-	my $value = $this->_getFlodayConfigFile()->{containers}{$key};
-	die ("Undefined '$key' key in Floday configuration container section") unless defined $value;
-	return $value;
 }
 
 sub _mergeDefinition {
