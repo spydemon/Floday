@@ -25,11 +25,18 @@ has runfile => (
 	required => 1,
 );
 
-has runlist => (
+has rawRunlist => (
 	is => 'rw',
 	lazy => 1,
 	builder => '_initializeRunlist',
-	reader => 'getRunlist'
+	reader => 'getRawRunlist'
+);
+
+has cleanRunlist => (
+	is => 'rw',
+	lazy => 1,
+	builder => '_cleanRunlist',
+	reader => 'getCleanRunlist'
 );
 
 #{{{Runlist
@@ -44,7 +51,7 @@ my $runlist = {
 			'applications' => {
 				web => {
 					'parameters' => {
-						'type' => 'riuk-http',
+						'type' => 'riuk-web',
 						'name' => 'integration-web',
 						'bridge' => 'lxcbr0',
 						'iface' => 'eth0',
@@ -66,7 +73,7 @@ my $runlist = {
 					'applications' => {
 						'test' => {
 							'parameters' => {
-								'type' => 'riuk-http-php',
+								'type' => 'riuk-web-php',
 								'name' => 'integration-web-test',
 								'data_in' => 'floday.d/integration-web-test/php',
 								'data_out' => '/var/www',
@@ -95,7 +102,7 @@ my $runlist = {
 						},
 						'secondtest' => {
 							'parameters' => {
-								'type' => 'riuk-http-php',
+								'type' => 'riuk-web-php',
 								'name' => 'integration-web-secondtest',
 								'data_in' => 'floday.d/integration-web-secondtest/php',
 								'data_out' => '/var/www',
@@ -130,10 +137,6 @@ my $runlist = {
 };
 #}}}
 
-sub getPlainData {
-	$runlist;
-}
-
 sub getApplicationsOf {
 	my ($this, $applicationName) = @_;
 	my $definition = $this->getDefinitionOf($applicationName);
@@ -144,13 +147,17 @@ sub getDefinitionOf {
 	my ($this, $applicationName) = @_;
 	$this->log->debugf('Asking definition of: %s', $applicationName);
 	my @containerPath = split /-/, $applicationName;
-	my $childrenType = 'hosts';
-	my $definition = $this->getRunlist;
+	my $definition->{'applications'} = $this->getRunlist()->{'hosts'};
 	for (@containerPath) {
-		$definition = $definition->{$childrenType}{$_};
-		$childrenType = 'applications';
+		$definition = $definition->{'applications'}{$_};
 	}
 	return $definition;
+}
+
+sub getRunlist {
+	my ($this) = @_;
+	my $rn = $this->getCleanRunlist();
+	return $rn;
 }
 
 sub getParametersForApplication {
@@ -171,16 +178,44 @@ sub getSetupsByPriorityForApplication {
   return %sortedScripts;
 }
 
+#TODO: refactor this.
+sub _cleanRunlist {
+	my ($this, $rawData) = @_;
+	my $first = 0;
+	if (not defined $rawData) {
+		$rawData = $this->getRawRunlist()->{'hosts'};
+		$first = 1;
+	}
+	my $cleanRunlist;
+	foreach $a (keys %$rawData) {
+		foreach (keys %{$rawData->{$a}{'parameters'}}) {
+			if (defined $rawData->{$a}{'parameters'}{$_}{'value'}) {
+				$cleanRunlist->{$a}{'parameters'}{$_} = $rawData->{$a}{'parameters'}{$_}{'value'};
+			}
+		}
+		if (defined $rawData->{$a}{'setups'}) {
+			$cleanRunlist->{$a}{'setups'} = $rawData->{$a}{'setups'};
+		}
+		if (defined $rawData->{$a}{'applications'}) {
+			$cleanRunlist->{$a}{'applications'} = $this->_cleanRunlist($rawData->{$a}{'applications'});
+		}
+		if ($first == 1) {
+			return {'hosts' => $cleanRunlist};
+		}
+	}
+	return $cleanRunlist;
+}
+
 sub _initializeRunlist {
 	my ($this) = @_;
 	my $hosts = YAML::Tiny->read($this->getRunFile())->[0]{hosts};
-	my @hostsInitialized;
+	my $hostsInitialized;
 	for (keys %$hosts) {
 		my $attributes = $hosts->{$_};
 		$attributes->{parameters}{name} = $_;
-		push @hostsInitialized, Floday::Helper::Host->new('runfile' => $attributes)->toHash();
+		$hostsInitialized->{'hosts'}{$_} = Floday::Helper::Host->new('runfile' => $attributes)->toHash();
 	}
-	$runlist;
+	return $hostsInitialized;
 }
 
 1
