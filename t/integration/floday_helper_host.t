@@ -74,10 +74,125 @@ my $attributesWithChild = {
 };
 
 my $complexHostToHashResult = {
+  'applications' => {
+    'website2' => {
+      'parameters' => {
+        'data_out' => {
+          'mandatory' => 'false'
+        },
+        'type' => {
+          'value' => 'sftp'
+        },
+        'gateway' => {
+          'mandatory' => 'true'
+        },
+        'ipv4' => {
+          'mandatory' => 'true'
+        },
+        'arbitrary_param' => {
+          'mandatory' => 'false',
+          'value' => '1'
+        },
+        'second_arbitrary_param' => {
+          'mandatory' => 'false'
+        },
+        'iface' => {
+          'mandatory' => 'true',
+          'value' => 'eth0'
+        },
+        'bridge' => {
+          'mantatory' => 'true',
+          'value' => 'lxcbr0'
+        },
+        'template' => {
+          'mandatory' => 'true',
+          'value' => 'flodayalpine -- version 3.4'
+        },
+        'netmask' => {
+          'value' => '255.255.255.0',
+          'mandatory' => 'true'
+        },
+        'name' => {
+          'value' => 'website2'
+        },
+          'data_in' => {
+          'mandatory' => 'false'
+        }
+      },
+      'setups' => {
+        'data' => {
+          'priority' => '30',
+          'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl'
+        },
+        'network' => {
+          'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
+          'priority' => '10'
+        }
+      },
+      'inherit' => [
+        'riuk-core'
+      ]
+    },
+    'website1' => {
+      'setups' => {
+        'network' => {
+          'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
+          'priority' => '10'
+        },
+        'lighttpd' => {
+          'priority' => '20',
+          'exec' => '/opt/floday/containers/riuk/children/web/setups/lighttpd.pl'
+        },
+        'data' => {
+          'priority' => '30',
+          'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl'
+        }
+      },
+      'inherit' => [
+        'riuk-core'
+      ],
+      'parameters' => {
+        'iface' => {
+          'value' => 'eth0',
+          'mandatory' => 'true'
+        },
+        'bridge' => {
+          'mantatory' => 'true',
+          'value' => 'lxcbr0'
+        },
+        'template' => {
+          'mandatory' => 'true',
+          'value' => 'flodayalpine -- version 3.4'
+        },
+        'name' => {
+          'value' => 'website1'
+        },
+        'netmask' => {
+          'value' => '255.255.255.0',
+          'mandatory' => 'true'
+        },
+        'data_in' => {
+          'mandatory' => 'false'
+        },
+        'data_out' => {
+          'mandatory' => 'false'
+        },
+        'gateway' => {
+          'mandatory' => 'true'
+        },
+        'type' => {
+          'value' => 'web'
+        },
+        'ipv4' => {
+          'mandatory' => 'true'
+        }
+      }
+    }
+  },
+  'inherit' => [],
   'parameters' => {
-    'external_ipv4' => {
-      'value' => '10.11.22.35',
-      'required' => 'true'
+    'type' => {
+      'value' => 'riuk'
     },
     'useless_param' => {
       'value' => 'we dont care',
@@ -86,57 +201,11 @@ my $complexHostToHashResult = {
     'name' => {
       'value' => 'agoodname'
     },
-    'type' => {
-      'value' => 'riuk'
+    'external_ipv4' => {
+      'required' => 'true',
+      'value' => '10.11.22.35'
     }
-  },
-  'applications' => {
-    'website2' => {
-      'parameters' => {
-        'type' => {
-          'value' => 'sftp'
-        },
-        'arbitrary_param' => {
-          'mandatory' => 'false',
-          'value' => '1'
-        },
-        'shouby' => {
-          'mandatory' => 'true'
-        },
-        'name' => {
-          'value' => 'website2'
-        },
-        'second_arbitrary_param' => {
-          'mandatory' => 'false'
-        }
-      },
-      'setups' => {
-        'network' => {
-          'priority' => '10',
-          'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl'
-        },
-        'data' => {
-          'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl',
-          'priority' => '50'
-        }
-      },
-      'inherit' => [
-        'riuk-core'
-      ]
-    },
-    'website1' => {
-      'parameters' => {
-        'type' => {
-          'value' => 'web'
-        },
-        'name' => {
-          'value' => 'website1'
-        }
-      },
-      'inherit' => []
-    }
-  },
-  'inherit' => []
+  }
 };
 
 ok (Floday::Helper::Host->new('runfile' => $attributesWithGoodName), 'A instance is correctly created.');
