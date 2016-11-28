@@ -28,10 +28,10 @@ $application->getParameter('yolooo', ALLOW_UNDEF);
 like($lxc->getUtsname, qr/integration-web-test/, 'Virt::LXC instance fetched seems good.');
 
 my $parentType = $application->getParentApplication->getParameter('type');
-like($parentType, qr/riuk-http/, 'Parent fetch seems to work.');
+like($parentType, qr/web/, 'Parent fetch seems to work.');
 
 $application->generateFile(getcwd . '/floday_setup.d/test.tt', {$application->getParameters}, '/tmp/test.txt');
-like(`cat /var/lib/lxc/integration-web-test/rootfs/tmp/test.txt`, qr/Hello integration-web-test !/, 'generateFile seems to work.');
+like(`cat /var/lib/lxc/integration-web-test/rootfs/tmp/test.txt`, qr/Hello test !/, 'generateFile seems to work.');
 
 $lxc->destroy;
 done_testing;

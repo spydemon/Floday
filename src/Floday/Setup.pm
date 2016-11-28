@@ -17,6 +17,7 @@ $Backticks::autodie = 1;
 
 our @EXPORT_OK = ('ALLOW_UNDEF');
 
+#TODO: rename to instancePath.
 has applicationName => (
 	'is' => 'ro',
 	'required' => 1,
