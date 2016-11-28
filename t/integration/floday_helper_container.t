@@ -7,9 +7,6 @@ use Test::More;
 
 use Floday::Helper::Container;
 
-use Data::Dumper ('Dumper');
-$Data::Dumper::Indent = 1;
-
 my $expectedResult1 = {
   'setups' => {
     'network' => {
@@ -17,7 +14,7 @@ my $expectedResult1 = {
       'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl'
     },
     'data' => {
-      'priority' => '50',
+      'priority' => '30',
       'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl'
     }
   },
@@ -25,13 +22,38 @@ my $expectedResult1 = {
     'riuk-core'
   ],
   'parameters' => {
-    'arbitrary_param' => {
+    'data_out' => {
       'mandatory' => 'false'
     },
     'second_arbitrary_param' => {
       'mandatory' => 'false'
     },
-    'shouby' => {
+    'data_in' => {
+      'mandatory' => 'false'
+    },
+    'iface' => {
+      'mandatory' => 'true',
+      'value' => 'eth0'
+    },
+    'ipv4' => {
+      'mandatory' => 'true'
+    },
+    'template' => {
+      'mandatory' => 'true',
+      'value' => 'flodayalpine -- version 3.4'
+    },
+    'netmask' => {
+      'value' => '255.255.255.0',
+      'mandatory' => 'true'
+    },
+    'arbitrary_param' => {
+      'mandatory' => 'false'
+    },
+    'bridge' => {
+      'mantatory' => 'true',
+      'value' => 'lxcbr0'
+    },
+    'gateway' => {
       'mandatory' => 'true'
     }
   }
