@@ -44,8 +44,8 @@ has log => (
 );
 
 sub launch {
-	my ($this, $applicationName) = @_;
-	my %parameters = $this->getRunlist->getParametersForApplication($applicationName);
+	my ($this, $instancePath) = @_;
+	my %parameters = $this->getRunlist->getParametersForApplication($instancePath);
 	$log->infof('Launching %s application.', $parameters{instance_path});
 	my $container = Virt::LXC->new('utsname' => $parameters{instance_path});
 	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($parameters{instance_path});
@@ -61,7 +61,7 @@ sub launch {
 	$container->stop if $container->isRunning;
 	$container->start;
 	for ($this->getRunlist->getApplicationsOf($parameters{instance_path})) {
-		$this->launch ($_);
+		$this->launch($_);
 	}
 }
 
