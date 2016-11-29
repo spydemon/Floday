@@ -46,9 +46,9 @@ has log => (
 sub launch {
 	my ($this, $applicationName) = @_;
 	my %parameters = $this->getRunlist->getParametersForApplication($applicationName);
-	$log->infof('Launching %s application.', $parameters{name});
-	my $container = Virt::LXC->new('utsname' => $parameters{name});
-	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($parameters{name});
+	$log->infof('Launching %s application.', $parameters{instance_path});
+	my $container = Virt::LXC->new('utsname' => $parameters{instance_path});
+	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($parameters{instance_path});
 	if ($container->isExisting) {
 		$container->destroy;
 	}
@@ -56,11 +56,11 @@ sub launch {
 	my ($state, $stdout, $stderr) = $container->deploy;
 	die $stderr unless $state;
 	for(sort keys %startupScripts) {
-		say `$startupScripts{$_}->{exec} --container $parameters{name}`;
+		say `$startupScripts{$_}->{exec} --container $parameters{instance_path}`;
 	}
 	$container->stop if $container->isRunning;
 	$container->start;
-	for ($this->getRunlist->getApplicationsOf($parameters{name})) {
+	for ($this->getRunlist->getApplicationsOf($parameters{instance_path})) {
 		$this->launch ($_);
 	}
 }
@@ -68,9 +68,7 @@ sub launch {
 sub startDeployment {
 	my ($this) = @_;
 	$this->log->warningf('Deploying %s host.', $this->getHostname);
-	my $runlist = $this->getRunlist;
-	my $plainRunlist = $runlist->getPlainData;
-	my $yaml = YAML::Tiny->new(%{$runlist->getPlainData});
+	my $yaml = YAML::Tiny->new(%{$this->getRunlist()->getCleanRunlist()});
 	$yaml->write('/var/lib/floday/runlist.yml');
 	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
 		$this->launch($_);
