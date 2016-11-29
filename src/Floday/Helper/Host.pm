@@ -88,6 +88,8 @@ sub _mergeDefinition {
 		die ("Parameter '$_' present in runfile but that doesn't exist in container definition") unless defined $containerDefinition->{parameters}{$_};
 		$containerDefinition->{parameters}{$_}{value} = $runfileAttributes->{$_};
 	}
+	$containerDefinition->{parameters}{instance_path}{value} = $this->_getInstancePathToManage();
+	$containerDefinition->{parameters}{container_path}{value} = $this->_getContainerPath();
 	return $containerDefinition;
 }
 

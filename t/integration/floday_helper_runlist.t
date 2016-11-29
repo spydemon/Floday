@@ -20,7 +20,9 @@ my $runlist = {
 				'type' => 'riuk',
 				'name' => 'integration',
 				'external_ipv4' => '192.168.15.151',
-				'useless_param' => 'we dont care'
+				'useless_param' => 'we dont care',
+				'container_path' => 'riuk',
+				'instance_path' => 'integration'
 			},
 			'applications' => {
 				web => {
@@ -32,7 +34,9 @@ my $runlist = {
 						'ipv4' => '10.0.3.5',
 						'gateway' => '10.0.3.1',
 						'netmask' => '255.255.255.0',
-						'template' => 'flodayalpine -- version 3.4'
+						'template' => 'flodayalpine -- version 3.4',
+						'container_path' => 'riuk-web',
+						'instance_path' => 'integration-web'
 					},
 					'setups' => {
 						'network' => {
@@ -61,7 +65,9 @@ my $runlist = {
 								'gateway' => '10.0.3.1',
 								'netmask' => '255.255.255.0',
 								'template' => 'flodayalpine -- version 3.4',
-								'hostname' => 'test.keh.keh'
+								'hostname' => 'test.keh.keh',
+								'container_path' => 'riuk-web-php',
+								'instance_path' => 'integration-web-test'
 							},
 							'setups' => {
 								'network' => {
@@ -90,7 +96,9 @@ my $runlist = {
 								'gateway' => '10.0.3.1',
 								'netmask' => '255.255.255.0',
 								'template' => 'flodayalpine -- version 3.4',
-								'hostname' => 'test2.keh.keh'
+								'hostname' => 'test2.keh.keh',
+								'container_path' => 'riuk-web-php',
+								'instance_path' => 'integration-web-secondtest'
 							},
 							'setups' => {
 								'network' => {

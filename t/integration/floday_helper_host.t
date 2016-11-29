@@ -115,8 +115,14 @@ my $complexHostToHashResult = {
         'name' => {
           'value' => 'website2'
         },
-          'data_in' => {
+        'data_in' => {
           'mandatory' => 'false'
+        },
+        'container_path' => {
+          'value' => 'riuk-sftp'
+        },
+        'instance_path' => {
+          'value' => 'agoodname-website2'
         }
       },
       'setups' => {
@@ -185,6 +191,12 @@ my $complexHostToHashResult = {
         },
         'ipv4' => {
           'mandatory' => 'true'
+        },
+        'container_path' => {
+          'value' => 'riuk-web'
+        },
+        'instance_path' => {
+          'value' => 'agoodname-website1'
         }
       }
     }
@@ -204,6 +216,12 @@ my $complexHostToHashResult = {
     'external_ipv4' => {
       'required' => 'true',
       'value' => '10.11.22.35'
+    },
+    'container_path' => {
+      'value' => 'riuk'
+    },
+    'instance_path' => {
+      'value' => 'agoodname'
     }
   }
 };
