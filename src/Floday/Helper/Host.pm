@@ -73,8 +73,17 @@ sub _checkRunlistIntegrity {
 	for my $currParam (keys %{$runlist->{parameters}}) {
 		my $paramsAttributes = $runlist->{parameters}->{$currParam};
 		#TODO: boolean are not managed with YAML::Tiny! May-be should we use YAML::XS instead?
-		if (defined $paramsAttributes->{mandatory} && $paramsAttributes->{mandatory} eq 'true' && not (defined $paramsAttributes->{value})) {
+		if (defined $paramsAttributes->{mandatory}
+		  and $paramsAttributes->{mandatory} eq 'true'
+		  and not (defined $paramsAttributes->{value})
+		) {
 			push @_errors, "The '$currParam' mandatory parameter is missing in '$runlist->{parameters}{instance_path}{value}' application.";
+		}
+		if (defined $paramsAttributes->{pattern}
+		  and defined $paramsAttributes->{value}
+		  and $paramsAttributes->{value} !~ qr/$paramsAttributes->{pattern}/
+		) {
+			push @_errors, "'$currParam' parameter in '$runlist->{parameters}{instance_path}{value}' has value '$paramsAttributes->{value}' that doesn't respect the '$paramsAttributes->{pattern}' regex.";
 		}
 	}
 	return @_errors;

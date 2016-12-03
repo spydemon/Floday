@@ -93,7 +93,7 @@ my $attributesWithMissingParams = {
     },
     'rnbw' => {
       'parameters' => {
-        'mandatory_param_two' => 'AABooo',
+        'mandatory_param_two' => 'AAooo',
         'type' => 'mumble'
       }
     }
@@ -259,7 +259,8 @@ my $complexHostToHashResult = {
 
 my @missingParamsErrors = (
   'The \'mandatory_param\' mandatory parameter is missing in \'integration-rnbw\' application.',
-  'The \'mandatory_param_two\' mandatory parameter is missing in \'integration-ctr\' application.'
+  'The \'mandatory_param_two\' mandatory parameter is missing in \'integration-ctr\' application.',
+  '\'mandatory_param_two\' parameter in \'integration-rnbw\' has value \'AAooo\' that doesn\'t respect the \'^[A|B]{3,5}\' regex.'
 );
 
 ok (Floday::Helper::Host->new('runfile' => $attributesWithGoodName), 'A instance is correctly created.');
