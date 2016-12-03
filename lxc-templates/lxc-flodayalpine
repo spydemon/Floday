@@ -4,7 +4,7 @@ use v5.010;
 use warnings FATAL => 'all';
 use strict;
 
-#TODO: wired behavior with APKINDEX that doesnt't seem updated in some cases.
+#TODO: wired behavior with APKINDEX that doesnt't seems updated in some cases.
 
 use Backticks;
 use Carp;
@@ -13,8 +13,6 @@ use File::Slurp qw<read_file>;
 use Getopt::Long;
 use List::Util qw<pairs>;
 use Virt::LXC;
-
-$Backticks::autodie = 1;
 
 my $CACHE_FOLDER = getFlodayConfigurationValue('cache_folder');
 my ($LXC_PATH, $LXC_NAME, $LXC_ROOTFS);

@@ -34,10 +34,10 @@ is `curl -s test.keh.keh/index.php`, 'Dans test.', 'Container integration-web-te
 is `curl -s test2.keh.keh/index.php`, 'Dans secondtest.', 'Container integration-web-testsecond is working.';
 
 my @containers = ('integration-web', 'integration-web-test', 'integration-web-secondtest');
-for (@containers) {
-	my $c = Virt::LXC->new('utsname' => $_);
-	$c->isExisting and $c->destroy;
-}
+#for (@containers) {
+#	my $c = Virt::LXC->new('utsname' => $_);
+#	$c->isExisting and $c->destroy;
+#}
 
 `rm $runlist`;
 

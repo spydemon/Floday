@@ -5,6 +5,7 @@ use v5.20;
 use Floday::Helper::Container;
 use Hash::Merge;
 use Moo;
+use Data::Dumper;
 
 has runfile => (
   is => 'ro',
@@ -31,6 +32,22 @@ has instancePathToManage => (
   reader => '_getInstancePathToManage'
 );
 
+state @errors;
+
+sub generateRunlist {
+	my ($this) = @_;
+	my $runlist = $this->toHash();
+	if (@errors > 0) {
+		die(map{$_ . "\n"} @errors);
+	}
+	say Dumper @errors;
+	return $runlist;
+}
+
+sub getAllErrors {
+	@errors;
+}
+
 sub toHash {
 	my ($this) = @_;
 	my $runlist = $this->_getInstanceDefinition();
@@ -46,9 +63,21 @@ sub toHash {
 			;
 		}
 	}
-	#TODO: check integrity.
-	#TODO: clean parameters format.
+	push @errors, $this->_checkRunlistIntegrity($runlist);
 	return $runlist;
+}
+
+sub _checkRunlistIntegrity {
+	my ($this, $runlist) = @_;
+	my @_errors;
+	for my $currParam (keys %{$runlist->{parameters}}) {
+		my $paramsAttributes = $runlist->{parameters}->{$currParam};
+		#TODO: boolean are not managed with YAML::Tiny! May-be should we use YAML::XS instead?
+		if (defined $paramsAttributes->{mandatory} && $paramsAttributes->{mandatory} eq 'true' && not (defined $paramsAttributes->{value})) {
+			push @_errors, "The '$currParam' mandatory parameter is missing in '$runlist->{parameters}{instance_path}{value}' application.";
+		}
+	}
+	return @_errors;
 }
 
 sub _getInstanceDefinition {

@@ -62,12 +62,39 @@ my $attributesWithChild = {
     'website1' => {
       'parameters' => {
         'type' => 'web',
+        'ipv4' => '10.0.0.4',
+        'gateway' => '10.0.0.1'
       }
     },
     'website2' => {
       'parameters' => {
         'type' => 'sftp',
-        'arbitrary_param' => '1'
+        'arbitrary_param' => '1',
+        'ipv4' => '10.0.0.5',
+        'gateway' => '10.0.0.1'
+      }
+    }
+  }
+};
+
+my $attributesWithMissingParams = {
+  'parameters' => {
+    'name' => 'integration',
+    'type' => 'riuk'
+  },
+  'applications' => {
+    'ctr' => {
+      'parameters' => {
+        'arbitrary_param' => 'hello',
+         #TODO: it seems that no error occurs when the type param is missing.
+        'type'=> 'mumble',
+        'mandatory_param' => '1'
+      }
+    },
+    'rnbw' => {
+      'parameters' => {
+        'mandatory_param_two' => 'AABooo',
+        'type' => 'mumble'
       }
     }
   }
@@ -84,10 +111,12 @@ my $complexHostToHashResult = {
           'value' => 'sftp'
         },
         'gateway' => {
-          'mandatory' => 'true'
+          'mandatory' => 'true',
+          'value' => '10.0.0.1'
         },
         'ipv4' => {
-          'mandatory' => 'true'
+          'mandatory' => 'true',
+          'value' => '10.0.0.5'
         },
         'arbitrary_param' => {
           'mandatory' => 'false',
@@ -184,13 +213,15 @@ my $complexHostToHashResult = {
           'mandatory' => 'false'
         },
         'gateway' => {
-          'mandatory' => 'true'
+          'mandatory' => 'true',
+          'value' => '10.0.0.1'
         },
         'type' => {
           'value' => 'web'
         },
         'ipv4' => {
-          'mandatory' => 'true'
+          'mandatory' => 'true',
+          'value' => '10.0.0.4'
         },
         'container_path' => {
           'value' => 'riuk-web'
@@ -226,6 +257,11 @@ my $complexHostToHashResult = {
   }
 };
 
+my @missingParamsErrors = (
+  'The \'mandatory_param\' mandatory parameter is missing in \'integration-rnbw\' application.',
+  'The \'mandatory_param_two\' mandatory parameter is missing in \'integration-ctr\' application.'
+);
+
 ok (Floday::Helper::Host->new('runfile' => $attributesWithGoodName), 'A instance is correctly created.');
 throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithWrongName)}
   qr/Invalid name 'yol0~~' for host initialization/,
@@ -256,5 +292,11 @@ $complexHost->{instancePathToManage} = 'agoodname';
 
 #Test toHash
 cmp_deeply $complexHost->toHash(), $complexHostToHashResult, 'Check toHash result.';
+
+#Test error management in runlist initialization.
+my $testErrors = Floday::Helper::Host->new('runfile' => $attributesWithMissingParams);
+$testErrors->toHash();
+my @errorsFetched = $testErrors->getAllErrors();
+cmp_bag(\@errorsFetched, \@missingParamsErrors, 'Test mandatory parameters checker');
 
 done_testing;
