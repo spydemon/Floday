@@ -2,5 +2,5 @@ inherit:
 	- riuk-core
 setups:
 	lighttpd:
-		exec: /opt/floday/containers/riuk/children/web/setups/lighttpd.pl
+		exec: riuk/children/web/setups/lighttpd.pl
 		priority: 20

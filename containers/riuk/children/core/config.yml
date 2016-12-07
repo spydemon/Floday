@@ -1,10 +1,9 @@
 setups:
 	network:
-		#TODO: path should be relative to Floday container root.
-		exec: /opt/floday/containers/riuk/children/core/setups/network.pl
+		exec: riuk/children/core/setups/network.pl
 		priority: 10
 	data:
-		exec: /opt/floday/containers/riuk/children/core/setups/data.pl
+		exec: riuk/children/core/setups/data.pl
 		priority: 30
 parameters:
 	data_in:

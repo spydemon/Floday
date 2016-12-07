@@ -23,12 +23,16 @@ sub getContainerDefinition {
 
 sub getContainerDefinitionFilePath {
 	my ($this, $containerPath) = @_;
+	$this->getContainerDefinitionFolder($containerPath) . '/config.yml';
+}
+
+sub getContainerDefinitionFolder {
+	my ($this, $containerPath) = @_;
 	my @containersType = split '-', $containerPath;
 	join('/',
 	  Floday::Helper::Config->new()->getFlodayConfig('containers', 'path'),
 	  shift @containersType,
-	  (map {'children/' . $_} @containersType),
-	  'config.yml'
+	  (map {'children/' . $_} @containersType)
 	);
 }
 

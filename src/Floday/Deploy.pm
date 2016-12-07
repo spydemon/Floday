@@ -3,6 +3,7 @@ package Floday::Deploy;
 use v5.20;
 
 use Data::Dumper;
+use Floday::Helper::Config;
 use Floday::Helper::Runlist;
 use Log::Any qw($log);
 use Moo;
@@ -46,6 +47,7 @@ has log => (
 sub launch {
 	my ($this, $instancePath) = @_;
 	my %parameters = $this->getRunlist->getParametersForApplication($instancePath);
+	my $containersFolder = Floday::Helper::Config->new()->getFlodayConfig('containers', 'path');
 	$log->infof('Launching %s application.', $parameters{instance_path});
 	my $container = Virt::LXC->new('utsname' => $parameters{instance_path});
 	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($parameters{instance_path});
@@ -56,7 +58,7 @@ sub launch {
 	my ($state, $stdout, $stderr) = $container->deploy;
 	die $stderr unless $state;
 	for(sort keys %startupScripts) {
-		say `$startupScripts{$_}->{exec} --container $parameters{instance_path}`;
+		say `$containersFolder/$startupScripts{$_}->{exec} --container $parameters{instance_path}`;
 	}
 	$container->stop if $container->isRunning;
 	$container->start;
