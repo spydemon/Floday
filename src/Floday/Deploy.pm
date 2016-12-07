@@ -26,7 +26,7 @@ has hostname => (
 	reader => 'getHostname',
 	required => 1,
 	isa => sub {
-		die 'invalid hostname to run' unless $_[0] =~ /^[a-zA-Z0-9]*$/;
+		die 'invalid hostname to run' unless $_[0] =~ /^[\w+]*$/;
 	}
 );
 

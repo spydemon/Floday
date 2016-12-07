@@ -11,11 +11,11 @@ my $expectedResult1 = {
   'setups' => {
     'network' => {
       'priority' => '10',
-      'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl'
+      'exec' => 'riuk/children/core/setups/network.pl'
     },
     'data' => {
       'priority' => '30',
-      'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl'
+      'exec' => 'riuk/children/core/setups/data.pl'
     }
   },
   'inherit' => [

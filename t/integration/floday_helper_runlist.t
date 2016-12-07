@@ -40,15 +40,15 @@ my $runlist = {
 					},
 					'setups' => {
 						'network' => {
-							'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
+							'exec' => 'riuk/children/core/setups/network.pl',
 							'priority' => 10
 						},
 						'lighttpd' => {
-							'exec' => '/opt/floday/containers/riuk/children/web/setups/lighttpd.pl',
+							'exec' => 'riuk/children/web/setups/lighttpd.pl',
 							'priority' => 20
 						},
 						'data' => {
-							'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl',
+							'exec' => 'riuk/children/core/setups/data.pl',
 							'priority' => 30
 						}
 					},
@@ -71,15 +71,15 @@ my $runlist = {
 							},
 							'setups' => {
 								'network' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
+									'exec' => 'riuk/children/core/setups/network.pl',
 									'priority' => 10
 								},
 								'php' => {
-									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setups/php.pl',
+									'exec' => 'riuk/children/web/children/php/setups/php.pl',
 									'priority' => 20
 								},
 								'data' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl',
+									'exec' => 'riuk/children/core/setups/data.pl',
 									'priority' => 30
 								}
 							}
@@ -102,15 +102,15 @@ my $runlist = {
 							},
 							'setups' => {
 								'network' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
+									'exec' => 'riuk/children/core/setups/network.pl',
 									'priority' => 10
 								},
 								'php' => {
-									'exec' => '/opt/floday/containers/riuk/children/web/children/php/setups/php.pl',
+									'exec' => 'riuk/children/web/children/php/setups/php.pl',
 									'priority' => 20
 								},
 								'data' => {
-									'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl',
+									'exec' => 'riuk/children/core/setups/data.pl',
 									'priority' => 30
 								}
 							}

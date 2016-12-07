@@ -9,7 +9,7 @@ use Test::Exception;
 use Log::Any::Adapter('File', 'log.txt');
 use Data::Dumper;
 
-my $application = Floday::Setup->new(applicationName => 'integration-web-test', runfilePath => '/opt/floday/t/integration/floday.d/runfile.yml');
+my $application = Floday::Setup->new(instancePath => 'integration-web-test', runfilePath => '/opt/floday/t/integration/floday.d/runfile.yml');
 my $lxc = $application->getLxcInstance;
 $lxc->destroy if $lxc->isExisting;
 $lxc->setTemplate($application->getParameter('template'));

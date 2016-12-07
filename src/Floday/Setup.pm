@@ -108,9 +108,9 @@ sub generateFile {
 sub _fetchParentApplication {
 	my ($this) = @_;
 	$this->log->debugf('%s: asking parent application', $this->getInstancePath);
-	my ($parentName) = $this->getInstancePath =~ /^(.*)-.*$/;
-	if (defined $parentName) {
-		return Floday::Setup->new(applicationName => $parentName, runfilePath => $this->getRunfilePath);
+	my ($parentPath) = $this->getInstancePath =~ /^(.*)-.*$/;
+	if (defined $parentPath) {
+		return Floday::Setup->new(instancePath => $parentPath, runfilePath => $this->getRunfilePath);
 	} else {
 		croak "This application doesn't have parent.";
 	}

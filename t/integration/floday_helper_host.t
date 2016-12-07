@@ -157,10 +157,10 @@ my $complexHostToHashResult = {
       'setups' => {
         'data' => {
           'priority' => '30',
-          'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl'
+          'exec' => 'riuk/children/core/setups/data.pl'
         },
         'network' => {
-          'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
+          'exec' => 'riuk/children/core/setups/network.pl',
           'priority' => '10'
         }
       },
@@ -171,16 +171,16 @@ my $complexHostToHashResult = {
     'website1' => {
       'setups' => {
         'network' => {
-          'exec' => '/opt/floday/containers/riuk/children/core/setups/network.pl',
+          'exec' => 'riuk/children/core/setups/network.pl',
           'priority' => '10'
         },
         'lighttpd' => {
           'priority' => '20',
-          'exec' => '/opt/floday/containers/riuk/children/web/setups/lighttpd.pl'
+          'exec' => 'riuk/children/web/setups/lighttpd.pl'
         },
         'data' => {
           'priority' => '30',
-          'exec' => '/opt/floday/containers/riuk/children/core/setups/data.pl'
+          'exec' => 'riuk/children/core/setups/data.pl'
         }
       },
       'inherit' => [
