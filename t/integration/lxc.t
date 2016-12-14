@@ -41,7 +41,7 @@ ok -f '/var/lib/lxc/lxc-test/rootfs/etc/random/lxc-test.txt', 'A file was correc
 my $cmd = $container->exec('cat /someting/that/doesnt/exist');
 ok !$cmd, 'Scalar retured by exec is correct.';
 my ($status, $stdout, $stderr) = $container->exec('cat /etc/random/lxc-test.txt');
-ok !$status, 'Execution return status of exec is correct.';
+ok $status, 'Execution return status of exec is correct.';
 ok (chomp $stdout) eq 'testing', 'Stdout return of exec is correct.';
 ok $stderr eq '', 'Stderr of exec is correct.';
 

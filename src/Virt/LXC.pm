@@ -6,6 +6,7 @@ use Carp;
 use Exporter qw(import);
 use Log::Any ();
 use Moo;
+use IPC::Run qw(run);
 
 use constant ALLOW_UNDEF => 0x01;
 our @EXPORT_OK = ('ALLOW_UNDEF');
@@ -23,7 +24,6 @@ has template => (
 	'reader' => '_getTemplate',
 	'writer' => 'setTemplate'
 );
-
 has lxcpath => (
 	'is' => 'rwp',
 	'reader' => '_getLxcPath',
@@ -51,14 +51,16 @@ sub getTemplate {
 }
 
 sub _qx {
-	local $Backticks::autodie = 0;
-	my ($this, $cmd, $wantarray) = @_;
-	my $stderr = File::Temp->new();
-	$this->log->tracef('%s: _qx: `%s`', $this->getUtsname, $cmd);
-	my $exec = `$cmd`;
-	$this->log->tracef('%s: _qx res: %s/%s/%s', $this->getUtsname, $exec->exitcode, $exec->stdout, $exec->stderr);
-	$wantarray and return ($exec->exitcode, $exec->stdout, $exec->stderr);
-	return !$exec->exitcode;
+	my ($this, $cmd, $params, $wantarray) = @_;
+	my $log = $this->getUtsname . ': _qx:`' . $cmd . '`';
+	$log .= ' => ' . $params if defined $params;
+	$this->log->tracef($log);
+	my @cmd = split(' ', $cmd);
+	my ($stdout, $stderr);
+	my $result = run \@cmd, \$params, \$stdout, \$stderr;
+	$this->log->tracef('%s: _qx res: %s/%s/%s', $this->getUtsname, $result, $stdout, $stderr);
+	$wantarray and return ($result, $stdout, $stderr);
+	return $result;
 }
 
 sub _checkContainerIsRunning {
@@ -150,7 +152,7 @@ sub deploy {
 	my $utsName = $this->getUtsname;
 	my $template = $this->getTemplate;
 	$this->log->infof('%s: deploy', $this->getUtsname);
-	$this->_qx("lxc-create -n $utsName -t $template", wantarray);
+	$this->_qx("lxc-create -n $utsName -t $template", undef, wantarray);
 	$this->log->infof('%s: deployed', $this->getUtsname);
 }
 
@@ -158,7 +160,7 @@ sub destroy {
 	my ($this) = @_;
 	$this->isRunning and $this->stop;
 	$this->log->infof('%s: destroy', $this->getUtsname);
-	$this->_qx('lxc-destroy -n '.$this->getUtsname, wantarray);
+	$this->_qx('lxc-destroy -n '.$this->getUtsname, undef, wantarray);
 	$this->log->infof('%s: destroyed', $this->getUtsname);
 }
 
@@ -169,7 +171,7 @@ sub stop {
 		return;
 	}
 	$this->log->infof('%s: stop', $this->getUtsname);
-	$this->_qx('lxc-stop -n '.$this->getUtsname, wantarray);
+	$this->_qx('lxc-stop -n '.$this->getUtsname, undef, wantarray);
 	$this->log->infof('%s: stopped', $this->getUtsname);
 }
 
@@ -182,7 +184,7 @@ sub start {
 		return;
 	}
 	$this->log->infof('%s: start', $this->getUtsname);
-	$this->_qx("lxc-start -d -n $utsName", wantarray);
+	$this->_qx("lxc-start -d -n $utsName", undef, wantarray);
 	$this->log->infof('%s: started', $this->getUtsname);
 }
 
@@ -190,7 +192,7 @@ sub exec {
 	my ($this, $cmd) = @_;
 	$this->_checkContainerIsRunning;
 	$this->log->infof('%s: exec `%s`', $this->getUtsname, $cmd);
-	$this->_qx('lxc-attach -n '.$this->getUtsname." -- $cmd", wantarray);
+	$this->_qx('lxc-attach -n '.$this->getUtsname, $cmd, wantarray);
 }
 
 sub put {
