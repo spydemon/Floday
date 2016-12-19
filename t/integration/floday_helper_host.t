@@ -86,14 +86,34 @@ my $attributesWithMissingParams = {
     'ctr' => {
       'parameters' => {
         'arbitrary_param' => 'hello',
-         #TODO: it seems that no error occurs when the type param is missing.
         'type'=> 'mumble',
-        'mandatory_param' => '1'
+        'mandatory_param' => '1',
       }
     },
     'rnbw' => {
       'parameters' => {
         'mandatory_param_two' => 'AAooo',
+        'type' => 'mumble'
+      }
+    }
+  }
+};
+
+my $attributesWithMissingTypeInChildren = {
+  'parameters' => {
+    'name' => 'integration',
+    'type' => 'riuk'
+  },
+  'applications' => {
+    'ctr' => {
+      'parameters' => {
+        'arbitrary_param' => 'hello',
+        'mandatory_param' => '1'
+      }
+    },
+    'rnbw' => {
+      'parameters' => {
+        'mandatory_param_two' => 'AAAooo',
         'type' => 'mumble'
       }
     }
@@ -108,7 +128,8 @@ my $complexHostToHashResult = {
           'mandatory' => 'false'
         },
         'type' => {
-          'value' => 'sftp'
+          'value' => 'sftp',
+          'required' => 'true'
         },
         'gateway' => {
           'mandatory' => 'true',
@@ -142,7 +163,8 @@ my $complexHostToHashResult = {
           'mandatory' => 'true'
         },
         'name' => {
-          'value' => 'website2'
+          'value' => 'website2',
+          'required' => 'true'
         },
         'data_in' => {
           'mandatory' => 'false'
@@ -200,7 +222,8 @@ my $complexHostToHashResult = {
           'value' => 'flodayalpine -- version 3.4'
         },
         'name' => {
-          'value' => 'website1'
+          'value' => 'website1',
+          'required' => 'true'
         },
         'netmask' => {
           'value' => '255.255.255.0',
@@ -217,7 +240,8 @@ my $complexHostToHashResult = {
           'value' => '10.0.0.1'
         },
         'type' => {
-          'value' => 'web'
+          'value' => 'web',
+          'required' => 'true'
         },
         'ipv4' => {
           'mandatory' => 'true',
@@ -235,14 +259,16 @@ my $complexHostToHashResult = {
   'inherit' => [],
   'parameters' => {
     'type' => {
-      'value' => 'riuk'
+      'value' => 'riuk',
+      'required' => 'true'
     },
     'useless_param' => {
       'value' => 'we dont care',
       'required' => 'false'
     },
     'name' => {
-      'value' => 'agoodname'
+      'value' => 'agoodname',
+      'required' => 'true'
     },
     'external_ipv4' => {
       'required' => 'true',
@@ -273,7 +299,9 @@ throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithoutName)}
 throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithWrongType)}
   qr/Invalid type 'riuk-xx' for host initialization/,
   'Check exception at invalid container type.';
-
+throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithMissingTypeInChildren)->toHash()}
+  qr/Missing name or type for an application/,
+  'Check exception if child type is missing.';
 
 #Test _mergeDefinition function:
 my $host= Floday::Helper::Host->new('runfile' => $attributesWithGoodName);

@@ -72,7 +72,7 @@ sub _checkRunlistIntegrity {
 	my @_errors;
 	for my $currParam (keys %{$runlist->{parameters}}) {
 		my $paramsAttributes = $runlist->{parameters}->{$currParam};
-		#TODO: boolean are not managed with YAML::Tiny! May-be should we use YAML::XS instead?
+		#TODO: boolean are not managed with YAML::Tiny! It could be nice to user real Yaml boolean instead of a string equals to "true".
 		if (defined $paramsAttributes->{mandatory}
 		  and $paramsAttributes->{mandatory} eq 'true'
 		  and not (defined $paramsAttributes->{value})
@@ -92,28 +92,38 @@ sub _checkRunlistIntegrity {
 sub _getInstanceDefinition {
 	my ($this) = @_;
 	my $containerDefinition = Floday::Helper::Container->new()->getContainerDefinition($this->_getContainerPath());
-	#Create instance definition.
 	$this->_mergeDefinition($containerDefinition);
 }
 
 sub _getInstanceToManageRunfileAttributes {
-	my ($this) = @_;
-	my $attributesFromRunfile->{applications}{$this->_getAttributesFromRunfile->{parameters}{name}} = $this->_getAttributesFromRunfile();
-	for (split '-', $this->_getInstancePathToManage()) {
-		$attributesFromRunfile = $attributesFromRunfile->{applications}{$_};
-	}
+	my $attributesFromRunfile;
+	eval {
+		use warnings FATAL => 'uninitialized';
+		my ($this) = @_;
+		$attributesFromRunfile->{applications}{$this->_getAttributesFromRunfile->{parameters}{name}} = $this->_getAttributesFromRunfile();
+		for (split '-', $this->_getInstancePathToManage()) {
+			$attributesFromRunfile = $attributesFromRunfile->{applications}{$_};
+		}
+	};
+	die ("Missing name or type for an application") if $@ ne '';
 	return $attributesFromRunfile;
 }
 
 sub _getContainerPath {
-	my ($this) = @_;
-	my @containerTypePath;
-	my $runfileConfig->{applications}{$this->_getAttributesFromRunfile()->{parameters}{name}} = $this->_getAttributesFromRunfile();
-	for (split ('-', $this->_getInstancePathToManage())) {
-		$runfileConfig = $runfileConfig->{applications}{$_};
-		push @containerTypePath, $runfileConfig->{parameters}{type};
-	}
-	join '-', @containerTypePath;
+	my $containerPath;
+	eval {
+		use warnings FATAL => 'uninitialized';
+		my ($this) = @_;
+		my @containerTypePath;
+		my $runfileConfig->{applications}{$this->_getAttributesFromRunfile()->{parameters}{name}} = $this->_getAttributesFromRunfile();
+		for (split ('-', $this->_getInstancePathToManage())) {
+			$runfileConfig = $runfileConfig->{applications}{$_};
+			push @containerTypePath, $runfileConfig->{parameters}{type};
+		}
+		$containerPath = join '-', @containerTypePath;
+	};
+	die ("Missing name or type for an application") if $@ ne '';
+	return $containerPath;
 }
 
 sub _mergeDefinition {
@@ -121,7 +131,9 @@ sub _mergeDefinition {
 	my $runfileAttributes = $this->_getInstanceToManageRunfileAttributes();
 	$runfileAttributes = $runfileAttributes->{'parameters'};
 	$containerDefinition->{parameters}{name}{value} = undef;
+	$containerDefinition->{parameters}{name}{required} = 'true';
 	$containerDefinition->{parameters}{type}{value} = undef;
+	$containerDefinition->{parameters}{type}{required} = 'true';
 	for (keys %$runfileAttributes) {
 		die ("Parameter '$_' present in runfile but that doesn't exist in container definition") unless defined $containerDefinition->{parameters}{$_};
 		$containerDefinition->{parameters}{$_}{value} = $runfileAttributes->{$_};
