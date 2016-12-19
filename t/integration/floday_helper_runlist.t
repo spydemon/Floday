@@ -15,6 +15,46 @@ $Data::Dumper::Indent = 1;
 
 my $runlist = {
 	'hosts' => {
+		'backup' => {
+			'parameters' => {
+				'type' => 'riuk',
+				'name' => 'backup',
+				'external_ipv4' => '192.168.15.152',
+				'container_path' => 'riuk',
+				'instance_path' => 'backup',
+				'useless_param' => 'we dont care'
+			},
+			'applications' => {
+				'web' => {
+					'parameters' => {
+						'type' => 'web',
+						'name' => 'web',
+						'bridge' => 'lxcbr0',
+						'iface' => 'eth0',
+						'ipv4' => '10.0.3.5',
+						'gateway' => '10.0.3.1',
+						'netmask' => '255.255.255.0',
+						'template' => 'flodayalpine -- version 3.4',
+						'container_path' => 'riuk-web',
+						'instance_path' => 'backup-web'
+					},
+					'setups' => {
+						'network' => {
+							'exec' => 'riuk/children/core/setups/network.pl',
+							'priority' => 10
+						},
+						'lighttpd' => {
+							'exec' => 'riuk/children/web/setups/lighttpd.pl',
+							'priority' => 20
+						},
+						'data' => {
+							'exec' => 'riuk/children/core/setups/data.pl',
+							'priority' => 30
+						}
+					}
+				}
+			}
+		},
 		'integration' => {
 			'parameters' => {
 				'type' => 'riuk',
@@ -122,7 +162,7 @@ my $runlist = {
 	}
 };
 
-my $test = Floday::Helper::Runlist->new(runfile => 'floday.d/runfile.yml');
+my $test = Floday::Helper::Runlist->new(runfile => 'floday_helper_runlist.d/runfile.yml');
 my @children = $test->getApplicationsOf('integration-web');
 cmp_deeply(\@children, ['integration-web-secondtest', 'integration-web-test'], 'Test of getApplicationsOf seems good.');
 my %parameters = $test->getParametersForApplication('integration-web-secondtest');

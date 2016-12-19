@@ -80,15 +80,14 @@ sub getSetupsByPriorityForApplication {
   return %sortedScripts;
 }
 
-#TODO: refactor this.
 sub _cleanRunlist {
 	my ($this, $rawData) = @_;
 	my $first = 0;
+	my $cleanRunlist;
 	if (not defined $rawData) {
 		$rawData = $this->getRawRunlist()->{'hosts'};
 		$first = 1;
 	}
-	my $cleanRunlist;
 	foreach $a (keys %$rawData) {
 		foreach (keys %{$rawData->{$a}{'parameters'}}) {
 			if (defined $rawData->{$a}{'parameters'}{$_}{'value'}) {
@@ -101,10 +100,8 @@ sub _cleanRunlist {
 		if (defined $rawData->{$a}{'applications'}) {
 			$cleanRunlist->{$a}{'applications'} = $this->_cleanRunlist($rawData->{$a}{'applications'});
 		}
-		if ($first == 1) {
-			return {'hosts' => $cleanRunlist};
-		}
 	}
+	return {'hosts' => $cleanRunlist} if ($first);
 	return $cleanRunlist;
 }
 
