@@ -10,6 +10,7 @@ use Floday::Helper::Runlist;
 use Moo;
 use Template::Alloy;
 use Virt::LXC;
+use YAML::Tiny;
 
 use constant ALLOW_UNDEF => 1;
 
@@ -36,6 +37,7 @@ has lxcInstance => (
 	'lazy' => 1
 );
 
+#TODO: runfile should be used here. Only runlist is needed.
 has runfilePath => (
 	#default => '/etc/floday/runfile.yml',
 	default => '/opt/floday/t/integration/floday.d/runfile.yml',
