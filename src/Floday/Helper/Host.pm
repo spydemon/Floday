@@ -32,20 +32,20 @@ has instancePathToManage => (
   reader => '_getInstancePathToManage'
 );
 
-state @errors;
+has errors => (
+  default => sub {[]},
+  is => 'rw',
+  reader => 'getAllErrors'
+);
 
 sub generateRunlist {
 	my ($this) = @_;
 	my $runlist = $this->toHash();
+	my @errors = @{$this->getAllErrors()};
 	if (@errors > 0) {
 		die(map{$_ . "\n"} @errors);
 	}
-	say Dumper @errors;
 	return $runlist;
-}
-
-sub getAllErrors {
-	@errors;
 }
 
 sub toHash {
@@ -56,14 +56,15 @@ sub toHash {
 		for (keys %{$currentInstanceAttributesFromRunfile->{applications}}) {
 			$currentInstanceAttributesFromRunfile->{applications}{$_}{parameters}{name} =  $_;
 			$runlist->{applications}{$_} =
-			  Floday::Helper::Host->new(
-			    'runfile' => $this->_getAttributesFromRunfile,
-			    'instancePathToManage' => $this->_getInstancePathToManage() . '-' . $_
-			  )->toHash()
-			;
+			my $child = Floday::Helper::Host->new(
+			  'runfile' => $this->_getAttributesFromRunfile,
+			  'instancePathToManage' => $this->_getInstancePathToManage() . '-' . $_
+			);
+			$runlist->{applications}{$_} = $child->toHash();
+			push @{$this->getAllErrors()}, @{$child->getAllErrors};
 		}
 	}
-	push @errors, $this->_checkRunlistIntegrity($runlist);
+	push @{$this->getAllErrors()}, $this->_checkRunlistIntegrity($runlist);
 	return $runlist;
 }
 

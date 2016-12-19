@@ -325,7 +325,7 @@ cmp_deeply $complexHost->toHash(), $complexHostToHashResult, 'Check toHash resul
 #Test error management in runlist initialization.
 my $testErrors = Floday::Helper::Host->new('runfile' => $attributesWithMissingParams);
 $testErrors->toHash();
-my @errorsFetched = $testErrors->getAllErrors();
+my @errorsFetched = @{$testErrors->getAllErrors()};
 cmp_bag(\@errorsFetched, \@missingParamsErrors, 'Test mandatory parameters checker');
 
 done_testing;
