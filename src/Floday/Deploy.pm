@@ -17,7 +17,7 @@ has runfile => (
 	reader => 'getRunfile',
 	required => 1,
 	isa => sub {
-		die 'runfile is not readable' unless -r $_[0];
+		die "Runfile '$_[0]' is not readable" unless -r $_[0];
 	}
 );
 

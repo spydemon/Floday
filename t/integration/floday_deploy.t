@@ -21,7 +21,7 @@ throws_ok {Floday::Deploy->new(hostname => 'not-valid', runfile => 'floday.d/run
 throws_ok {Floday::Deploy->new(hostname => 'integration')}
   qr/Missing required arguments: runfile/, 'Check if the hostname attribut has a filter.';
 throws_ok {Floday::Deploy->new(hostname => 'integration', runfile => 'floday.d/nonexisting.yml')}
-  qr/runfile is not readable/, 'Check if the runfile attribut has a filter.';
+  qr/Runfile 'floday.d\/nonexisting.yml' is not readable/, 'Check if the runfile attribut has a filter.';
 my $test = Floday::Deploy->new(hostname => 'integration', runfile => 'floday.d/runfile.yml');
 $test->startDeployment;
 
