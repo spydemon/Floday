@@ -14,7 +14,7 @@ my $runlist = '/var/lib/floday/runlist.yml';
 my @containers = ('integration-web', 'integration-web-test', 'integration-web-secondtest');
 for (@containers) {
 	my $c = Virt::LXC->new('utsname' => $_);
-	$c->isExisting and $c->destroy;
+	$c->is_existing and $c->destroy;
 }
 
 my $err = `../../src/floday.pl 2>&1 1>/dev/null`;

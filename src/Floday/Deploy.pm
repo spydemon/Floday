@@ -51,16 +51,16 @@ sub launch {
 	$log->infof('Launching %s application.', $parameters{instance_path});
 	my $container = Virt::LXC->new('utsname' => $parameters{instance_path});
 	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($parameters{instance_path});
-	if ($container->isExisting) {
+	if ($container->is_existing) {
 		$container->destroy;
 	}
-	$container->setTemplate($parameters{template});
+	$container->set_template($parameters{template});
 	my ($state, $stdout, $stderr) = $container->deploy;
 	die $stderr unless $state;
 	for(sort keys %startupScripts) {
 		say `$containersFolder/$startupScripts{$_}->{exec} --container $parameters{instance_path}`;
 	}
-	$container->stop if $container->isRunning;
+	$container->stop if $container->is_running;
 	$container->start;
 	for ($this->getRunlist->getApplicationsOf($parameters{instance_path})) {
 		$this->launch($_);

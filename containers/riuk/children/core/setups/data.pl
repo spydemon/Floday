@@ -12,6 +12,6 @@ my $data_in = $application->getParameter('data_in', ALLOW_UNDEF);
 my $data_out = $application->getParameter('data_out', ALLOW_UNDEF);
 
 if (defined $data_in && defined $data_out) {
-	$lxc->start if $lxc->isStopped;
+	$lxc->start if $lxc->is_stopped;
 	$lxc->put($data_in, $data_out);
 }

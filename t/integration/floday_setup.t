@@ -11,8 +11,8 @@ use Data::Dumper;
 
 my $application = Floday::Setup->new(instancePath => 'integration-web-test', runfilePath => '/opt/floday/t/integration/floday.d/runfile.yml');
 my $lxc = $application->getLxcInstance;
-$lxc->destroy if $lxc->isExisting;
-$lxc->setTemplate($application->getParameter('template'));
+$lxc->destroy if $lxc->is_existing;
+$lxc->set_template($application->getParameter('template'));
 $lxc->deploy;
 
 my $iface = $application->getParameter('iface');
@@ -25,7 +25,7 @@ throws_ok { $application->getParameter('invalid~~{name'); }
 throws_ok { $application->getParameter('yolooo'); }
 	qr/undefined "yolooo" parameter asked for integration-web-test application./, 'Error throwed when unexsting parameter is asked.';
 $application->getParameter('yolooo', ALLOW_UNDEF);
-like($lxc->getUtsname, qr/integration-web-test/, 'Virt::LXC instance fetched seems good.');
+like($lxc->get_utsname, qr/integration-web-test/, 'Virt::LXC instance fetched seems good.');
 
 my $parentType = $application->getParentApplication->getParameter('type');
 like($parentType, qr/web/, 'Parent fetch seems to work.');

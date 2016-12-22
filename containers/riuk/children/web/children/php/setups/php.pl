@@ -10,7 +10,7 @@ use Log::Any::Adapter('File', 'log.txt');
 my $application = Floday::Setup->new('instancePath', $ARGV[1]);
 my $lxc = $application->getLxcInstance;
 my $definition = $application->getDefinition;
-$lxc->start if $lxc->isStopped;
+$lxc->start if $lxc->is_stopped;
 
 my @cmd = ('apk update', 'apk upgrade', 'apk add php5-fpm', 'rc-update add php-fpm');
 for (@cmd) {
