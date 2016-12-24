@@ -1,19 +1,38 @@
 package Virt::LXC;
-use v5.20;
+use v5.0;
 
 use Backticks;
 use Carp;
 use Exporter qw(import);
-use Log::Any ();
+use Log::Any;
 use Moo;
 use IPC::Run qw(run);
 
 use constant ALLOW_UNDEF => 0x01;
 our @EXPORT_OK = ('ALLOW_UNDEF');
+
 our $VERSION = 1.0;
 
 $Backticks::autodie = 1;
 
+########################
+## Module subroutines
+########################
+sub get_existing_containers {
+	split("\n", `lxc-ls -1`);
+}
+
+sub get_running_containers {
+	split("\n", `lxc-ls -1 --running`);
+}
+
+sub get_stopped_containers {
+	split("\n", `lxc-ls -1 --stopped`);
+}
+
+########################
+## Objects subroutines
+########################
 has utsname => (
 	'is' => 'ro',
 	'required' => 1,
@@ -25,6 +44,7 @@ has template => (
 	'reader' => '_get_template',
 	'writer' => 'set_template'
 );
+
 has lxcpath => (
 	'is' => 'rwp',
 	'reader' => '_get_lxc_path',
@@ -36,74 +56,35 @@ has log => (
 	default => sub { Log::Any->get_logger },
 );
 
+sub deploy {
+	my ($this) = @_;
+	$this->_check_container_is_not_existing();
+	my $utsname = $this->get_utsname();
+	my $template = $this->get_template();
+	$this->log->infof('%s: deploy', $this->get_utsname());
+	$this->_qx("lxc-create -n $utsname -t $template", undef, wantarray);
+	$this->log->infof('%s: deployed', $this->get_utsname());
+}
+
+sub destroy {
+	my ($this) = @_;
+	$this->is_running() and $this->stop();
+	$this->log->infof('%s: destroy', $this->get_utsname());
+	$this->_qx('lxc-destroy -n '.$this->get_utsname(), undef, wantarray);
+	$this->log->infof('%s: destroyed', $this->get_utsname());
+}
+
+sub exec {
+	my ($this, $cmd) = @_;
+	$this->_check_container_is_running();
+	$this->log->infof('%s: exec `%s`', $this->get_utsname(), $cmd);
+	$this->_qx('lxc-attach -n '.$this->get_utsname(), $cmd, wantarray);
+}
+
 sub get_lxc_path {
 	my ($this) = @_;
 	return $this->_get_lxc_path() if defined $this->_get_lxc_path();
 	'/var/lib/lxc/' . $this->get_utsname();
-}
-
-sub get_template {
-	my ($this) = @_;
-	if (!$this->_get_template()) {
-		$this->log->errorf('%s: getTemplate: template not provided', $this->get_utsname());
-		croak 'Template is not provided for $this->getUtsname container.';
-	}
-	$this->_get_template();
-}
-
-sub _qx {
-	my ($this, $cmd, $params, $wantarray) = @_;
-	my $log = $this->get_utsname() . ': _qx:`' . $cmd . '`';
-	$log .= ' => ' . $params if defined $params;
-	$this->log->tracef($log);
-	my @cmd = split(' ', $cmd);
-	my ($stdout, $stderr);
-	my $result = run \@cmd, \$params, \$stdout, \$stderr;
-	$this->log->tracef('%s: _qx res: %s/%s/%s', $this->get_utsname(), $result, $stdout, $stderr);
-	$wantarray and return ($result, $stdout, $stderr);
-	return $result;
-}
-
-sub _check_container_is_running {
-	my ($this) = @_;
-	if ($this->is_stopped()) {
-		my (undef, undef, undef, $caller) = caller(1);
-		$caller =~ /::(\w*)$/;
-		$this->log->errorf('%s: %s: not running', $this->get_utsname(), $1);
-		croak 'Container ' . $this->get_utsname() . ' is not running';
-	}
-}
-
-sub _check_container_is_existing {
-	my ($this) = @_;
-	if (!$this->is_existing()) {
-		my (undef, undef, undef, $caller) = caller(1);
-		$caller =~ /::(\w*)$/;
-		$this->log->errorf('%s: %s: container not existing', $this->get_utsname(), $1);
-		croak 'Container ' . $this->get_utsname() . ' doesn\'t exist';
-	}
-}
-
-sub _check_container_is_not_existing {
-	my ($this) = @_;
-	if ($this->is_existing())  {
-		my (undef, undef, undef, $caller) = caller(1);
-		$caller =~ /::(\w*)$/;
-		$this->log->errorf('%s: %s: container alreay exists', $this->get_utsname(), $1);
-		croak 'Container ' . $this->get_utsname() . ' already exists';
-	}
-}
-
-sub get_existing_containers {
-	split("\n", `lxc-ls -1`);
-}
-
-sub get_running_containers {
-	split("\n", `lxc-ls -1 --running`);
-}
-
-sub get_stopped_containers {
-	split("\n", `lxc-ls -1 --stopped`);
 }
 
 sub get_config {
@@ -128,10 +109,13 @@ sub get_config {
 	return @results;
 }
 
-sub is_running {
+sub get_template {
 	my ($this) = @_;
-	my $name = $this->get_utsname();
-	grep {/^$name$/} get_running_containers();
+	if (!$this->_get_template()) {
+		$this->log->errorf('%s: getTemplate: template not provided', $this->get_utsname());
+		croak 'Template is not provided for $this->getUtsname container.';
+	}
+	$this->_get_template();
 }
 
 sub is_existing {
@@ -140,59 +124,16 @@ sub is_existing {
 	grep {/^$name$/} get_existing_containers();
 }
 
+sub is_running {
+	my ($this) = @_;
+	my $name = $this->get_utsname();
+	grep {/^$name$/} get_running_containers();
+}
+
 sub is_stopped {
 	my ($this) = @_;
 	my $name = $this->get_utsname();
 	grep {/^$name$/} get_stopped_containers();
-}
-
-sub deploy {
-	my ($this) = @_;
-	$this->_check_container_is_not_existing();
-	my $utsname = $this->get_utsname();
-	my $template = $this->get_template();
-	$this->log->infof('%s: deploy', $this->get_utsname());
-	$this->_qx("lxc-create -n $utsname -t $template", undef, wantarray);
-	$this->log->infof('%s: deployed', $this->get_utsname());
-}
-
-sub destroy {
-	my ($this) = @_;
-	$this->is_running() and $this->stop();
-	$this->log->infof('%s: destroy', $this->get_utsname());
-	$this->_qx('lxc-destroy -n '.$this->get_utsname(), undef, wantarray);
-	$this->log->infof('%s: destroyed', $this->get_utsname());
-}
-
-sub stop {
-	my ($this) = @_;
-	if (!$this->is_running()) {
-		$this->log->warningf('%s: stop: already stopped', $this->get_utsname());
-		return;
-	}
-	$this->log->infof('%s: stop', $this->get_utsname());
-	$this->_qx('lxc-stop -n '.$this->get_utsname(), undef, wantarray);
-	$this->log->infof('%s: stopped', $this->get_utsname());
-}
-
-sub start {
-	my ($this) = @_;
-	my $utsname = $this->get_utsname();
-	$this->_check_container_is_existing();
-	if ($this->is_running()) {
-		$this->log->warningf('%s start: already started', $this->get_utsname());
-		return;
-	}
-	$this->log->infof('%s: start', $this->get_utsname());
-	$this->_qx("lxc-start -d -n $utsname", undef, wantarray);
-	$this->log->infof('%s: started', $this->get_utsname());
-}
-
-sub exec {
-	my ($this, $cmd) = @_;
-	$this->_check_container_is_running();
-	$this->log->infof('%s: exec `%s`', $this->get_utsname(), $cmd);
-	$this->_qx('lxc-attach -n '.$this->get_utsname(), $cmd, wantarray);
 }
 
 sub put {
@@ -234,6 +175,77 @@ sub set_config {
 	close CONF_R;
 	close CONF_W;
 	rename $this->get_lxc_path(). '/config_r', $this->get_lxc_path() . '/config';
+}
+
+sub start {
+	my ($this) = @_;
+	my $utsname = $this->get_utsname();
+	$this->_check_container_is_existing();
+	if ($this->is_running()) {
+		$this->log->warningf('%s start: already started', $this->get_utsname());
+		return;
+	}
+	$this->log->infof('%s: start', $this->get_utsname());
+	$this->_qx("lxc-start -d -n $utsname", undef, wantarray);
+	$this->log->infof('%s: started', $this->get_utsname());
+}
+
+sub stop {
+	my ($this) = @_;
+	if (!$this->is_running()) {
+		$this->log->warningf('%s: stop: already stopped', $this->get_utsname());
+		return;
+	}
+	$this->log->infof('%s: stop', $this->get_utsname());
+	$this->_qx('lxc-stop -n '.$this->get_utsname(), undef, wantarray);
+	$this->log->infof('%s: stopped', $this->get_utsname());
+}
+
+########################
+## Internal subroutines
+########################
+sub _check_container_is_existing {
+	my ($this) = @_;
+	if (!$this->is_existing()) {
+		my (undef, undef, undef, $caller) = caller(1);
+		$caller =~ /::(\w*)$/;
+		$this->log->errorf('%s: %s: container not existing', $this->get_utsname(), $1);
+		croak 'Container ' . $this->get_utsname() . ' doesn\'t exist';
+	}
+}
+
+#TODO: is duplicate with _check_container_is_existing.
+sub _check_container_is_not_existing {
+	my ($this) = @_;
+	if ($this->is_existing())  {
+		my (undef, undef, undef, $caller) = caller(1);
+		$caller =~ /::(\w*)$/;
+		$this->log->errorf('%s: %s: container alreay exists', $this->get_utsname(), $1);
+		croak 'Container ' . $this->get_utsname() . ' already exists';
+	}
+}
+
+sub _check_container_is_running {
+	my ($this) = @_;
+	if ($this->is_stopped()) {
+		my (undef, undef, undef, $caller) = caller(1);
+		$caller =~ /::(\w*)$/;
+		$this->log->errorf('%s: %s: not running', $this->get_utsname(), $1);
+		croak 'Container ' . $this->get_utsname() . ' is not running';
+	}
+}
+
+sub _qx {
+	my ($this, $cmd, $params, $wantarray) = @_;
+	my $log = $this->get_utsname() . ': _qx:`' . $cmd . '`';
+	$log .= ' => ' . $params if defined $params;
+	$this->log->tracef($log);
+	my @cmd = split(' ', $cmd);
+	my ($stdout, $stderr);
+	my $result = run \@cmd, \$params, \$stdout, \$stderr;
+	$this->log->tracef('%s: _qx res: %s/%s/%s', $this->get_utsname(), $result, $stdout, $stderr);
+	$wantarray and return ($result, $stdout, $stderr);
+	return $result;
 }
 
 1
