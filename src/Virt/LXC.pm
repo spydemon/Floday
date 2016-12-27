@@ -155,7 +155,9 @@ sub put {
 	`cp -R $input $dest`;
 	`chown -R $uid:$uid $dest` if defined $uid;
 }
+#TODO add del_config subroutine.
 
+#TODO should exists in two mode: erasing and addition.
 sub set_config {
 	my ($this, $attr, $value) = @_;
 	$this->_check_container_is_existing();
