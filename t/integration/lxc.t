@@ -1,12 +1,13 @@
 #!/usr/bin/env perl
 
-use v5.20;
+#use v5.20;
 use strict;
 
 use Log::Any::Adapter('File', 'log.txt');
+use Test::Deep;
 use Test::Exception;
 use Test::More;
-use Virt::LXC qw(ALLOW_UNDEF);
+use Virt::LXC qw(ALLOW_UNDEF ADDITION_MODE ERASING_MODE);
 
 my $container = Virt::LXC->new(utsname => 'lxc-test');
 $container->set_template('sshd');
@@ -52,11 +53,17 @@ $container->set_config('newnode', '42');
 my @configValues = $container->get_config('newnode');
 is $configValues[0], '42', 'Creation of a new configuration attribute.';
 $container->set_config('lxc.network.ipv4', '42.42.42.42');
+throws_ok {$container->set_config('lxc.network.ipv4', '12.12.12.12', ERASING_MODE | ADDITION_MODE)}
+  qr/set_config can not be in erasing and addition mode/, 'Test set_config erasing and addition modes exclusion.';
 @configValues = $container->get_config('lxc.network.ipv4');
 is $configValues[0], '42.42.42.42', 'Update of a configuration attribute.';
 throws_ok {$container->get_config('lxc.non-existing')}
   qr/'lxc.non-existing' attribute was not found in lxc configuration file with filter (?^u:(.*))/;
 is $container->get_config('lxc.non-existing', undef, ALLOW_UNDEF), 0, 'get_config with ALLOW_UNDEF';
+$container->set_config('lxc.network.ipv4', '12.13.14.15', ADDITION_MODE);
+my @ipExpected = ('42.42.42.42', '12.13.14.15');
+my @ipFetched = $container->get_config('lxc.network.ipv4');
+cmp_bag(\@ipExpected, \@ipFetched, 'set_config addition mode is working.');
 
 $container->destroy;
 ok grep{'lxc-test'} $container->get_existing_containers == 0, 'Container is absent of get_existing_containers.';

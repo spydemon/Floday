@@ -9,7 +9,9 @@ use Moo;
 use IPC::Run qw(run);
 
 use constant ALLOW_UNDEF => 0x01;
-our @EXPORT_OK = ('ALLOW_UNDEF');
+use constant ERASING_MODE => 0x01;
+use constant ADDITION_MODE => 0x02;
+our @EXPORT_OK = ('ALLOW_UNDEF', 'ERASING_MODE', 'ADDITION_MODE');
 
 our $VERSION = 1.0;
 
@@ -157,26 +159,32 @@ sub put {
 }
 #TODO add del_config subroutine.
 
-#TODO should exists in two mode: erasing and addition.
 sub set_config {
-	my ($this, $attr, $value) = @_;
+	my ($this, $attr, $value, $flags) = @_;
+	$flags = ERASING_MODE unless defined $flags;
+	croak 'set_config can not be in erasing and addition mode' if ($flags == (ERASING_MODE | ADDITION_MODE));
 	$this->_check_container_is_existing();
 	$this->log->infof('%s: setConfig %s -> %s', $this->get_utsname(), $attr, $value);
-	my $written = 0;
-	open CONF_R, '<' . $this->get_lxc_path() . '/config';
-	open CONF_W, '>' . $this->get_lxc_path() . '/config_r';
-	for (<CONF_R>) {
-		if (/^$attr = .*$/) {
-			print CONF_W "$attr = $value\n";
-			$written = 1;
-		} else {
-			print CONF_W $_;
+	if ($flags & ADDITION_MODE) {
+		open CONF, '>>', $this->get_lxc_path() . '/config';
+		print CONF "$attr = $value\n";
+	} else {
+		my $written = 0;
+		open CONF_R, '<'.$this->get_lxc_path().'/config';
+		open CONF_W, '>'.$this->get_lxc_path().'/config_r';
+		for (<CONF_R>) {
+			if (/^$attr = .*$/) {
+				print CONF_W "$attr = $value\n";
+				$written = 1;
+			} else {
+				print CONF_W $_;
+			}
 		}
+		!$written and print CONF_W "$attr = $value\n";
+		close CONF_R;
+		close CONF_W;
+		rename $this->get_lxc_path().'/config_r', $this->get_lxc_path().'/config';
 	}
-	!$written and print CONF_W "$attr = $value\n";
-	close CONF_R;
-	close CONF_W;
-	rename $this->get_lxc_path(). '/config_r', $this->get_lxc_path() . '/config';
 }
 
 sub start {

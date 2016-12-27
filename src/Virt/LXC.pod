@@ -178,19 +178,26 @@ Location on the container to put the file or folder. This path has to be absolut
 
 =back
 
-=head3 set_config($attribute, $value)
+=head3 set_config($attribute, $value, $flag)
 
-Will set an LXC attribute in container configuration.
+Will set a LXC attribute in container configuration.
+The update can occurs in two modes: addition or erasing.
+In the first one, a new attribute with the given value will always be created.
+In the second case, the first previous value already existing of $attribute will be updated with the new $value. If none is found, the atribute will also be created.
 
 =over 15
 
 =item $attribute
 
-Attribute to set. If it already exist, the previous value will be erased. If not, the new attribute will be added.
+Attribute to set.
 
 =item $value
 
-Value to set to the attribute.
+Value to give to the attribute.
+
+=item $flag
+
+Can be ADDITION_MODE, ERASING_MODE or undef. If undef, ERASING_MODE will occur.
 
 =back
 
