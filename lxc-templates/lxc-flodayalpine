@@ -12,7 +12,7 @@ use Config::Tiny;
 use File::Slurp qw<read_file>;
 use Getopt::Long;
 use List::Util qw<pairs>;
-use Virt::LXC;
+use Virt::LXC qw(ALLOW_UNDEF);
 
 my $CACHE_FOLDER = getFlodayConfigurationValue('cache_folder');
 my ($LXC_PATH, $LXC_NAME, $LXC_ROOTFS);
@@ -102,7 +102,7 @@ sub getPackage {
 #TODO: should be unit tested.
 sub getUserId {
 	my @alreadyUsedUgid =
-	  map {Virt::LXC->new(utsname => $_)->get_config('lxc.id_map', qr/^u \d+ (\d+) (\d+)$/)}
+	  map {Virt::LXC->new(utsname => $_)->get_config('lxc.id_map', qr/^u \d+ (\d+) (\d+)$/, ALLOW_UNDEF)}
 	  grep {$_ ne $LXC_NAME}
 	  Virt::LXC->get_existing_containers();
 	my $range = getFlodayConfigurationValue('id_range');
