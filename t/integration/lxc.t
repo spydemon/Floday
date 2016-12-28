@@ -65,6 +65,19 @@ my @ipExpected = ('42.42.42.42', '12.13.14.15');
 my @ipFetched = $container->get_config('lxc.network.ipv4');
 cmp_bag(\@ipExpected, \@ipFetched, 'set_config addition mode is working.');
 
+$container->set_config('lxc.network.ipv4', '12.13.14.16', ADDITION_MODE);
+$container->set_config('lxc.network.ipv4', '12.50.14.16', ADDITION_MODE);
+$container->set_config('lxc.network.ipv4', '12.50.14.17', ADDITION_MODE);
+my $lines_deleted = $container->del_config('lxc.network.ipv4', qr/^12.13/);
+ok $lines_deleted == 2, 'del_config result seems correct.';
+@ipExpected = ('42.42.42.42', '12.50.14.16', '12.50.14.17');
+@ipFetched = $container->get_config('lxc.network.ipv4');
+cmp_bag(\@ipExpected, \@ipFetched, 'del_config with filter seems to work.');
+$lines_deleted = $container->del_config('lxc.network.ipv4');
+ok $lines_deleted == 3;
+@ipFetched = $container->get_config('lxc.network.ipv4', undef, ALLOW_UNDEF);
+ok @ipFetched == 0, 'del_config without filter seems to work.';
+
 $container->destroy;
 ok grep{'lxc-test'} $container->get_existing_containers == 0, 'Container is absent of get_existing_containers.';
 ok grep{'lxc-test'} `lxc-ls -1` == 0, 'Container doesn\'t exist anymore.';

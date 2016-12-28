@@ -83,6 +83,28 @@ The previous Virt::LXC object.
 
 =back
 
+=head3 del_config($attribute, $filter)
+
+Will delete all LXC configuration container attributes that respect the $filter pattern.
+
+=over 15
+
+=item $attribute
+
+The attribute to delete.
+
+=item $filter
+
+A regex or undef.
+It will be compared with all $attribute values. The ones that match will be removed.
+If undef, all values will be removed.
+
+=item return
+
+The number of elements deleted.
+
+=back
+
 =head3 destroy()
 
 Will stop the container if it's existing and destroy it with the shell `lxc-destroy -n <utsname>`  shell command.
@@ -114,11 +136,6 @@ True if shell command return 0 (it usually means that the command was a success)
 
 =back
 
-=head3 get_lxc_path()
-
-Return the path to the LXC instance of the container. By default it's /var/lib/lxc/<utsname>/.
-The path is the folder that contains rootfs and config file.
-
 =head3 get_config($paramater, $filter, $flag)
 
 Get an array of values corresponding to all data that match the LXC container configuration.
@@ -143,6 +160,11 @@ ALLOW_EMPTY: don't croak if the parameter asked was not found.
 An array with all matched results.
 
 =back
+
+=head3 get_lxc_path()
+
+Return the path to the LXC instance of the container. By default it's /var/lib/lxc/<utsname>/.
+The path is the folder that contains rootfs and config file.
 
 =head3 get_template()
 

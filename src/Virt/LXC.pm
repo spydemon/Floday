@@ -98,9 +98,9 @@ sub get_config {
 	$filter //= qr/(.*)/;
 	my $allow_undef = defined ($flags) && $flags & ALLOW_UNDEF;
 	$this->_check_container_is_existing();
-	open CONF, '<', $this->get_lxc_path() . '/config';
+	open my $CONF, '<', $this->get_lxc_path() . '/config';
 	my @results;
-	for (<CONF>) {
+	for (<$CONF>) {
 		if (/^$attr\W*=\W*(?P<value>.*)$/) {
 			push @results, $+{value} =~ $filter;
 		}
@@ -158,7 +158,28 @@ sub put {
 	`cp -R $input $dest`;
 	`chown -R $uid:$uid $dest` if defined $uid;
 }
-#TODO add del_config subroutine.
+
+sub del_config {
+	my ($this, $attr, $filter) = @_;
+	if (defined $filter and ref($filter) ne 'Regexp') {
+		croak '$filter should be a regular expresion';
+	}
+	$filter //= qr/(.*)/;
+	open my $CONF_R, '<', $this->get_lxc_path() . '/config';
+	my $CONF_W = new File::Temp();
+	my $entries_deleted = 0;
+	for (<$CONF_R>) {
+		if (/^$attr\W*=\W*(?P<value>.*)$/) {
+			if ($+{value} =~ $filter) {
+				$entries_deleted++;
+				next;
+			}
+		}
+		print $CONF_W $_;
+	}
+	rename $CONF_W, $this->get_lxc_path() . '/config';
+	return $entries_deleted;
+}
 
 sub set_config {
 	my ($this, $attr, $value, $flags) = @_;
