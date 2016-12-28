@@ -4,6 +4,7 @@ use v5.0;
 use Backticks;
 use Carp;
 use Exporter qw(import);
+use File::Temp;
 use Log::Any;
 use Moo;
 use IPC::Run qw(run);
@@ -166,24 +167,24 @@ sub set_config {
 	$this->_check_container_is_existing();
 	$this->log->infof('%s: setConfig %s -> %s', $this->get_utsname(), $attr, $value);
 	if ($flags & ADDITION_MODE) {
-		open CONF, '>>', $this->get_lxc_path() . '/config';
-		print CONF "$attr = $value\n";
+		open my $CONF, '>>', $this->get_lxc_path() . '/config';
+		print $CONF "$attr = $value\n";
 	} else {
 		my $written = 0;
-		open CONF_R, '<'.$this->get_lxc_path().'/config';
-		open CONF_W, '>'.$this->get_lxc_path().'/config_r';
-		for (<CONF_R>) {
+		open my $CONF_R, '<', $this->get_lxc_path().'/config';
+		my $CONF_W = File::Temp->new();
+		for (<$CONF_R>) {
 			if (/^$attr = .*$/) {
-				print CONF_W "$attr = $value\n";
+				print $CONF_W "$attr = $value\n";
 				$written = 1;
 			} else {
-				print CONF_W $_;
+				print $CONF_W $_;
 			}
 		}
-		!$written and print CONF_W "$attr = $value\n";
-		close CONF_R;
-		close CONF_W;
-		rename $this->get_lxc_path().'/config_r', $this->get_lxc_path().'/config';
+		!$written and print $CONF_W "$attr = $value\n";
+		close $CONF_R;
+		close $CONF_W;
+		rename $CONF_W, $this->get_lxc_path().'/config';
 	}
 }
 
