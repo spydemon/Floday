@@ -6,6 +6,7 @@ use warnings;
 
 use Data::Dumper;
 use Floday::Deploy;
+use Floday::Helper::Config;
 use Getopt::Long;
 use Log::Any::Adapter('File', 'log.txt');
 
@@ -16,7 +17,7 @@ my $runfile;
 
 GetOptions('host=s', \$host, 'runfile=s', \$runfile);
 $host // die('Host to launch is missing');
-$runfile // die('Runfile is missing');
+$runfile //= Floday::Helper::Config->new()->getFlodayConfig('floday', 'runfile');
 -r $runfile or die('Runfile is not readable');
 
 my $floday = Floday::Deploy->new(runfile => $runfile, hostname => $host);
