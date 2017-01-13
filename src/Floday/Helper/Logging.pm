@@ -45,7 +45,7 @@ my %COLOR_PRIORITY_MAPPER = (
   emergency => 'bold red'
 );
 
-our $INDENT = 0;
+our $INDENT = 1;
 
 sub indent_dec {
 	$INDENT--;
@@ -71,9 +71,24 @@ foreach my $method (logging_methods()) {
 	*{$method} = sub {
 		my $self = shift @_;
 		my $text = join(' ', @_);
-		$text = '•' x indent_get($self) . ' ' . $text;
-		say STDOUT colored($text, $COLOR_PRIORITY_MAPPER{$method});
-		syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
+		my @text_lines = split "\n", $text;
+		if (@text_lines == 1) {
+			$text = '•' x indent_get($self) . ' ' . $text;
+			say STDOUT colored($text, $COLOR_PRIORITY_MAPPER{$method});
+			syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
+		} else {
+			my $first_line = 1;
+			for (@text_lines) {
+				if ($first_line) {
+					$text = '•' x indent_get($self).'|'.$_;
+					$first_line = 0;
+				} else {
+					$text = ' ' x indent_get($self).'|'.$_;
+				}
+				say STDOUT colored($text, $COLOR_PRIORITY_MAPPER{$method});
+				syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
+			}
+		}
 	}
 }
 
