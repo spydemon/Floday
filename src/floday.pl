@@ -8,9 +8,7 @@ use Data::Dumper;
 use Floday::Deploy;
 use Floday::Helper::Config;
 use Getopt::Long;
-use Log::Any::Adapter('File', 'log.txt');
-
-$Data::Dumper::Indent = 1;
+use Log::Any::Adapter('+Floday::Helper::Logging');
 
 my $host;
 my $runfile;

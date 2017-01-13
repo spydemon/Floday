@@ -45,14 +45,22 @@ my %COLOR_PRIORITY_MAPPER = (
   emergency => 'bold red'
 );
 
-sub get_indent {
-	my ($self) =@_;
-	$self->{indent} // 0;
+our $INDENT = 0;
+
+sub indent_dec {
+	$INDENT--;
+}
+
+sub indent_get {
+	$INDENT;
+}
+
+sub indent_inc {
+	$INDENT++;
 }
 
 sub init {
 	my ($self) = @_;
-	#I don't know how to set this log_level from the adapter initialisation… If you know the answer, please write me an email. ^^"
 	$self->{log_level} = 'trace' unless defined $self->{log_level};
 	$self->{log_level} = numeric_level($self->{log_level}) unless $self->{log_level} =~ /^\d+$/;
 	die ('The logging level provided is unknown') unless defined $self->{log_level}
@@ -63,7 +71,7 @@ foreach my $method (logging_methods()) {
 	*{$method} = sub {
 		my $self = shift @_;
 		my $text = join(' ', @_);
-		$text = '•' x get_indent($self) . ' ' . $text;
+		$text = '•' x indent_get($self) . ' ' . $text;
 		say STDOUT colored($text, $COLOR_PRIORITY_MAPPER{$method});
 		syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
 	}

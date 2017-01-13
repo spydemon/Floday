@@ -46,6 +46,7 @@ has log => (
 
 sub launch {
 	my ($this, $instancePath) = @_;
+	$this->log->{adapter}->indent_inc();
 	my %parameters = $this->getRunlist->getParametersForApplication($instancePath);
 	my $containersFolder = Floday::Helper::Config->new()->getFlodayConfig('containers', 'path');
 	$log->infof('Launching %s application.', $parameters{instance_path});
@@ -58,21 +59,27 @@ sub launch {
 	my ($state, $stdout, $stderr) = $container->deploy;
 	die $stderr unless $state;
 	for(sort keys %startupScripts) {
+		$this->log->{adapter}->indent_inc();
 		say `$containersFolder/$startupScripts{$_}->{exec} --container $parameters{instance_path}`;
+		$this->log->{adapter}->indent_dec();
 	}
 	$container->stop if $container->is_running;
 	$container->start;
 	for ($this->getRunlist->getApplicationsOf($parameters{instance_path})) {
 		$this->launch($_);
 	}
+	$this->log->{adapter}->indent_dec();
 }
 
 sub startDeployment {
 	my ($this) = @_;
-	$this->log->warningf('Deploying %s host.', $this->getHostname);
 	my $yaml = YAML::Tiny->new(%{$this->getRunlist()->getCleanRunlist()});
 	$yaml->write('/var/lib/floday/runlist.yml');
+	unless ($this->getRunlist->getCleanRunlist->{hosts}{$this->getHostname}) {
+		die $this->log->errorf('Host %s is unknown.', $this->getHostname);
+	}
 	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
+		$this->log->warningf('Starting deployment of %s host.', $this->getHostname);
 		$this->launch($_);
 	}
 	$this->log->warningf('%s deployed.', $this->getHostname);
