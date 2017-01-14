@@ -64,23 +64,18 @@ sub deploy {
 	$this->_check_container_is_not_existing();
 	my $utsname = $this->get_utsname();
 	my $template = $this->get_template();
-	$this->log->infof('%s: deploy', $this->get_utsname());
 	$this->_qx("lxc-create -n $utsname -t $template", undef, wantarray);
-	$this->log->infof('%s: deployed', $this->get_utsname());
 }
 
 sub destroy {
 	my ($this) = @_;
 	$this->is_running() and $this->stop();
-	$this->log->infof('%s: destroy', $this->get_utsname());
 	$this->_qx('lxc-destroy -n '.$this->get_utsname(), undef, wantarray);
-	$this->log->infof('%s: destroyed', $this->get_utsname());
 }
 
 sub exec {
 	my ($this, $cmd) = @_;
 	$this->_check_container_is_running();
-	$this->log->infof('%s: exec `%s`', $this->get_utsname(), $cmd);
 	$this->_qx('lxc-attach -n '.$this->get_utsname(), $cmd, wantarray);
 }
 
@@ -107,6 +102,7 @@ sub get_config {
 	}
 	$this->log->debugf('%s: getConfig \'%s\' with pattern \'%s\': %s', $this->get_utsname(), $attr, $filter, \@results);
 	if (!@results && !$allow_undef) {
+		$this->log->errorf('%s: getConfig witout result and ALLOW_UNDEF flag was not set.', $this->get_utsname());
 		croak "'$attr' attribute was not found in lxc configuration file with filter $filter";
 	}
 	return @results;
@@ -115,8 +111,9 @@ sub get_config {
 sub get_template {
 	my ($this) = @_;
 	if (!$this->_get_template()) {
-		$this->log->errorf('%s: getTemplate: template not provided', $this->get_utsname());
-		croak 'Template is not provided for $this->getUtsname container.';
+		my $utsname = $this->get_utsname();
+		$this->log->errorf('%s: getTemplate: template not provided', $utsname);
+		croak "Template is not provided for '$utsname' container.";
 	}
 	$this->_get_template();
 }
@@ -161,8 +158,10 @@ sub put {
 
 sub del_config {
 	my ($this, $attr, $filter) = @_;
+	$this->log->debugf('%s: del_config %s with filter : %s', $this->get_utsname(), $attr, $filter);
 	if (defined $filter and ref($filter) ne 'Regexp') {
-		croak '$filter should be a regular expresion';
+		$this->log->errorf('%s: del_config: filter is not a regular expression.', $this->get_utsname(), $attr);
+		croak '$filter should be a regular expression';
 	}
 	$filter //= qr/(.*)/;
 	open my $CONF_R, '<', $this->get_lxc_path() . '/config';
@@ -184,9 +183,10 @@ sub del_config {
 sub set_config {
 	my ($this, $attr, $value, $flags) = @_;
 	$flags = ERASING_MODE unless defined $flags;
-	croak 'set_config can not be in erasing and addition mode' if ($flags == (ERASING_MODE | ADDITION_MODE));
+	$this->log->debugf('%s: set_config %s with value %s and flags %s', $this->get_utsname(), $attr, $value, $flags);
+	croak $this->log->errorf('set_config can not be in erasing and addition mode')
+	  if ($flags == (ERASING_MODE | ADDITION_MODE));
 	$this->_check_container_is_existing();
-	$this->log->infof('%s: setConfig %s -> %s', $this->get_utsname(), $attr, $value);
 	if ($flags & ADDITION_MODE) {
 		open my $CONF, '>>', $this->get_lxc_path() . '/config';
 		print $CONF "$attr = $value\n";
@@ -250,9 +250,7 @@ sub _check_container_is_existing {
 sub _check_container_is_not_existing {
 	my ($this) = @_;
 	if ($this->is_existing())  {
-		my (undef, undef, undef, $caller) = caller(1);
-		$caller =~ /::(\w*)$/;
-		$this->log->errorf('%s: %s: container alreay exists', $this->get_utsname(), $1);
+		$this->log->errorf('%s: container alreay exists', $this->get_utsname());
 		croak 'Container ' . $this->get_utsname() . ' already exists';
 	}
 }
@@ -260,9 +258,7 @@ sub _check_container_is_not_existing {
 sub _check_container_is_running {
 	my ($this) = @_;
 	if ($this->is_stopped()) {
-		my (undef, undef, undef, $caller) = caller(1);
-		$caller =~ /::(\w*)$/;
-		$this->log->errorf('%s: %s: not running', $this->get_utsname(), $1);
+		$this->log->errorf('%s: not running', $this->get_utsname());
 		croak 'Container ' . $this->get_utsname() . ' is not running';
 	}
 }
