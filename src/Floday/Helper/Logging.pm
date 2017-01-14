@@ -72,15 +72,17 @@ foreach my $method (logging_methods()) {
 		my $self = shift @_;
 		my $text = join(' ', @_);
 		my @text_lines = split "\n", $text;
+		my ($mod) = caller(2);
 		if (@text_lines == 1) {
-			$text = '•' x indent_get($self) . ' ' . $text;
+			$text = '•' x indent_get($self) . ' ' . $mod . ': ' . $text;
 			say STDOUT colored($text, $COLOR_PRIORITY_MAPPER{$method});
 			syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
 		} else {
 			my $first_line = 1;
 			for (@text_lines) {
 				if ($first_line) {
-					$text = '•' x indent_get($self).'|'.$_;
+					$text = '•' x indent_get($self). '|' .$mod;
+					$text .= "\n" . ' ' x indent_get($self). '|' . $_;
 					$first_line = 0;
 				} else {
 					$text = ' ' x indent_get($self).'|'.$_;
