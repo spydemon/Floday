@@ -2,11 +2,12 @@
 
 use v5.20;
 use warnings;
+
 use Cwd;
 use Floday::Setup 'ALLOW_UNDEF';
 use Test::More;
 use Test::Exception;
-use Log::Any::Adapter('File', 'log.txt');
+use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
 use Data::Dumper;
 
 my $application = Floday::Setup->new(instancePath => 'integration-web-test', runfilePath => '/opt/floday/t/integration/floday.d/runfile.yml');

@@ -6,7 +6,7 @@ use strict;
 use Virt::LXC;
 use Test::More;
 use Test::Exception;
-use Log::Any::Adapter('File', 'log.txt');
+use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
 
 my $runlist = '/var/lib/floday/runlist.yml';
 -f $runlist and `rm $runlist`;
@@ -19,8 +19,6 @@ for (@containers) {
 
 my $err = `../../src/floday.pl 2>&1 1>/dev/null`;
 ok $err =~ /Host to launch is missing/, 'Error throwed because host cli parameter is missing.';
-$err = `../../src/floday.pl --host integration 2>&1 1>/dev/null`;
-ok $err =~ /Runfile is missing/, 'Error throwed because runfile cli parameter is missing.';
 $err = `../../src/floday.pl --host integration --runfile /notexisting 2>&1 1>/dev/null`;
 ok $err =~ /Runfile is not readable/, 'Error throwed because runfile is not readable.';
 

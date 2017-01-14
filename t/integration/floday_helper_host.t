@@ -4,10 +4,7 @@ use v5.20;
 use warnings;
 use strict;
 
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
-
-use Log::Any::Adapter('File', 'log.txt');
+use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
 use Test::Deep;
 use Test::Exception;
 use Test::More;

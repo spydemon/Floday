@@ -4,7 +4,6 @@ use v5.20;
 use strict;
 use warnings;
 
-use Data::Dumper;
 use Log::Any::Adapter('File', 'log.txt');
 use Test::Deep;
 use Test::More;
