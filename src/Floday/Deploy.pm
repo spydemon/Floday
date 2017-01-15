@@ -74,6 +74,7 @@ sub launch {
 sub startDeployment {
 	my ($this) = @_;
 	my $yaml = YAML::Tiny->new(%{$this->getRunlist()->getCleanRunlist()});
+	`mkdir -p /var/lib/floday` unless -d '/var/lib/floday';
 	$yaml->write('/var/lib/floday/runlist.yml');
 	unless ($this->getRunlist->getCleanRunlist->{hosts}{$this->getHostname}) {
 		die $this->log->errorf('Host %s is unknown.', $this->getHostname);
