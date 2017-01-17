@@ -40,8 +40,9 @@ has lxcInstance => (
 
 #TODO: runfile should be used here. Only runlist is needed.
 has runfilePath => (
-	#default => '/etc/floday/runfile.yml',
-	default => '/opt/floday/t/integration/floday.d/runfile.yml',
+	default => sub {
+		Floday::Helper::Config->new()->getFlodayConfig('floday', 'runfile')
+	},
 	is => 'ro',
 	reader => 'getRunfilePath'
 );
