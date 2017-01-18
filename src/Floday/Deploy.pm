@@ -79,6 +79,15 @@ sub startDeployment {
 	unless ($this->getRunlist->getCleanRunlist->{hosts}{$this->getHostname}) {
 		die $this->log->errorf('Host %s is unknown.', $this->getHostname);
 	}
+	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($this->getHostname);
+	my $containersFolder = Floday::Helper::Config->new()->getFlodayConfig('containers', 'path');
+	for(sort keys %startupScripts) {
+		$this->log->{adapter}->indent_inc();
+		my $hostname = $this->getHostname;
+		say `$containersFolder/$startupScripts{$_}->{exec} --container $hostname`;
+		croak $this->log->errorf($@) if (defined $@ and $@ ne '');
+		$this->log->{adapter}->indent_dec();
+	}
 	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
 		$this->log->warningf('Starting deployment of %s host.', $this->getHostname);
 		$this->launch($_);
@@ -88,7 +97,15 @@ sub startDeployment {
 
 sub _initializeRunlist {
 	my ($this) = @_;
-	Floday::Helper::Runlist->new(runfile => $this->getRunfile);
+	my $runlist = Floday::Helper::Runlist->new(runfile => $this->getRunfile);
+	$runlist->getRawRunlist();
+	if (@{$runlist->getRunlistErrors()}) {
+		foreach (@{$runlist->getRunlistErrors()}) {
+			$this->log->fatalf($_);
+		}
+		die $this->log->fatalf('Died because invalid runfile');
+	}
+	return $runlist;
 }
 
 1

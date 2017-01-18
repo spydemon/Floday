@@ -25,6 +25,12 @@ has runfile => (
 	required => 1,
 );
 
+has runlistErrors => (
+	default => sub{[]},
+	is => 'rw',
+	reader => 'getRunlistErrors'
+);
+
 has rawRunlist => (
 	is => 'rw',
 	lazy => 1,
@@ -69,6 +75,7 @@ sub getParametersForApplication {
 
 sub getSetupsByPriorityForApplication {
 	my ($this, $applicationName) = @_;
+	return unless defined $this->getDefinitionOf($applicationName)->{setups};
 	my %setups = %{$this->getDefinitionOf($applicationName)->{setups}};
 	my %sortedScripts;
 	while (my($key, $value) = each %setups) {
@@ -112,7 +119,9 @@ sub _initializeRunlist {
 	for (keys %$hosts) {
 		my $attributes = $hosts->{$_};
 		$attributes->{parameters}{name} = $_;
-		$hostsInitialized->{'hosts'}{$_} = Floday::Helper::Host->new('runfile' => $attributes)->toHash();
+		my $host = Floday::Helper::Host->new('runfile' => $attributes);
+		$hostsInitialized->{'hosts'}{$_} = $host->toHash();
+		push @{$this->getRunlistErrors()}, @{$host->getAllErrors()};
 	}
 	return $hostsInitialized;
 }
