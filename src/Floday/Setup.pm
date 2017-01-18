@@ -7,17 +7,23 @@ use Backticks;
 use Carp;
 use Exporter qw(import);
 use File::Temp;
+use Floday::Helper::Config;
 use Floday::Helper::Runlist;
+use Getopt::Long;
+use Log::Any::Adapter('+Floday::Helper::Logging');
 use Moo;
 use Template::Alloy;
 use Virt::LXC;
 use YAML::Tiny;
 
+our ($APP);
+
 use constant ALLOW_UNDEF => 1;
 
 $Backticks::autodie = 1;
 
-our @EXPORT_OK = ('ALLOW_UNDEF');
+our @EXPORT = qw($APP);
+our @EXPORT_OK = qw(ALLOW_UNDEF);
 
 has instancePath => (
 	'is' => 'ro',
@@ -125,5 +131,11 @@ sub _initializeRunlist {
 	$this->log->infof("Runfile %s", $this->getRunfilePath);
 	Floday::Helper::Runlist->new(runfile => $this->getRunfilePath);
 }
+
+#Auto creation of the module variables
+my $container;
+GetOptions('container=s', \$container);
+croak('No container was provided during setup script instantiation.') if (not defined $container) or ($container eq '');
+$APP = __PACKAGE__->new(instancePath => $container);
 
 1;
