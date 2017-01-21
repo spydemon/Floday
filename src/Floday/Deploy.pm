@@ -58,9 +58,11 @@ sub launch {
 	$container->set_template($parameters{template});
 	my ($state, $stdout, $stderr) = $container->deploy;
 	die $stderr unless $state;
-	for(sort keys %startupScripts) {
+	for(sort {$a <=> $b} keys %startupScripts) {
+		my $scriptPath = "$containersFolder/" . $startupScripts{$_}->{exec};
 		$this->log->{adapter}->indent_inc();
-		say `$containersFolder/$startupScripts{$_}->{exec} --container $parameters{instance_path}`;
+		$this->log->infof('Running script: %s', $scriptPath);
+		say `$scriptPath --container $parameters{instance_path}`;
 		$this->log->{adapter}->indent_dec();
 	}
 	$container->stop if $container->is_running;
@@ -71,6 +73,7 @@ sub launch {
 	$this->log->{adapter}->indent_dec();
 }
 
+#TODO: redundant with launch subroutine.
 sub startDeployment {
 	my ($this) = @_;
 	my $yaml = YAML::Tiny->new(%{$this->getRunlist()->getCleanRunlist()});
@@ -81,11 +84,12 @@ sub startDeployment {
 	}
 	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($this->getHostname);
 	my $containersFolder = Floday::Helper::Config->new()->getFlodayConfig('containers', 'path');
-	for(sort keys %startupScripts) {
+	for(sort {$a <=> $b} keys %startupScripts) {
+		my $scriptPath = "$containersFolder/" . $startupScripts{$_}->{exec};
+		my $hostname = $this->getHostname();
 		$this->log->{adapter}->indent_inc();
-		my $hostname = $this->getHostname;
-		say `$containersFolder/$startupScripts{$_}->{exec} --container $hostname`;
-		croak $this->log->errorf($@) if (defined $@ and $@ ne '');
+		$this->log->infof('Running script: %s', $scriptPath);
+		say `$scriptPath --container $hostname`;
 		$this->log->{adapter}->indent_dec();
 	}
 	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
