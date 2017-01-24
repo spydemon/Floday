@@ -25,6 +25,12 @@ $Backticks::autodie = 1;
 our @EXPORT = qw($APP);
 our @EXPORT_OK = qw(ALLOW_UNDEF);
 
+has config => (
+	'is' => 'ro',
+	'default' => sub {Floday::Helper::Config->new()},
+	'reader' => 'getConfig'
+);
+
 has instancePath => (
 	'is' => 'ro',
 	'required' => 1,
@@ -107,12 +113,18 @@ sub getParameters {
 sub generateFile {
 	my ($this, $template, $data, $location) = @_;
 	$this->log->infof('%s: generate %s from %s', $this->getInstancePath, $location, $template);
+	$template = $this->getConfig()->getFlodayConfig('containers', 'path') . '/' . $template;
 	my $i = File::Temp->new();
 	my $t = Template::Alloy->new(
 		ABSOLUTE => 1,
 	);
-	$t->process($template, $data, $i) or die $t->error;
-	$this->getLxcInstance->put($i, $location);
+	$t->process($template, $data, $i) or die $t->error . "\n";
+	if ($this->getLxcInstance()->is_existing()) {
+		$this->getLxcInstance->put($i, $location);
+	} else {
+		#lxc instance doesn't exist when the file should be put on the host.
+		rename $i, $location;
+	}
 }
 
 sub _fetchParentApplication {
