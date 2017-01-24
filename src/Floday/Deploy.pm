@@ -62,7 +62,7 @@ sub launch {
 		my $scriptPath = "$containersFolder/" . $startupScripts{$_}->{exec};
 		$this->log->{adapter}->indent_inc();
 		$this->log->infof('Running script: %s', $scriptPath);
-		say `$scriptPath --container $parameters{instance_path}`;
+		`$scriptPath --container $parameters{instance_path}`;
 		$this->log->{adapter}->indent_dec();
 	}
 	$container->stop if $container->is_running;
@@ -82,6 +82,8 @@ sub startDeployment {
 	unless ($this->getRunlist->getCleanRunlist->{hosts}{$this->getHostname}) {
 		die $this->log->errorf('Host %s is unknown.', $this->getHostname);
 	}
+	$this->log->infof('Running %s host', $this->getHostname);
+	$this->log->{adapter}->indent_inc();
 	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($this->getHostname);
 	my $containersFolder = Floday::Helper::Config->new()->getFlodayConfig('containers', 'path');
 	for(sort {$a <=> $b} keys %startupScripts) {
@@ -89,14 +91,15 @@ sub startDeployment {
 		my $hostname = $this->getHostname();
 		$this->log->{adapter}->indent_inc();
 		$this->log->infof('Running script: %s', $scriptPath);
-		say `$scriptPath --container $hostname`;
+		`$scriptPath --container $hostname`;
 		$this->log->{adapter}->indent_dec();
 	}
 	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
 		$this->log->warningf('Starting deployment of %s host.', $this->getHostname);
 		$this->launch($_);
 	}
-	$this->log->warningf('%s deployed.', $this->getHostname);
+	$this->log->{adapter}->indent_dec();
+	$this->log->infof('%s deployed.', $this->getHostname);
 }
 
 sub _initializeRunlist {

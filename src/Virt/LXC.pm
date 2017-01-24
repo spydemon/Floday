@@ -9,6 +9,8 @@ use Log::Any;
 use Moo;
 use IPC::Run qw(run);
 
+#TODO: fail at importation if lxc is not installed on the host?
+
 use constant ALLOW_UNDEF => 0x01;
 use constant ERASING_MODE => 0x01;
 use constant ADDITION_MODE => 0x02;
