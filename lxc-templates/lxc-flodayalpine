@@ -159,7 +159,8 @@ sub _installPackage_alpinekeys {
 	  'alpine-devel@lists.alpinelinux.org-4d07755e.rsa.pub' => '2adcf7ce224f476330b5360ca5edb92fd0bf91c92d83292ed028d7c4e26333ab',
 	  'alpine-devel@lists.alpinelinux.org-5243ef4b.rsa.pub' => 'ebf31683b56410ecc4c00acd9f6e2839e237a3b62b5ae7ef686705c7ba0396a9',
 	  'alpine-devel@lists.alpinelinux.org-524d27bb.rsa.pub' => '1bb2a846c0ea4ca9d0e7862f970863857fc33c32f5506098c636a62a726a847b',
-	  'alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub' => '12f899e55a7691225603d6fb3324940fc51cd7f133e7ead788663c2b7eecb00c'
+	  'alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub' => '12f899e55a7691225603d6fb3324940fc51cd7f133e7ead788663c2b7eecb00c',
+	  'alpine-devel@lists.alpinelinux.org-58199dcc.rsa.pub' => '73867d92083f2f8ab899a26ccda7ef63dfaa0032a938620eda605558958a8041'
 	);
 	my $keyList = `echo $LXC_ROOTFS/etc/apk/keys/*.pub`;
 	my $keyChecked = 0;
@@ -169,6 +170,7 @@ sub _installPackage_alpinekeys {
 	    )
 	  \s/gx
 	) {
+		die("Undefined key for $+{keyNameToUse}") unless defined $keys{$+{keyNameToUse}};
 		`cd $LXC_ROOTFS/etc/apk/keys && echo "$keys{$+{keyNameToUse}} $+{keyNameToUse}" | sha256sum -c -`;
 		$keyChecked += 1;
 	}
