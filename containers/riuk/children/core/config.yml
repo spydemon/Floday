@@ -26,3 +26,8 @@ parameters:
 	template:
 		mandatory: true
 		value: flodayalpine -- version 3.4
+#hooks:
+#	lxc_deploy_before:
+#		iptables:
+#			exec: riuk/children/core/hook/lxc_deploy_before/iptables.pl
+#			priority: 10

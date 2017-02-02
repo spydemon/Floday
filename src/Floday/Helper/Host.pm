@@ -2,10 +2,10 @@ package Floday::Helper::Host;
 
 use v5.20;
 
+use Carp;
 use Floday::Helper::Container;
 use Hash::Merge;
 use Moo;
-use Data::Dumper;
 
 has runfile => (
   is => 'ro',
@@ -136,7 +136,7 @@ sub _mergeDefinition {
 	$containerDefinition->{parameters}{type}{value} = undef;
 	$containerDefinition->{parameters}{type}{required} = 'true';
 	for (keys %$runfileAttributes) {
-		die ("Parameter '$_' present in runfile but that doesn't exist in container definition") unless defined $containerDefinition->{parameters}{$_};
+		croak ("Parameter '$_' present in runfile but that doesn't exist in container definition") unless defined $containerDefinition->{parameters}{$_};
 		$containerDefinition->{parameters}{$_}{value} = $runfileAttributes->{$_};
 	}
 	$containerDefinition->{parameters}{instance_path}{value} = $this->_getInstancePathToManage();

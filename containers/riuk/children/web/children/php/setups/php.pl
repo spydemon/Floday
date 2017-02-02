@@ -16,5 +16,5 @@ for (@cmd) {
 	$lxc->exec($_);
 }
 
-$APP->generateFile('/opt/floday/containers/riuk/children/web/children/php/setups/php/php-fpm.conf.tt', $definition->{parameters}, '/etc/php5/php-fpm.conf');
+$APP->generateFile('riuk/children/web/children/php/setups/php/php-fpm.conf.tt', $definition->{parameters}, '/etc/php5/php-fpm.conf');
 $lxc->stop and $lxc->start;

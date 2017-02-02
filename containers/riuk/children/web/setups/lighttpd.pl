@@ -26,5 +26,5 @@ my $ipv4 = $APP->getParameter('ipv4');
 my $data = {
 	'containers' => \@websites
 };
-$APP->generateFile('/opt/floday/containers/riuk/children/web/setups/lighttpd/lighttpd.conf.tt', $data, '/etc/lighttpd/lighttpd.conf');
+$APP->generateFile('riuk/children/web/setups/lighttpd/lighttpd.conf.tt', $data, '/etc/lighttpd/lighttpd.conf');
 

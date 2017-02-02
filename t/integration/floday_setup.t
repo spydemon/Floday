@@ -3,7 +3,9 @@
 use v5.20;
 use warnings;
 
-push @ARGV, qw/--container integration-web-test/;
+BEGIN {
+	push @ARGV, qw/--container integration-web-test/;
+}
 
 use Cwd;
 use Floday::Setup 'ALLOW_UNDEF';
@@ -32,7 +34,7 @@ like($lxc->get_utsname, qr/integration-web-test/, 'Virt::LXC instance fetched se
 my $parentType = $application->getParentApplication->getParameter('type');
 like($parentType, qr/web/, 'Parent fetch seems to work.');
 
-$application->generateFile(getcwd . '/floday_setup.d/test.tt', {$application->getParameters}, '/tmp/test.txt');
+$application->generateFile('riuk/children/web/children/php/setups/test/test.tt', {$application->getParameters}, '/tmp/test.txt');
 like(`cat /var/lib/lxc/integration-web-test/rootfs/tmp/test.txt`, qr/Hello test !/, 'generateFile seems to work.');
 
 $lxc->destroy;
