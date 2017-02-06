@@ -7,6 +7,14 @@ use Hash::Merge;
 use Moo;
 use YAML::Tiny;
 
+has config => (
+	default => sub {
+		Floday::Helper::Config->instance();
+	},
+	is => 'ro',
+	reader => 'getConfig'
+);
+
 sub getContainerDefinition {
 	my ($this, $containerPath) = @_;
 	my $containerDefinition = YAML::Tiny->read(
@@ -30,7 +38,7 @@ sub getContainerDefinitionFolder {
 	my ($this, $containerPath) = @_;
 	my @containersType = split '-', $containerPath;
 	join('/',
-	  Floday::Helper::Config->new()->getFlodayConfig('containers', 'path'),
+	  $this->getConfig()->getFlodayConfig('containers', 'path'),
 	  shift @containersType,
 	  (map {'children/' . $_} @containersType)
 	);

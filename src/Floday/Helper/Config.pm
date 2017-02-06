@@ -5,6 +5,8 @@ use v5.20;
 use Config::Tiny;
 use Moo;
 
+with 'MooX::Singleton';
+
 has flodayConfigFile => (
   builder => sub {
     my $cfg = Config::Tiny->read('/etc/floday/floday.cfg');

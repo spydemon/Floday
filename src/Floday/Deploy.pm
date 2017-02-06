@@ -12,7 +12,19 @@ use YAML::Tiny;
 
 $Data::Dumper::Indent = 1;
 
+has config => (
+	default => sub {
+		Floday::Helper::Config->instance();
+	},
+	is => 'ro',
+	reader => 'getConfig'
+);
+
 has runfile => (
+	default => sub {
+		my ($this) = @_;
+		$this->getConfig()->getFlodayConfig('floday', 'runfile')
+	},
 	is => 'ro',
 	reader => 'getRunfile',
 	required => 1,
@@ -33,7 +45,9 @@ has hostname => (
 has runlist => (
 	is => 'rw',
 	lazy => 1,
-	builder => '_initializeRunlist',
+	builder => sub {
+	  Floday::Helper::Runlist->instance();
+	},
 	reader => 'getRunlist'
 );
 
@@ -48,7 +62,7 @@ sub launch {
 	my ($this, $instancePath) = @_;
 	$this->log->{adapter}->indent_inc();
 	my %parameters = $this->getRunlist->getParametersForApplication($instancePath);
-	my $containersFolder = Floday::Helper::Config->new()->getFlodayConfig('containers', 'path');
+	my $containersFolder = $this->getConfig()->getFlodayConfig('containers', 'path');
 	$log->infof('Launching %s application.', $parameters{instance_path});
 	my $container = Floday::Lib::Virt::LXC->new('utsname' => $parameters{instance_path});
 	my %startupScripts = $this->getRunlist->getExecutionListByPriorityForApplication($parameters{instance_path}, 'setups');
@@ -86,7 +100,7 @@ sub startDeployment {
 	$this->log->infof('Running %s host', $this->getHostname);
 	$this->log->{adapter}->indent_inc();
 	my %startupScripts = $this->getRunlist->getExecutionListByPriorityForApplication($this->getHostname, 'setups');
-	my $containersFolder = Floday::Helper::Config->new()->getFlodayConfig('containers', 'path');
+	my $containersFolder = $this->getConfig()->getFlodayConfig('containers', 'path');
 	for(sort {$a <=> $b} keys %startupScripts) {
 		my $scriptPath = "$containersFolder/" . $startupScripts{$_}->{exec};
 		my $hostname = $this->getHostname();
@@ -101,20 +115,6 @@ sub startDeployment {
 	}
 	$this->log->{adapter}->indent_dec();
 	$this->log->infof('%s deployed.', $this->getHostname);
-}
-
-#TODO: export this in Floday::Helper::Runlist.
-sub _initializeRunlist {
-	my ($this) = @_;
-	my $runlist = Floday::Helper::Runlist->instance(runfile => $this->getRunfile);
-	$runlist->getRawRunlist();
-	if (@{$runlist->getRunlistErrors()}) {
-		foreach (@{$runlist->getRunlistErrors()}) {
-			$this->log->fatalf($_);
-		}
-		die $this->log->fatalf('Died because invalid runfile');
-	}
-	return $runlist;
 }
 
 1

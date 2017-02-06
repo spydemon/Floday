@@ -2,6 +2,7 @@ package Floday::Helper::Runlist;
 
 use v5.20;
 
+use Floday::Helper::Config;
 use Floday::Helper::Host;
 
 use Data::Dumper;
@@ -11,6 +12,14 @@ use YAML::Tiny;
 
 with 'MooX::Singleton';
 
+has config => (
+	is => 'ro',
+	default => sub {
+		Floday::Helper::Config->instance();
+	},
+	reader => 'getConfig'
+);
+
 has log => (
 	is => 'ro',
 	default => sub {
@@ -19,6 +28,10 @@ has log => (
 );
 
 has runfile => (
+	default => sub {
+		my ($this) = @_;
+		$this->getConfig->getFlodayConfig('floday', 'runfile')
+	},
 	is => 'ro',
 	isa => sub {
 		die 'runfile is not readable' unless -r $_[0];
@@ -46,6 +59,18 @@ has cleanRunlist => (
 	builder => '_cleanRunlist',
 	reader => 'getCleanRunlist'
 );
+
+sub BUILD {
+	my ($this) = @_;
+	$this->getRawRunlist();
+	if (@{$this->getRunlistErrors()}) {
+		foreach (@{$this->getRunlistErrors()}) {
+			$this->log->fatalf($_);
+		}
+		die $this->log->fatalf('Died because invalid runfile');
+	}
+	return $this;
+}
 
 sub getApplicationsOf {
 	my ($this, $applicationName) = @_;
