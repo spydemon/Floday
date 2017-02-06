@@ -136,7 +136,8 @@ sub _mergeDefinition {
 	$containerDefinition->{parameters}{type}{value} = undef;
 	$containerDefinition->{parameters}{type}{required} = 'true';
 	for (keys %$runfileAttributes) {
-		croak ("Parameter '$_' present in runfile but that doesn't exist in container definition") unless defined $containerDefinition->{parameters}{$_};
+		croak ("Parameter '$_' present in runfile but that doesn't exist in container definition")
+		  unless defined $containerDefinition->{parameters}{$_};
 		$containerDefinition->{parameters}{$_}{value} = $runfileAttributes->{$_};
 	}
 	$containerDefinition->{parameters}{instance_path}{value} = $this->_getInstancePathToManage();

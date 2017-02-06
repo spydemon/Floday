@@ -5,9 +5,9 @@ use v5.20;
 use Data::Dumper;
 use Floday::Helper::Config;
 use Floday::Helper::Runlist;
+use Floday::Lib::Virt::LXC;
 use Log::Any qw($log);
 use Moo;
-use Virt::LXC;
 use YAML::Tiny;
 
 $Data::Dumper::Indent = 1;
@@ -50,8 +50,8 @@ sub launch {
 	my %parameters = $this->getRunlist->getParametersForApplication($instancePath);
 	my $containersFolder = Floday::Helper::Config->new()->getFlodayConfig('containers', 'path');
 	$log->infof('Launching %s application.', $parameters{instance_path});
-	my $container = Virt::LXC->new('utsname' => $parameters{instance_path});
-	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($parameters{instance_path});
+	my $container = Floday::Lib::Virt::LXC->new('utsname' => $parameters{instance_path});
+	my %startupScripts = $this->getRunlist->getExecutionListByPriorityForApplication($parameters{instance_path}, 'setups');
 	if ($container->is_existing) {
 		$container->destroy;
 	}
@@ -62,7 +62,8 @@ sub launch {
 		my $scriptPath = "$containersFolder/" . $startupScripts{$_}->{exec};
 		$this->log->{adapter}->indent_inc();
 		$this->log->infof('Running script: %s', $scriptPath);
-		`$scriptPath --container $parameters{instance_path}`;
+		#TODO: launch in fork?
+		say `$scriptPath --container $parameters{instance_path}`;
 		$this->log->{adapter}->indent_dec();
 	}
 	$container->stop if $container->is_running;
@@ -84,14 +85,14 @@ sub startDeployment {
 	}
 	$this->log->infof('Running %s host', $this->getHostname);
 	$this->log->{adapter}->indent_inc();
-	my %startupScripts = $this->getRunlist->getSetupsByPriorityForApplication($this->getHostname);
+	my %startupScripts = $this->getRunlist->getExecutionListByPriorityForApplication($this->getHostname, 'setups');
 	my $containersFolder = Floday::Helper::Config->new()->getFlodayConfig('containers', 'path');
 	for(sort {$a <=> $b} keys %startupScripts) {
 		my $scriptPath = "$containersFolder/" . $startupScripts{$_}->{exec};
 		my $hostname = $this->getHostname();
 		$this->log->{adapter}->indent_inc();
 		$this->log->infof('Running script: %s', $scriptPath);
-		`$scriptPath --container $hostname`;
+		say `$scriptPath --container $hostname`;
 		$this->log->{adapter}->indent_dec();
 	}
 	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
@@ -102,9 +103,10 @@ sub startDeployment {
 	$this->log->infof('%s deployed.', $this->getHostname);
 }
 
+#TODO: export this in Floday::Helper::Runlist.
 sub _initializeRunlist {
 	my ($this) = @_;
-	my $runlist = Floday::Helper::Runlist->new(runfile => $this->getRunfile);
+	my $runlist = Floday::Helper::Runlist->instance(runfile => $this->getRunfile);
 	$runlist->getRawRunlist();
 	if (@{$runlist->getRunlistErrors()}) {
 		foreach (@{$runlist->getRunlistErrors()}) {

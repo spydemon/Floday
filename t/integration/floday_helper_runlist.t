@@ -166,7 +166,7 @@ my @children = $test->getApplicationsOf('integration-web');
 cmp_deeply(\@children, ['integration-web-secondtest', 'integration-web-test'], 'Test of getApplicationsOf seems good.');
 my %parameters = $test->getParametersForApplication('integration-web-secondtest');
 is $parameters{bridge}, 'lxcbr0', 'Test of getParametersForApplication seems good.';
-my %scripts = $test->getSetupsByPriorityForApplication('integration-web-test');
+my %scripts = $test->getExecutionListByPriorityForApplication('integration-web-test', 'setups');
 cmp_deeply([sort keys %scripts], [10, 20, 30], 'getSetupsByPriorityForApplication seems to correctly apply priorities.');
 cmp_deeply($test->getRunlist(), $runlist, 'getPlainData return the expected runlist.');
 

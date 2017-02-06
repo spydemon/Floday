@@ -9,6 +9,8 @@ use Log::Any;
 use Moo;
 use YAML::Tiny;
 
+with 'MooX::Singleton';
+
 has log => (
 	is => 'ro',
 	default => sub {
@@ -73,10 +75,15 @@ sub getParametersForApplication {
 	%{$this->getDefinitionOf($applicationName)->{parameters}};
 }
 
-sub getSetupsByPriorityForApplication {
-	my ($this, $applicationName) = @_;
-	return unless defined $this->getDefinitionOf($applicationName)->{setups};
-	my %setups = %{$this->getDefinitionOf($applicationName)->{setups}};
+sub getExecutionListByPriorityForApplication {
+	my ($this, $applicationName, $executionTypeFirstLevel, $executionTypeSecondLevel) = @_;
+	return unless defined $this->getDefinitionOf($applicationName)->{$executionTypeFirstLevel};
+	my %setups = %{$this->getDefinitionOf($applicationName)->{$executionTypeFirstLevel}};
+	if (defined $executionTypeSecondLevel) {
+		my $setupsRef = $setups{$executionTypeSecondLevel};
+		return unless $setupsRef;
+		%setups = %$setupsRef;
+	}
 	my %sortedScripts;
 	while (my($key, $value) = each %setups) {
 		$sortedScripts{$value->{priority}} = {
@@ -106,6 +113,9 @@ sub _cleanRunlist {
 		}
 		if (defined $rawData->{$a}{'applications'}) {
 			$cleanRunlist->{$a}{'applications'} = $this->_cleanRunlist($rawData->{$a}{'applications'});
+		}
+		if (defined $rawData->{$a}{'hooks'}) {
+			$cleanRunlist->{$a}{'hooks'} = $rawData->{$a}{'hooks'};
 		}
 	}
 	return {'hosts' => $cleanRunlist} if ($first);
