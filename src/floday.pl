@@ -15,9 +15,7 @@ my $runfile;
 
 GetOptions('host=s', \$host, 'runfile=s', \$runfile);
 $host // die('Host to launch is missing');
-$runfile //= Floday::Helper::Config->new()->getFlodayConfig('floday', 'runfile');
--r $runfile or die('Runfile is not readable');
 
-$0 = "floday --host $host --runfile $runfile";
-my $floday = Floday::Deploy->new(runfile => $runfile, hostname => $host);
+$0 = "floday --host $host";
+my $floday = Floday::Deploy->new(hostname => $host);
 $floday->startDeployment;
