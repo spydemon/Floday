@@ -9,11 +9,11 @@ use Exporter qw(import);
 use File::Temp;
 use Floday::Helper::Config;
 use Floday::Helper::Runlist;
+use Floday::Lib::Virt::LXC;
 use Getopt::Long;
 use Log::Any::Adapter('+Floday::Helper::Logging');
 use Moo;
 use Template::Alloy;
-use Virt::LXC;
 use YAML::Tiny;
 
 our ($APP);
@@ -46,7 +46,7 @@ has instancePath => (
 has lxcInstance => (
 	'is' => 'ro',
 	'reader' => 'getLxcInstance',
-	'default' => sub { Virt::LXC->new('utsname' => $_[0]->getInstancePath) },
+	'default' => sub { Floday::Lib::Virt::LXC->new('utsname' => $_[0]->getInstancePath) },
 	'lazy' => 1
 );
 

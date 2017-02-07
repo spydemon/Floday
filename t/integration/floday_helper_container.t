@@ -18,6 +18,20 @@ my $expectedResult1 = {
       'exec' => 'riuk/children/core/setups/data.pl'
     }
   },
+  'hooks' => {
+    'lxc_deploy_before' => {
+      'open_firewall' => {
+        'exec' => 'riuk/children/core/hooks/lxc_deploy_before/open_firewall.pl',
+        'priority' => 10
+      }
+    },
+    'lxc_deploy_after' => {
+      'close_firewall' => {
+        'exec' => 'riuk/children/core/hooks/lxc_deploy_after/close_firewall.pl',
+        'priority' => 10
+      }
+    }
+  },
   'inherit' => [
     'riuk-core'
   ],

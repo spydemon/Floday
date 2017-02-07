@@ -3,6 +3,7 @@
 use v5.20;
 use strict;
 use warnings;
+use threads;
 
 use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
 use Test::Exception;
@@ -18,7 +19,16 @@ throws_ok {Floday::Deploy->new()}
 throws_ok {Floday::Deploy->new(hostname => 'not-valid')}
   qr/invalid hostname to run/, 'Check if the hostname attribut has a filter.';
 my $test = Floday::Deploy->new(hostname => 'integration');
+
+my $hook_lxc_deploy_before_test = threads->create(sub {
+  sleep 5;
+  -f '/tmp/floday/test_lxc_hooks'
+});
+
 $test->startDeployment;
+
+ok ($hook_lxc_deploy_before_test->join(), 'The test file was correctly created by the lxc_deploy_before hook.');
+ok ((!-f '/tmp/floday/test_lxc_hooks'), 'The test file was correctly removed by the lxc_deploy_after hook.');
 
 `rm $runlist`;
 done_testing;
