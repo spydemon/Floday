@@ -16,7 +16,7 @@ for (@containers) {
 	my $c = Virt::LXC->new('utsname' => $_);
 	$c->is_existing and $c->destroy;
 }
-
+`rm /tmp/floday/test_lxc_hooks` if -r '/tmp/floday/test_lxc_hooks';
 my $err = `../../src/floday.pl 2>&1 1>/dev/null`;
 ok $err =~ /Host to launch is missing/, 'Error throwed because host cli parameter is missing.';
 
