@@ -10,10 +10,12 @@ use Backticks;
 use Carp;
 use Config::Tiny;
 use File::Slurp qw<read_file>;
+use Floday::Helper::Config;
 use Getopt::Long;
 use List::Util qw<pairs>;
 use Virt::LXC qw(ALLOW_UNDEF);
 
+my $CONFIG = Floday::Helper::Config->instance();
 my $CACHE_FOLDER = getFlodayConfigurationValue('cache_folder');
 my ($LXC_PATH, $LXC_NAME, $LXC_ROOTFS);
 GetOptions("path=s" => \$LXC_PATH,
@@ -122,7 +124,12 @@ sub getUserId {
 }
 
 sub getMainRepositoryAddress {
-	'https://wiki.alpinelinux.org/cgi-bin/dl.cgi/' . getAlpineVersionToUse() . '/main/';
+	'http://'
+	  . $CONFIG->getFlodayConfig('lxc', 'repo')
+	  . '/alpine/'
+	  . getAlpineVersionToUse()
+	  . '/main'
+	;
 }
 
 sub initSystem {
