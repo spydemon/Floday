@@ -76,7 +76,6 @@ sub getFile {
 
 sub getFlodayConfigurationValue {
 	my ($attribute) = @_;
-	#TODO: the path should not be hardcoded.
 	state $config = Config::Tiny->read('/etc/floday/floday.cfg');
 	my $property = $config->{lxc}->{$attribute};
 	if (!defined $property) {
@@ -158,6 +157,14 @@ sub manageSystemConfiguration {
 	`chmod 750 $LXC_PATH`;
 	`chown :$LXC_UG_ID $LXC_PATH`;
 	`chown -R $LXC_UG_ID:$LXC_UG_ID $LXC_ROOTFS`;
+	my @init_tab = (
+		'::sysinit:/sbin/openrc sysinit',
+		'::sysinit:/sbin/openrc boot',
+		'::wait:/sbin/openrc default',
+		'::shutdown:/sbin/openrc shutdown'
+	);
+	open (my $inittab, '>', "$LXC_ROOTFS/etc/inittab");
+	map {say $inittab $_} @init_tab;
 }
 
 sub _installPackage_alpinekeys {
