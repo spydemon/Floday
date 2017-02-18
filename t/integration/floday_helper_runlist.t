@@ -51,6 +51,12 @@ my $runlist = {
 							'priority' => 30
 						}
 					},
+					'end_setups' => {
+						'iptables_save' => {
+							'exec' => 'riuk/children/web/end_setup/iptables_save.pl',
+							'priority' => 10
+						}
+					},
 					'hooks' => {
 						'lxc_deploy_before' => {
 							'open_firewall' => {
@@ -103,6 +109,12 @@ my $runlist = {
 						'data' => {
 							'exec' => 'riuk/children/core/setups/data.pl',
 							'priority' => 30
+						}
+					},
+					'end_setups' => {
+						'iptables_save' => {
+							'exec' => 'riuk/children/web/end_setup/iptables_save.pl',
+							'priority' => 10
 						}
 					},
 					'hooks' => {

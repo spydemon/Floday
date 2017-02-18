@@ -183,7 +183,7 @@ my $complexHostToHashResult = {
           'priority' => '10'
         }
       },
-       'hooks' => {
+      'hooks' => {
         'lxc_deploy_before' => {
           'open_firewall' => {
             'exec' => 'riuk/children/core/hooks/lxc_deploy_before/open_firewall.pl',
@@ -214,6 +214,12 @@ my $complexHostToHashResult = {
         'data' => {
           'priority' => '30',
           'exec' => 'riuk/children/core/setups/data.pl'
+        }
+      },
+      'end_setups' => {
+        'iptables_save' => {
+          'exec' => 'riuk/children/web/end_setup/iptables_save.pl',
+          'priority' => 10
         }
       },
       'hooks' => {

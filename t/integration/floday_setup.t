@@ -13,7 +13,10 @@ use Test::More;
 use Test::Exception;
 use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
 
-my $application = Floday::Setup->new(instancePath => 'integration-web-test', runfilePath => '/opt/floday/t/integration/floday.d/runfile.yml');
+my $application = Floday::Setup->new(
+  instancePath => 'integration-web-test',
+  runfilePath => '/opt/floday/t/integration/floday.d/runfile.yml'
+);
 my $lxc = $application->getLxcInstance;
 $lxc->destroy if $lxc->is_existing;
 $lxc->set_template($application->getParameter('template'));

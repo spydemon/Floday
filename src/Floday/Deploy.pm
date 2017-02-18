@@ -65,26 +65,19 @@ sub launch {
 	my $containersFolder = $this->getConfig()->getFlodayConfig('containers', 'path');
 	$log->infof('Launching %s application.', $parameters{instance_path});
 	my $container = Floday::Lib::Virt::LXC->new('utsname' => $parameters{instance_path});
-	my %startupScripts = $this->getRunlist->getExecutionListByPriorityForApplication($parameters{instance_path}, 'setups');
 	if ($container->is_existing) {
 		$container->destroy;
 	}
 	$container->set_template($parameters{template});
 	my ($state, $stdout, $stderr) = $container->deploy;
 	die $stderr unless $state;
-	for(sort {$a <=> $b} keys %startupScripts) {
-		my $scriptPath = "$containersFolder/" . $startupScripts{$_}->{exec};
-		$this->log->{adapter}->indent_inc();
-		$this->log->infof('Running script: %s', $scriptPath);
-		#TODO: launch in fork?
-		say `$scriptPath --container $parameters{instance_path}`;
-		$this->log->{adapter}->indent_dec();
-	}
+	$this->_runScripts($parameters{instance_path}, 'setups');
 	$container->stop if $container->is_running;
 	$container->start;
 	for ($this->getRunlist->getApplicationsOf($parameters{instance_path})) {
 		$this->launch($_);
 	}
+	$this->_runScripts($parameters{instance_path}, 'end_setups');
 	$this->log->{adapter}->indent_dec();
 }
 
@@ -99,22 +92,27 @@ sub startDeployment {
 	}
 	$this->log->infof('Running %s host', $this->getHostname);
 	$this->log->{adapter}->indent_inc();
-	my %startupScripts = $this->getRunlist->getExecutionListByPriorityForApplication($this->getHostname, 'setups');
+	$this->_runScripts($this->getHostname(), 'setups');
+	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
+		$this->log->warningf('Starting deployment of %s host.', $this->getHostname);
+		$this->launch($_);
+	}
+	$this->_runScripts($this->getHostname, 'end_setups');
+	$this->log->{adapter}->indent_dec();
+	$this->log->infof('%s deployed.', $this->getHostname);
+}
+
+sub _runScripts {
+	my ($this, $hostname, $family) = @_;
+	my %scripts = $this->getRunlist()->getExecutionListByPriorityForApplication($hostname, $family);
 	my $containersFolder = $this->getConfig()->getFlodayConfig('containers', 'path');
-	for(sort {$a <=> $b} keys %startupScripts) {
-		my $scriptPath = "$containersFolder/" . $startupScripts{$_}->{exec};
-		my $hostname = $this->getHostname();
+	for(sort {$a <=> $b} keys %scripts) {
+		my $scriptPath = "$containersFolder/" . $scripts{$_}->{exec};
 		$this->log->{adapter}->indent_inc();
 		$this->log->infof('Running script: %s', $scriptPath);
 		say `$scriptPath --container $hostname`;
 		$this->log->{adapter}->indent_dec();
 	}
-	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
-		$this->log->warningf('Starting deployment of %s host.', $this->getHostname);
-		$this->launch($_);
-	}
-	$this->log->{adapter}->indent_dec();
-	$this->log->infof('%s deployed.', $this->getHostname);
 }
 
 1

@@ -30,5 +30,7 @@ $test->startDeployment;
 ok ($hook_lxc_deploy_before_test->join(), 'The test file was correctly created by the lxc_deploy_before hook.');
 ok ((!-f '/tmp/floday/test_lxc_hooks'), 'The test file was correctly removed by the lxc_deploy_after hook.');
 
+like(`cat /var/lib/lxc/integration-web/rootfs/etc/endsetup`, qr/end_setup works/, 'end_setups scripts seem to work.');
+
 `rm $runlist`;
 done_testing;

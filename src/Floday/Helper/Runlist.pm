@@ -133,14 +133,17 @@ sub _cleanRunlist {
 				$cleanRunlist->{$a}{'parameters'}{$_} = $rawData->{$a}{'parameters'}{$_}{'value'};
 			}
 		}
-		if (defined $rawData->{$a}{'setups'}) {
-			$cleanRunlist->{$a}{'setups'} = $rawData->{$a}{'setups'};
-		}
 		if (defined $rawData->{$a}{'applications'}) {
 			$cleanRunlist->{$a}{'applications'} = $this->_cleanRunlist($rawData->{$a}{'applications'});
 		}
+		if (defined $rawData->{$a}{'end_setups'}) {
+			$cleanRunlist->{$a}{'end_setups'} = $rawData->{$a}{'end_setups'};
+		}
 		if (defined $rawData->{$a}{'hooks'}) {
 			$cleanRunlist->{$a}{'hooks'} = $rawData->{$a}{'hooks'};
+		}
+		if (defined $rawData->{$a}{'setups'}) {
+			$cleanRunlist->{$a}{'setups'} = $rawData->{$a}{'setups'};
 		}
 	}
 	return {'hosts' => $cleanRunlist} if ($first);
