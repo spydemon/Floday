@@ -1,8 +1,0 @@
-<config>
-	<setup>
-		<script identifier="a-script">
-			<path>setup/a-script.pl"invalid</path>
-			<priority>100</priority>
-		</script>
-	</setup>
-</config>
