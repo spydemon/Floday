@@ -106,7 +106,7 @@ sub _runScripts {
 	my ($this, $hostname, $family) = @_;
 	my %scripts = $this->getRunlist()->getExecutionListByPriorityForApplication($hostname, $family);
 	my $containersFolder = $this->getConfig()->getFlodayConfig('containers', 'path');
-	for(sort {$a <=> $b} keys %scripts) {
+	for(sort {$a cmp $b} keys %scripts) {
 		my $scriptPath = "$containersFolder/" . $scripts{$_}->{exec};
 		$this->log->{adapter}->indent_inc();
 		$this->log->infof('Running script: %s', $scriptPath);
