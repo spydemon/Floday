@@ -84,6 +84,16 @@ has log => (
 	'default' => sub { Log::Any->get_logger }
 );
 
+sub getApplications {
+	my ($this, $instancePath) = @_;
+	$instancePath //= $this->getInstancePath();
+	my @applications;
+	for (keys %{$this->getRunlist->getDefinitionOf($instancePath)->{applications}}) {
+		push @applications, __PACKAGE__->new(instancePath => $this->getInstancePath() . '-' . $_);
+	}
+	return @applications;
+}
+
 sub getDefinition {
 	my ($this) = @_;
 	$this->getRunlist->getDefinitionOf($this->getInstancePath);

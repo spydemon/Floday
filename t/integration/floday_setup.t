@@ -2,43 +2,44 @@
 
 use v5.20;
 use warnings;
+use experimental 'smartmatch';
 
 BEGIN {
-	push @ARGV, qw/--container integration-web-test/;
+	push @ARGV, qw/--container integration-web/;
 }
 
 use Cwd;
-use Floday::Setup 'ALLOW_UNDEF';
+use Floday::Setup ('$APP', 'ALLOW_UNDEF');
 use Test::More;
 use Test::Exception;
 use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
 
-my $application = Floday::Setup->new(
-  instancePath => 'integration-web-test',
-  runfilePath => '/opt/floday/t/integration/floday.d/runfile.yml'
-);
-my $lxc = $application->getLxcInstance;
+my $lxc = $APP->getLxcInstance;
 $lxc->destroy if $lxc->is_existing;
-$lxc->set_template($application->getParameter('template'));
+$lxc->set_template($APP->getParameter('template'));
 $lxc->deploy;
 
-my $iface = $application->getParameter('iface');
+my $iface = $APP->getParameter('iface');
 
 like($iface, qr/eth0/, 'Application parameter fetched.');
-throws_ok { $application->getParameter('invalid name'); }
+throws_ok { $APP->getParameter('invalid name'); }
 	qr/Parameter "invalid name" asked has an invalid name/, 'Espaces in parameter name is invalid.';
-throws_ok { $application->getParameter('invalid~~{name'); }
+throws_ok { $APP->getParameter('invalid~~{name'); }
 	qr/Parameter "invalid~~{name" asked has an invalid name/, 'All non alphanumeric chars should be invalid';
-throws_ok { $application->getParameter('yolooo'); }
-	qr/undefined "yolooo" parameter asked for integration-web-test application./, 'Error throwed when unexsting parameter is asked.';
-$application->getParameter('yolooo', ALLOW_UNDEF);
-like($lxc->get_utsname, qr/integration-web-test/, 'Virt::LXC instance fetched seems good.');
+throws_ok { $APP->getParameter('yolooo'); }
+	qr/undefined "yolooo" parameter asked for integration-web application./, 'Error throwed when unexsting parameter is asked.';
+$APP->getParameter('yolooo', ALLOW_UNDEF);
+like($lxc->get_utsname, qr/integration-web/, 'Virt::LXC instance fetched seems good.');
 
-my $parentType = $application->getParentApplication->getParameter('type');
-like($parentType, qr/web/, 'Parent fetch seems to work.');
+my $parentType = $APP->getParentApplication->getParameter('type');
+like($parentType, qr/riuk/, 'Parent fetch seems to work.');
 
-$application->generateFile('riuk/children/web/children/php/setups/test/test.tt', {$application->getParameters}, '/tmp/test.txt');
-like(`cat /var/lib/lxc/integration-web-test/rootfs/tmp/test.txt`, qr/Hello test !/, 'generateFile seems to work.');
+$APP->generateFile('riuk/children/web/children/php/setups/test/test.tt', {$APP->getParameters}, '/tmp/test.txt');
+like(`cat /var/lib/lxc/integration-web/rootfs/tmp/test.txt`, qr/Hello web !/, 'generateFile seems to work.');
+
+for ($APP->getApplications()) {
+	ok($_->getInstancePath() ~~ ['integration-web-test', 'integration-web-secondtest'], 'Test getApplications seems to work');
+}
 
 $lxc->destroy;
 done_testing;
