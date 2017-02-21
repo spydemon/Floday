@@ -3,7 +3,7 @@
 use v5.20;
 use strict;
 
-use Virt::LXC;
+use Floday::Lib::Virt::LXC;
 use Test::More;
 use Test::Exception;
 use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
