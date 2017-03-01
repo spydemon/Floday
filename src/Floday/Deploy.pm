@@ -2,10 +2,9 @@ package Floday::Deploy;
 
 use v5.20;
 
-use Data::Dumper;
 use Floday::Helper::Config;
 use Floday::Helper::Runlist;
-use Floday::Lib::Virt::LXC;
+use Floday::Lib::Linux::LXC;
 use Log::Any qw($log);
 use Moo;
 use YAML::Tiny;
@@ -64,7 +63,7 @@ sub launch {
 	my %parameters = $this->getRunlist->getParametersForApplication($instancePath);
 	my $containersFolder = $this->getConfig()->getFlodayConfig('containers', 'path');
 	$log->infof('Launching %s application.', $parameters{instance_path});
-	my $container = Floday::Lib::Virt::LXC->new('utsname' => $parameters{instance_path});
+	my $container = Floday::Lib::Linux::LXC->new('utsname' => $parameters{instance_path});
 	if ($container->is_existing) {
 		$container->destroy;
 	}

@@ -1,4 +1,4 @@
-package Floday::Lib::Virt::LXC;
+package Floday::Lib::Linux::LXC;
 
 use v5.20;
 
@@ -7,7 +7,7 @@ use Floday::Helper::Runlist;
 use Moo;
 use Data::Dumper;
 
-extends 'Virt::LXC';
+extends 'Linux::LXC';
 our @EXPORT_OK = ('ALLOW_UNDEF', 'ERASING_MODE', 'ADDITION_MODE');
 
 has config => (

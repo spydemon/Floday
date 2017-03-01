@@ -29,7 +29,7 @@ throws_ok { $APP->getParameter('invalid~~{name'); }
 throws_ok { $APP->getParameter('yolooo'); }
 	qr/undefined "yolooo" parameter asked for integration-web application./, 'Error throwed when unexsting parameter is asked.';
 $APP->getParameter('yolooo', ALLOW_UNDEF);
-like($lxc->get_utsname, qr/integration-web/, 'Virt::LXC instance fetched seems good.');
+like($lxc->get_utsname, qr/integration-web/, 'Linux::LXC instance fetched seems good.');
 
 my $parentType = $APP->getParentApplication->getParameter('type');
 like($parentType, qr/riuk/, 'Parent fetch seems to work.');
