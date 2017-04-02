@@ -50,6 +50,7 @@ sub generateLXCConfiguration{
 	  "lxc.network.flags = up",
 	  "lxc.network.link = lxcbr0",
 	  "lxc.rootfs = $LXC_ROOTFS",
+	  "lxc.start.auto = 1",
 	  "lxc.utsname = $LXC_NAME"
 	);
 	say{$configurationFile} $_ foreach @configurationEntries;
