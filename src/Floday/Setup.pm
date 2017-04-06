@@ -144,7 +144,7 @@ sub _fetchParentApplication {
 	if (defined $parentPath) {
 		return Floday::Setup->new(instancePath => $parentPath, runfilePath => $this->getRunfilePath);
 	} else {
-		croak "This application doesn't have parent.";
+		return undef;
 	}
 }
 
