@@ -4,7 +4,10 @@ use v5.20;
 use strict;
 use warnings;
 
-use Data::Dumper;
+use FindBin;
+use lib ($FindBin::Bin);
+chdir $FindBin::Bin;
+
 use Floday::Deploy;
 use Floday::Helper::Config;
 use Getopt::Long;
