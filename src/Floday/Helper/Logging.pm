@@ -72,7 +72,7 @@ foreach my $method (logging_methods()) {
 		my $self = shift @_;
 		my $text = join(' ', @_);
 		my @text_lines = split "\n", $text;
-		my ($mod) = caller(2);
+		my ($mod) = caller(2) // '';
 		if (@text_lines == 1) {
 			$text = '•' x indent_get($self) . ' ' . $mod . ': ' . $text;
 			say STDOUT colored($text, $COLOR_PRIORITY_MAPPER{$method});
