@@ -90,9 +90,10 @@ before deploy => sub {
 	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
 	  $this->get_utsname, 'hooks', 'lxc_deploy_before'
 	);
-	for(sort {$a <=> $b} keys %hooks) {
+	for(sort {$a cmp $b} keys %hooks) {
 		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
-		say `$prefix/$hooks{$_}{exec}`;
+		my $container = $this->get_utsname();
+		say `$prefix/$hooks{$_}{exec} --container $container`;
 	}
 };
 
