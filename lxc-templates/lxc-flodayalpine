@@ -154,7 +154,7 @@ sub installPackage {
 }
 
 sub manageSystemConfiguration {
-	`rm $LXC_ROOTFS/etc/apk/cache && mkdir -p $LXC_ROOTFS/etc/apk/cache`;
+	`rm -r $LXC_ROOTFS/etc/apk/cache && mkdir -p $LXC_ROOTFS/etc/apk/cache`;
 	`chmod 750 $LXC_PATH`;
 	`chown :$LXC_UG_ID $LXC_PATH`;
 	`chown -R $LXC_UG_ID:$LXC_UG_ID $LXC_ROOTFS`;
