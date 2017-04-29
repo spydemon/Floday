@@ -157,7 +157,8 @@ sub _initializeRunlist {
 #Auto creation of the module variables
 my $container;
 GetOptions('container=s', \$container);
-croak('No container was provided during setup script instantiation') if (not defined $container) or ($container eq '');
-$APP = __PACKAGE__->new(instancePath => $container);
+if (defined $container) {
+	$APP = __PACKAGE__->new(instancePath => $container);
+}
 
 1;
