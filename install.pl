@@ -3,10 +3,20 @@ use strict;
 use warnings;
 use v5.20;
 
+use FindBin;
+use lib ($FindBin::Bin);
+chdir $FindBin::Bin;
+
+#TODO: manage uninstalling.
+#TODO: manage lxc template installation.
 my $PATH = 'src/';
 
 my %dependencies;
 lookup_dir($PATH);
+
+my $current_dir = $FindBin::Bin;
+`mkdir -p /etc/perl/`;
+`ln -s $current_dir/src/Floday /etc/perl/`;
 
 for (keys %dependencies) {
 	`cpan $_`;
