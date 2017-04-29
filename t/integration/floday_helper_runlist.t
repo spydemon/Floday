@@ -69,6 +69,18 @@ my $runlist = {
 								'exec' => 'riuk/children/core/hooks/lxc_deploy_after/close_firewall.pl',
 								'priority' => 10
 							}
+						},
+						'lxc_destroy_before' => {
+							'clear_filesystem' => {
+								'exec' => 'riuk/children/core/hooks/lxc_destroy_before/clear_filesystem.pl',
+								'priority' => 10
+							}
+						},
+						'lxc_destroy_after' => {
+							'update_fstab' => {
+								'exec' => 'riuk/children/core/hooks/lxc_destroy_after/update_fstab.pl',
+								'priority' => 10
+							}
 						}
 					}
 				}
@@ -129,6 +141,18 @@ my $runlist = {
 								'exec' => 'riuk/children/core/hooks/lxc_deploy_after/close_firewall.pl',
 								'priority' => 10
 							}
+						},
+						'lxc_destroy_before' => {
+							'clear_filesystem' => {
+								'exec' => 'riuk/children/core/hooks/lxc_destroy_before/clear_filesystem.pl',
+								'priority' => 10
+							}
+						},
+						'lxc_destroy_after' => {
+							'update_fstab' => {
+								'exec' => 'riuk/children/core/hooks/lxc_destroy_after/update_fstab.pl',
+								'priority' => 10
+							}
 						}
 					},
 					'applications' => {
@@ -174,6 +198,18 @@ my $runlist = {
 										'exec' => 'riuk/children/core/hooks/lxc_deploy_after/close_firewall.pl',
 										'priority' => 10
 									}
+								},
+								'lxc_destroy_before' => {
+									'clear_filesystem' => {
+										'exec' => 'riuk/children/core/hooks/lxc_destroy_before/clear_filesystem.pl',
+										'priority' => 10
+									}
+								},
+								'lxc_destroy_after' => {
+									'update_fstab' => {
+										'exec' => 'riuk/children/core/hooks/lxc_destroy_after/update_fstab.pl',
+										'priority' => 10
+									}
 								}
 							}
 						},
@@ -217,6 +253,18 @@ my $runlist = {
 								'lxc_deploy_after' => {
 									'close_firewall' => {
 										'exec' => 'riuk/children/core/hooks/lxc_deploy_after/close_firewall.pl',
+										'priority' => 10
+									}
+								},
+								'lxc_destroy_before' => {
+									'clear_filesystem' => {
+										'exec' => 'riuk/children/core/hooks/lxc_destroy_before/clear_filesystem.pl',
+										'priority' => 10
+									}
+								},
+								'lxc_destroy_after' => {
+									'update_fstab' => {
+										'exec' => 'riuk/children/core/hooks/lxc_destroy_after/update_fstab.pl',
 										'priority' => 10
 									}
 								}

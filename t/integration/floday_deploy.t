@@ -33,4 +33,15 @@ ok ((!-f '/tmp/floday/test_lxc_hooks'), 'The test file was correctly removed by 
 like(`cat /var/lib/lxc/integration-web/rootfs/etc/endsetup`, qr/end_setup works/, 'end_setups scripts seem to work.');
 
 `rm $runlist`;
+
+#We rerun the deployement for testing lxc hook on container destruction.
+$test->startDeployment;
+my $containers_before_last_destruction = `cat /tmp/floday/lxc_destroy_before`;
+my $containers_after_last_destruction = `cat /tmp/floday/lxc_destroy_after`;
+chomp $containers_before_last_destruction;
+chomp $containers_after_last_destruction;
+cmp_ok (($containers_before_last_destruction - $containers_after_last_destruction), '==' , 1, 'Hooks on lxc destroy action seems broken.');
+`rm /tmp/floday/lxc_destroy_before`;
+`rm /tmp/floday/lxc_destroy_after`;
+
 done_testing;

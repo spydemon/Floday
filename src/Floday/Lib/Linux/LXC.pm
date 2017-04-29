@@ -43,6 +43,18 @@ after deploy => sub {
 	}
 };
 
+after destroy => sub {
+	my ($this) = @_;
+	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
+		$this->get_utsname, 'hooks', 'lxc_destroy_after'
+	);
+	for (sort {$a cmp $b} keys %hooks) {
+		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
+		my $container = $this->get_utsname();
+		say `$prefix/$hooks{$_}{exec} --container $container`;
+	}
+};
+
 after start => sub {
 	my ($this) = @_;
 	$this->log->infof('%s: started', $this->get_utsname());
@@ -83,6 +95,18 @@ around _qx => sub {
 	$this->log->tracef('%s: _qx stderr: %s', $this->get_utsname(), $stderr);
 	return ($result, $stdout, $stderr) if $wantarray;
 	return $result;
+};
+
+before destroy => sub {
+	my ($this) = @_;
+	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
+		$this->get_utsname, 'hooks', 'lxc_destroy_before'
+	);
+	for (sort {$a cmp $b} keys %hooks) {
+		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
+		my $container = $this->get_utsname();
+		say `$prefix/$hooks{$_}{exec} --container $container`;
+	}
 };
 
 before deploy => sub {
