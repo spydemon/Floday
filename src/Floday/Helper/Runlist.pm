@@ -80,7 +80,6 @@ sub getApplicationsOf {
 
 sub getDefinitionOf {
 	my ($this, $applicationName) = @_;
-	$this->log->debugf('Asking definition of: %s', $applicationName);
 	my @containerPath = split /-/, $applicationName;
 	my $definition->{'applications'} = $this->getRunlist()->{'hosts'};
 	for (@containerPath) {

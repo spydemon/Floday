@@ -102,9 +102,12 @@ around _qx => sub {
 	my ($orig, $this, $cmd, $params, $wantarray) = @_;
 	$this->log->debugf('%s: _qx: `%s` => %s', $this->get_utsname(), $cmd, $params);
 	my ($result, $stdout, $stderr) = $orig->($this, $cmd, $params, 1);
+	chomp $stdout;
+	chomp $stderr;
 	$this->log->tracef('%s: _qx result: %s', $this->get_utsname(), $result);
 	$this->log->tracef('%s: _qx stdout: %s', $this->get_utsname(), $stdout);
 	$this->log->tracef('%s: _qx stderr: %s', $this->get_utsname(), $stderr);
+	$this->log->errorf('%s', $stderr) unless $result;
 	return ($result, $stdout, $stderr) if $wantarray;
 	return $result;
 };

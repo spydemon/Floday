@@ -112,7 +112,9 @@ sub _runScripts {
 		my $scriptPath = "$containersFolder/" . $scripts{$_}->{exec};
 		$this->log->{adapter}->indent_inc();
 		$this->log->infof('Running script: %s', $scriptPath);
-		`$scriptPath --container $hostname`;
+		$this->log->{adapter}->indent_inc();
+		print `$scriptPath --container $hostname`;
+		$this->log->{adapter}->indent_dec();
 		$this->log->{adapter}->indent_dec();
 	}
 	$this->log->warningf('End running %s scripts.', $family);

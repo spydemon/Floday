@@ -9,7 +9,6 @@ use Log::Any::Adapter::Util qw(logging_methods detection_methods numeric_level);
 our @ISA = qw(Log::Any::Adapter::Base);
 
 use Floday::Helper::Config;
-use Term::ANSIColor;
 use Unix::Syslog qw{:macros :subs};
 
 my $CONFIG = new Floday::Helper::Config->new();
@@ -29,23 +28,6 @@ my %SYSLOG_PRIORITY_MAPPER = (
   fatal     => LOG_CRIT,
   alert     => LOG_ALERT,
   emergency => LOG_EMERG,
-);
-
-my %COLOR_PRIORITY_MAPPER = (
-  trace     => 'bright_cyan',
-  debug     => 'bright_cyan',
-  info      => 'yellow',
-  inform    => 'yellow',
-  notice    => 'green',
-  warning   => 'yellow',
-  warn      => 'yellow',
-  error     => 'red',
-  err       => 'red',
-  critical  => 'red',
-  crit      => 'red',
-  fatal     => 'bold red',
-  alert     => 'bold red',
-  emergency => 'bold red'
 );
 
 my %PREFFIX_PRIORITY_MAPPER = (
@@ -114,6 +96,7 @@ sub reset {
 	`rm -r $PATH/*`;
 }
 
+#TODO: text formater should be splitted in a single subroutine.
 foreach my $method (logging_methods()) {
 	no strict 'refs';
 	*{$method} = sub {
@@ -122,20 +105,34 @@ foreach my $method (logging_methods()) {
 		my @text_lines = split "\n", $text;
 		my ($mod) = caller(2) // '';
 		if (@text_lines == 1) {
-			$text = '*' x indent_get($self) . ' [' . $PREFFIX_PRIORITY_MAPPER{$method} . '] ' . $mod . ': ' . $text;
+			$text = sprintf('%6s %30s: %s %s',
+			  '[' . $PREFFIX_PRIORITY_MAPPER{$method} . ']',
+			  substr($mod, -30),
+			  ' ' x indent_get($self),
+			  $text
+			);
 			say STDOUT $text if numeric_level($method) <= loglevel_get();
 			syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
 		} else {
 			my $first_line = 1;
 			for (@text_lines) {
 				if ($first_line) {
-					$text = '*' x indent_get($self) . ' [' . $PREFFIX_PRIORITY_MAPPER{$method} . '] ' . $mod;
-					$text .= "\n" . ' ' x (indent_get($self) - 1) . '| ' . $_;
+					$text = sprintf('%6s %30s: %s %s',
+					  '[' . $PREFFIX_PRIORITY_MAPPER{$method} . ']',
+					  substr($mod, -30),
+					  ' ' x indent_get($self),
+					  $_
+					);
 					$first_line = 0;
 				} else {
-					$text = ' ' x (indent_get($self) - 1) . '| '.$_;
+					$text = sprintf('%6s %30s| %s %s',
+					  '',
+					  '',
+					  ' ' x indent_get($self),
+					  $_
+					);
 				}
-				say STDOUT $text;
+				say STDOUT $text if numeric_level($method) <= loglevel_get();
 				syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
 			}
 		}
