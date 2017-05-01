@@ -45,18 +45,41 @@ my %COLOR_PRIORITY_MAPPER = (
   emergency => 'bold red'
 );
 
-our $INDENT = 1;
+my %PREFFIX_PRIORITY_MAPPER = (
+  trace => 'DBG',
+  debug => 'DBG',
+  info => 'INFO',
+  inform => 'INFO',
+  notice => 'INFO',
+  warning => 'WARN',
+  warn => 'WARN',
+  error => 'ERR',
+  err => 'ERR',
+  critical => 'CRIT',
+  crit => 'CRIT',
+  fatal => 'CRIT',
+  alert => 'EMGY',
+  emergency => 'EMGY'
+);
 
 sub indent_dec {
-	$INDENT--;
+	my $indent = indent_get();
+	$indent -= 1;
+	$indent = 1 if $indent < 1;
+	`echo $indent > /tmp/floday/logger/indent`;
 }
 
 sub indent_get {
-	$INDENT;
+	`mkdir -p /tmp/floday/logger && touch /tmp/floday/logger/indent` unless -f '/tmp/floday/logger/indent';
+	my $indent = `cat /tmp/floday/logger/indent`;
+	chomp $indent;
+	$indent ? $indent : 1;
 }
 
 sub indent_inc {
-	$INDENT++;
+	my $indent = indent_get();
+	$indent += 1;
+	`echo $indent > /tmp/floday/logger/indent`;
 }
 
 sub init {
@@ -74,20 +97,20 @@ foreach my $method (logging_methods()) {
 		my @text_lines = split "\n", $text;
 		my ($mod) = caller(2) // '';
 		if (@text_lines == 1) {
-			$text = '•' x indent_get($self) . ' ' . $mod . ': ' . $text;
-			say STDOUT colored($text, $COLOR_PRIORITY_MAPPER{$method});
+			$text = '*' x indent_get($self) . ' [' . $PREFFIX_PRIORITY_MAPPER{$method} . '] ' . $mod . ': ' . $text;
+			say STDOUT $text;
 			syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
 		} else {
 			my $first_line = 1;
 			for (@text_lines) {
 				if ($first_line) {
-					$text = '•' x indent_get($self). '|' .$mod;
+					$text = '*' x indent_get($self) . ' [' . $PREFFIX_PRIORITY_MAPPER{$method} . '] ' . $mod;
 					$text .= "\n" . ' ' x indent_get($self). '|' . $_;
 					$first_line = 0;
 				} else {
 					$text = ' ' x indent_get($self).'|'.$_;
 				}
-				say STDOUT colored($text, $COLOR_PRIORITY_MAPPER{$method});
+				say STDOUT $text;
 				syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
 			}
 		}
