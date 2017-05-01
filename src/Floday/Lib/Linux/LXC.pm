@@ -37,10 +37,16 @@ after deploy => sub {
 	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
 	  $this->get_utsname, 'hooks', 'lxc_deploy_after'
 	);
+	$this->log->warningf('End deploying LXC container.');
+	$this->log->warningf('Start post deployment hook.');
+	$this->log->{adapter}->indent_inc();
 	for(sort {$a <=> $b} keys %hooks) {
+		$this->log->infof('Running script: %s', $hooks{$_}{exec});
 		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
-		say `$prefix/$hooks{$_}{exec}`;
+		`$prefix/$hooks{$_}{exec}`;
 	}
+	$this->log->{adapter}->indent_dec();
+	$this->log->warningf('End post deployment hook.');
 };
 
 after destroy => sub {
@@ -48,21 +54,27 @@ after destroy => sub {
 	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
 		$this->get_utsname, 'hooks', 'lxc_destroy_after'
 	);
+	$this->log->warningf('End LXC container destruction.');
+	$this->log->warningf('Start post destroy hook.');
+	$this->log->{adapter}->indent_inc();
 	for (sort {$a cmp $b} keys %hooks) {
+		$this->log->infof('Running script: %s', $hooks{$_}{exec});
 		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
 		my $container = $this->get_utsname();
-		say `$prefix/$hooks{$_}{exec} --container $container`;
+		`$prefix/$hooks{$_}{exec} --container $container`;
 	}
+	$this->log->{adapter}->indent_dec();
+	$this->log->warningf('End post destroy hook.');
 };
 
 after start => sub {
 	my ($this) = @_;
-	$this->log->infof('%s: started', $this->get_utsname());
+	$this->log->debugf('%s: started', $this->get_utsname());
 };
 
 after stop => sub {
 	my ($this) = @_;
-	$this->log->infof('%s: stopped', $this->get_utsname());
+	$this->log->debugf('%s: stopped', $this->get_utsname());
 };
 
 around get_template => sub {
@@ -78,7 +90,7 @@ around get_template => sub {
 
 around put => sub {
 	my ($orig, $this, $input, $dest) = @_;
-	$this->log->infof('%s: put: %s on %s', $this->get_utsname(), $input, $dest);
+	$this->log->debugf('%s: put: %s on %s', $this->get_utsname(), $input, $dest);
 	eval {$orig->($this, $input, $dest)};
 	if (defined $@ and $@ ne '') {
 		$this->log->error($@);
@@ -88,7 +100,7 @@ around put => sub {
 
 around _qx => sub {
 	my ($orig, $this, $cmd, $params, $wantarray) = @_;
-	$this->log->tracef('%s: _qx: `%s` => %s', $this->get_utsname(), $cmd, $params);
+	$this->log->debugf('%s: _qx: `%s` => %s', $this->get_utsname(), $cmd, $params);
 	my ($result, $stdout, $stderr) = $orig->($this, $cmd, $params, 1);
 	$this->log->tracef('%s: _qx result: %s', $this->get_utsname(), $result);
 	$this->log->tracef('%s: _qx stdout: %s', $this->get_utsname(), $stdout);
@@ -99,36 +111,48 @@ around _qx => sub {
 
 before destroy => sub {
 	my ($this) = @_;
+	$this->log->warningf('Start pre destruction hooks.');
+	$this->log->{adapter}->indent_inc();
 	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
 		$this->get_utsname, 'hooks', 'lxc_destroy_before'
 	);
 	for (sort {$a cmp $b} keys %hooks) {
+		$this->log->infof('Running script: %s', $hooks{$_}{exec});
 		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
 		my $container = $this->get_utsname();
-		say `$prefix/$hooks{$_}{exec} --container $container`;
+		`$prefix/$hooks{$_}{exec} --container $container`;
 	}
+	$this->log->{adapter}->indent_dec();
+	$this->log->warningf('End pre destruction hooks.');
+	$this->log->warningf('Start LXC container %s destruction.', $this->get_utsname());
 };
 
 before deploy => sub {
 	my ($this) = @_;
+	$this->log->warningf('Start pre deployment hooks.');
+	$this->log->{adapter}->indent_inc();
 	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
 	  $this->get_utsname, 'hooks', 'lxc_deploy_before'
 	);
 	for(sort {$a cmp $b} keys %hooks) {
+		$this->log->infof('Running script: %s', $hooks{$_}{exec});
 		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
 		my $container = $this->get_utsname();
-		say `$prefix/$hooks{$_}{exec} --container $container`;
+		`$prefix/$hooks{$_}{exec} --container $container`;
 	}
+	$this->log->{adapter}->indent_dec();
+	$this->log->warningf('End pre deployment hook.');
+	$this->log->warningf('Start deploying LXC %s container.', $this->get_utsname());
 };
 
 before start => sub {
 	my ($this) = @_;
-	$this->log->infof('%s: start', $this->get_utsname());
+	$this->log->debugf('%s: start', $this->get_utsname());
 };
 
 before stop => sub {
 	my ($this) = @_;
-	$this->log->infof('%s: stop', $this->get_utsname());
+	$this->log->debugf('%s: stop', $this->get_utsname());
 };
 
 1

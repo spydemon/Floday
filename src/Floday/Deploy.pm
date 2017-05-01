@@ -59,10 +59,9 @@ has log => (
 
 sub launch {
 	my ($this, $instancePath) = @_;
-	$this->log->{adapter}->indent_inc();
 	my %parameters = $this->getRunlist->getParametersForApplication($instancePath);
-	my $containersFolder = $this->getConfig()->getFlodayConfig('containers', 'path');
-	$log->infof('Launching %s application.', $parameters{instance_path});
+	$log->warningf('Launching %s application.', $parameters{instance_path});
+	$this->log->{adapter}->indent_inc();
 	my $container = Floday::Lib::Linux::LXC->new('utsname' => $parameters{instance_path});
 	if ($container->is_existing) {
 		$container->destroy;
@@ -89,29 +88,34 @@ sub startDeployment {
 	unless ($this->getRunlist->getCleanRunlist->{hosts}{$this->getHostname}) {
 		die $this->log->errorf('Host %s is unknown.', $this->getHostname);
 	}
-	$this->log->infof('Running %s host', $this->getHostname);
+	$this->log->warningf('Deploying %s host', $this->getHostname);
 	$this->log->{adapter}->indent_inc();
 	$this->_runScripts($this->getHostname(), 'setups');
 	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
-		$this->log->warningf('Starting deployment of %s host.', $this->getHostname);
+		$this->log->warningf('Start deployment of %s applications.', $this->getHostname);
+		$this->log->{adapter}->indent_inc();
 		$this->launch($_);
+		$this->log->{adapter}->indent_dec();
+		$this->log->warningf('End deployment of %s applications.', $this->getHostname);
 	}
 	$this->_runScripts($this->getHostname, 'end_setups');
 	$this->log->{adapter}->indent_dec();
-	$this->log->infof('%s deployed.', $this->getHostname);
+	$this->log->warningf('%s deployed.', $this->getHostname);
 }
 
 sub _runScripts {
 	my ($this, $hostname, $family) = @_;
+	$this->log->warningf('Start running %s scripts.', $family);
 	my %scripts = $this->getRunlist()->getExecutionListByPriorityForApplication($hostname, $family);
 	my $containersFolder = $this->getConfig()->getFlodayConfig('containers', 'path');
 	for(sort {$a cmp $b} keys %scripts) {
 		my $scriptPath = "$containersFolder/" . $scripts{$_}->{exec};
 		$this->log->{adapter}->indent_inc();
 		$this->log->infof('Running script: %s', $scriptPath);
-		say `$scriptPath --container $hostname`;
+		`$scriptPath --container $hostname`;
 		$this->log->{adapter}->indent_dec();
 	}
+	$this->log->warningf('End running %s scripts.', $family);
 }
 
 1

@@ -122,7 +122,7 @@ sub getParameters {
 
 sub generateFile {
 	my ($this, $template, $data, $location) = @_;
-	$this->log->infof('%s: generate %s from %s', $this->getInstancePath, $location, $template);
+	$this->log->debugf('%s: generate %s from %s', $this->getInstancePath, $location, $template);
 	$template = $this->getConfig()->getFlodayConfig('containers', 'path') . '/' . $template;
 	my $i = File::Temp->new();
 	my $t = Template::Alloy->new(
@@ -150,7 +150,6 @@ sub _fetchParentApplication {
 
 sub _initializeRunlist {
 	my ($this) = @_;
-	$this->log->infof("Runfile %s", $this->getRunfilePath);
 	Floday::Helper::Runlist->new(runfile => $this->getRunfilePath);
 }
 

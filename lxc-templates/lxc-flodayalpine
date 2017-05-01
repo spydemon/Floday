@@ -17,6 +17,7 @@ use Linux::LXC qw(ALLOW_UNDEF);
 
 my $CONFIG = Floday::Helper::Config->instance();
 my $CACHE_FOLDER = getFlodayConfigurationValue('cache_folder');
+my $LOGGING_FOLDER = $CONFIG->getFlodayConfig('logging', 'metadata_folder');
 my ($LXC_PATH, $LXC_NAME, $LXC_ROOTFS);
 GetOptions("path=s" => \$LXC_PATH,
   "name=s" => \$LXC_NAME,
@@ -45,6 +46,7 @@ sub generateLXCConfiguration{
 	  "lxc.id_map = g 0 $LXC_UG_ID $range",
 	  "lxc.mount.auto = proc:mixed",
 	  "lxc.mount.entry = $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache none bind 0.0",
+	  "lxc.mount.entry = $LOGGING_FOLDER $LXC_ROOTFS/$LOGGING_FOLDER none bind 0.0",
 	  "lxc.mount.entry = /dev/urandom $LXC_ROOTFS/dev/urandom none bind",
 	  "lxc.network.type = veth",
 	  "lxc.network.flags = up",
@@ -138,8 +140,7 @@ sub initSystem {
 	`mkdir -p $CACHE_FOLDER/apk && chmod a+rw $CACHE_FOLDER/apk && ln -s $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache `;
 	`echo $apkRepoToUse > $LXC_ROOTFS/etc/apk/repositories`;
 	#TODO: update of repo only when needed.
-	open (my $fh, '-|', "$LXC_ROOTFS/sbin/apk.static -U add --initdb --root $LXC_ROOTFS --arch $arch alpine-base");
-	print $_ while(<$fh>);
+	`$LXC_ROOTFS/sbin/apk.static -U add --initdb --root $LXC_ROOTFS --arch $arch alpine-base`;
 }
 
 sub installPackage {
@@ -155,9 +156,10 @@ sub installPackage {
 
 sub manageSystemConfiguration {
 	`rm -r $LXC_ROOTFS/etc/apk/cache && mkdir -p $LXC_ROOTFS/etc/apk/cache`;
+	`mkdir -p $LXC_ROOTFS/$LOGGING_FOLDER`;
 	`chmod 750 $LXC_PATH`;
 	`chown :$LXC_UG_ID $LXC_PATH`;
-	`chown -R $LXC_UG_ID:$LXC_UG_ID $LXC_ROOTFS`;
+	`chown -R $LXC_UG_ID:$LXC_UG_ID $LXC_ROOTFS/*`;
 	my @init_tab = (
 		'::sysinit:/sbin/openrc sysinit',
 		'::sysinit:/sbin/openrc boot',

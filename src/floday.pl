@@ -11,7 +11,11 @@ chdir $FindBin::Bin;
 use Floday::Deploy;
 use Floday::Helper::Config;
 use Getopt::Long;
+use Log::Any;
 use Log::Any::Adapter('+Floday::Helper::Logging');
+
+Log::Any->get_logger()->{adapter}->reset();
+Log::Any->get_logger()->{adapter}->loglevel_set('info');
 
 my $host;
 my $runfile;
