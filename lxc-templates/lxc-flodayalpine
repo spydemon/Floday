@@ -137,7 +137,10 @@ sub getMainRepositoryAddress {
 sub initSystem {
 	my $apkRepoToUse = getMainRepositoryAddress();
 	my $arch = getArchitectureToUse();
-	`mkdir -p $CACHE_FOLDER/apk && chmod a+rw $CACHE_FOLDER/apk && ln -s $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache `;
+	unless (-d "$CACHE_FOLDER/tmp") {
+		`mkdir -p $CACHE_FOLDER/apk && chmod a+rw $CACHE_FOLDER/apk`
+	}
+	`ln -s $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache `;
 	`echo $apkRepoToUse > $LXC_ROOTFS/etc/apk/repositories`;
 	#TODO: update of repo only when needed.
 	`$LXC_ROOTFS/sbin/apk.static -U add --initdb --root $LXC_ROOTFS --arch $arch alpine-base`;
@@ -159,7 +162,7 @@ sub manageSystemConfiguration {
 	`mkdir -p $LXC_ROOTFS/$LOGGING_FOLDER`;
 	`chmod 750 $LXC_PATH`;
 	`chown :$LXC_UG_ID $LXC_PATH`;
-	`chown -R $LXC_UG_ID:$LXC_UG_ID $LXC_ROOTFS/*`;
+	`chown -R $LXC_UG_ID:$LXC_UG_ID $LXC_ROOTFS`;
 	my @init_tab = (
 		'::sysinit:/sbin/openrc sysinit',
 		'::sysinit:/sbin/openrc boot',
