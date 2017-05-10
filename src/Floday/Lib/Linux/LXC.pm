@@ -38,6 +38,7 @@ after deploy => sub {
 	  $this->get_utsname, 'hooks', 'lxc_deploy_after'
 	);
 	$this->log->warningf('End deploying LXC container.');
+	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('Start post deployment hook.');
 	$this->log->{adapter}->indent_inc();
 	for(sort {$a <=> $b} keys %hooks) {
@@ -146,6 +147,7 @@ before deploy => sub {
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('End pre deployment hook.');
 	$this->log->warningf('Start deploying LXC %s container.', $this->get_utsname());
+	$this->log->{adapter}->indent_inc();
 };
 
 before start => sub {
