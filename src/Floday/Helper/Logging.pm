@@ -79,7 +79,7 @@ sub init {
 }
 
 sub loglevel_get {
-	my $loglevel = `cat $PATH/$LOGLEVEL_FILE`;
+	my $loglevel = `cat $PATH/$LOGLEVEL_FILE 2>/dev/null`;
 	chomp $loglevel;
 	$loglevel ? $loglevel : numeric_level('debug');
 }
