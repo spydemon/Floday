@@ -59,6 +59,7 @@ sub indent_dec {
 }
 
 sub indent_get {
+	`mkdir -p $PATH` unless -d $PATH;
 	`touch $PATH/$INDENT_FILE` unless -f "$PATH/$INDENT_FILE";
 	my $indent = `cat $PATH/$INDENT_FILE`;
 	chomp $indent;
