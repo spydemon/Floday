@@ -2,3 +2,6 @@
 .idea
 tags
 t/integration/log.txt
+src/*.toc
+src/*.pdf
+src/*.aux
