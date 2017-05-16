@@ -8,18 +8,24 @@
 \usepackage[utf8]{inputenc}		% Use UTF-8 encoding.
 \usepackage{lmodern}			% Use vectorial typo instead of bitmap ones.
 \usepackage{titlesec}			% Customize titles section.
-\usepackage{tocstyle}
+\usepackage{xcolor}				% Provide color management (should be loaded before "tocstyle")
+\usepackage{tocstyle}			% Provide ability to customize toc.
 \usepackage{wasysym}			% Provide more characters.
 
 % Decration of variables.
 \newtoggle{optionFr}
+\newtoggle{optionPrinted}
 \newcounter{authorsNumber}
+
+% Declaration of colors
+\definecolor{backgroundIntroduction}{RGB}{200, 200, 200}
 
 \def \compilationDateLabel {Compilation date}
 \def \softwareVersionReferenceLabel {Software reference version}
 
 % Process option assigned to the template.
 \DeclareOption{fr}{\toggletrue{optionFr}}
+\DeclareOption{printed}{\toggletrue{optionPrinted}}
 \ProcessOptions
 
 % Manage "fr" option.
@@ -28,6 +34,11 @@
 	\usepackage[T1]{fontenc}		% Set Frensh word splitting rules.
 	\def \compilationDateLabel {Date de compilation}
 	\def \softwareVersionReferenceLabel {Version logicielle de référence}
+}
+
+% Manage "printed" option.
+\iftoggle{optionPrinted}{%
+	\definecolor{backgroundIntroduction}{RGB}{255, 255, 255}
 }
 
 % Custom variables
@@ -61,13 +72,27 @@
 
 % Customization of section titles
 \titleformat{\section}[display]
-	{\Large\filcenter}
 	{}
-	{1pc}
-	{\pagebreak\titlerule[1pt] \vspace{1pt} \titlerule \vspace{5pt}}
-	[\vspace{5pt}\titlerule]
+	{}
+	{0pt}
+	{\colorsection}
+\newcommand{\colorsection}[1]{%
+	\pagebreak
+	\setlength{\fboxsep}{0pt}
+	\colorbox{backgroundIntroduction}{%
+		\begin{minipage}{\textwidth}
+			\titlerule[1pt]
+			\vspace{1pt}
+			\titlerule
+			\vspace{10pt}
+			{\Large\filcenter#1\\}
+			\vspace{10pt}
+			\titlerule
+		\end{minipage}
+	}
+}
 
-% Test renaming toc
+% TOC customization.
 \renewcommand\tableofcontents{%
 	\vskip 1cm
 	{\Large{\textbf \contentsname}}
