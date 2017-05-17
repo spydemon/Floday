@@ -4,6 +4,7 @@
 
 \usepackage{amssymb}			% Provide more characters.
 \usepackage{etoolbox}			% Manage conditions.
+\usepackage{mdframed}			% Add possibility to draw box with a background color.
 \usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry} %Set margins.
 \usepackage[utf8]{inputenc}		% Use UTF-8 encoding.
 \usepackage{lmodern}			% Use vectorial typo instead of bitmap ones.
@@ -71,13 +72,15 @@
 }
 
 % Customization of section titles
+\titlespacing*{\section}{.0001pt}{.0001pt}{-14.5pt}
 \titleformat{\section}[display]
-	{}
-	{}
-	{0pt}
-	{\colorsection}
+  {}
+  {}
+  {0pt}
+  {\colorsection}
 \newcommand{\colorsection}[1]{%
 	\pagebreak
+	\setlength{\parskip}{0pt}
 	\setlength{\fboxsep}{0pt}
 	\colorbox{backgroundIntroduction}{%
 		\begin{minipage}{\textwidth}
@@ -85,7 +88,7 @@
 			\vspace{1pt}
 			\titlerule
 			\vspace{10pt}
-			{\Large\filcenter#1\\}
+			{\Large\filcenter\bfseries#1\\}
 			\vspace{10pt}
 			\titlerule
 		\end{minipage}
@@ -98,11 +101,28 @@
 	{\Large{\textbf \contentsname}}
 	\vskip 0.2cm
 	\@starttoc{toc}%
-%	\mbox{
-%	\vspace{2pt}
-%	{\centering\textbf{\Large\contentsname}}
-%	\@mkboth{\MakeUppercase\contentsname}{\MakeUppercase\contentsname}%
-%	\@starttoc{toc}%
-%	}
 }
+
+%%%%%%%%%%%%%%%%%%
+%% New commands %%
+%%%%%%%%%%%%%%%%%%
+\mdfdefinestyle{styleIntroduction}{%
+	backgroundcolor=backgroundIntroduction,
+	leftline=false,
+	rightline=false,
+	skipabove=5pt,
+	topline=false
+}
+
+\newenvironment{intro}
+  {
+	\bfseries
+	\rightmargin 0.5cm
+	\leftmargin 0.5cm
+	\setlength{\parskip}{0pt}
+	\begin{mdframed}[style=styleIntroduction]
+  }
+  {
+	\end{mdframed}
+  }
 \endinput
