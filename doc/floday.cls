@@ -3,11 +3,13 @@
 \LoadClass[a4paper, 11pt]{article}
 
 \usepackage{amssymb}			% Provide more characters.
+\usepackage{calc}				% For alowing calculation like \textwidth+1cm.
 \usepackage{etoolbox}			% Manage conditions.
 \usepackage{mdframed}			% Add possibility to draw box with a background color.
-\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry} %Set margins.
+\usepackage[top=2cm, bottom=2cm, left=5cm, right=1cm]{geometry} %Set margins.
 \usepackage[utf8]{inputenc}		% Use UTF-8 encoding.
 \usepackage{lmodern}			% Use vectorial typo instead of bitmap ones.
+\usepackage{sidenotes}			% Manage sidenotes.
 \usepackage{titlesec}			% Customize titles section.
 \usepackage{xcolor}				% Provide color management (should be loaded before "tocstyle")
 \usepackage{tocstyle}			% Provide ability to customize toc.
@@ -17,6 +19,8 @@
 \newtoggle{optionFr}
 \newtoggle{optionPrinted}
 \newcounter{authorsNumber}
+\reversemarginpar				%Command from marginnote package that put margin text at the left.
+\geometry{marginparwidth={3.7cm}} % Set margin width.
 
 % Declaration of colors
 \definecolor{backgroundIntroduction}{RGB}{200, 200, 200}
@@ -50,6 +54,7 @@
 
 % Draw title part of the document.
 \def\maketitle{
+	\newgeometry{top=2cm, bottom=2cm, right=2cm, left=2cm}
 	\begin{center}
 		{\sc \Huge \textbf{\@title}}\\
 		\ifdefvoid{\@subtitle}{}{%
@@ -79,11 +84,11 @@
   {0pt}
   {\colorsection}
 \newcommand{\colorsection}[1]{%
-	\pagebreak
 	\setlength{\parskip}{0pt}
 	\setlength{\fboxsep}{0pt}
+	\hspace*{-4cm}
 	\colorbox{backgroundIntroduction}{%
-		\begin{minipage}{\textwidth}
+		\begin{minipage}{\textwidth+4cm}
 			\titlerule[1pt]
 			\vspace{1pt}
 			\titlerule
@@ -101,6 +106,7 @@
 	{\Large{\textbf \contentsname}}
 	\vskip 0.2cm
 	\@starttoc{toc}%
+	\restoregeometry
 }
 
 %%%%%%%%%%%%%%%%%%
@@ -116,13 +122,18 @@
 
 \newenvironment{intro}
   {
+	\vspace*{-.04cm}
+	\hspace*{-4.6cm}
+	\begin{minipage}{\textwidth+4cm}
 	\bfseries
-	\rightmargin 0.5cm
-	\leftmargin 0.5cm
+	%\rightmargin 0.5cm
+	%\leftmargin 0.5cm
 	\setlength{\parskip}{0pt}
 	\begin{mdframed}[style=styleIntroduction]
   }
   {
 	\end{mdframed}
+	\end{minipage}
   }
+
 \endinput
