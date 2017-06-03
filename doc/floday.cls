@@ -8,6 +8,7 @@
 \usepackage{mdframed}			% Add possibility to draw box with a background color.
 \usepackage[top=2cm, bottom=2cm, left=5cm, right=1cm]{geometry} %Set margins.
 \usepackage[utf8]{inputenc}		% Use UTF-8 encoding.
+\usepackage{lastpage}			% Provide the number of the last page of the document.
 \usepackage{lmodern}			% Use vectorial typo instead of bitmap ones.
 \usepackage{sidenotes}			% Manage sidenotes.
 \usepackage{titlesec}			% Customize titles section.
@@ -36,6 +37,7 @@
 % Manage "fr" option.
 \iftoggle{optionFr}{%
 	\usepackage[francais]{babel}	% Set all pregenerated text and typo convetion to french.
+	\usepackage{caption}
 	\usepackage[T1]{fontenc}		% Set Frensh word splitting rules.
 	\def \compilationDateLabel {Date de compilation}
 	\def \softwareVersionReferenceLabel {Version logicielle de référence}
@@ -73,6 +75,7 @@
 		{\textit {\@author}}
 		$<${\texttt{\@email}}$>$%
 		\vskip 1cm
+		\thispagestyle{empty}
 	\end{center}
 }
 
@@ -86,6 +89,7 @@
 \newcommand{\colorsection}[1]{%
 	\setlength{\parskip}{0pt}
 	\setlength{\fboxsep}{0pt}
+	\vspace*{-1cm}
 	\hspace*{-4cm}
 	\colorbox{backgroundIntroduction}{%
 		\begin{minipage}{\textwidth+4cm}
@@ -99,6 +103,17 @@
 		\end{minipage}
 	}
 }
+
+% Customization of the footer
+\newpagestyle{default}{%
+	% Here, we create a new box at the left of the cursor (llap) that has the
+	% size of the margin plus the margin separator. We put the left part of the
+	% footer inside it. The effect is that the margin is "avoided" for the footer.
+	\setfoot{\llap{\makebox[\marginparwidth+\marginparsep][l]{%
+		\sc \sectiontitle{} --- \subsectiontitle}
+	}}{}{\thepage \slash \pageref{LastPage}}
+}
+\pagestyle{default}
 
 % TOC customization.
 \renewcommand\tableofcontents{%
