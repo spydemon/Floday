@@ -93,9 +93,9 @@
 	\setlength{\parskip}{0pt}
 	\setlength{\fboxsep}{0pt}
 	\vspace*{-1cm}
-	\hspace*{-4cm}
+	\hspace*{\dimexpr-\marginparwidth-\marginparsep\relax}
 	\colorbox{backgroundIntroduction}{%
-		\begin{minipage}{\textwidth+4cm}
+		\begin{minipage}{\dimexpr\marginparwidth+\marginparsep+\textwidth\relax}
 			\titlerule[1pt]
 			\vspace{1pt}
 			\titlerule
@@ -140,14 +140,11 @@
 	topline=false
 }
 
-\newenvironment{intro}
-  {
-	\vspace*{-.04cm}
-	\hspace*{-4.6cm}
-	\begin{minipage}{\textwidth+4cm}
+\newenvironment{intro} {
+	\vspace{-.04cm}
+	\hspace*{\dimexpr-\marginparwidth-\marginparsep-.6cm\relax}
+	\begin{minipage}{\dimexpr\textwidth+\marginparwidth+\marginparsep}
 	\bfseries
-	%\rightmargin 0.5cm
-	%\leftmargin 0.5cm
 	\setlength{\parskip}{0pt}
 	\begin{mdframed}[style=styleIntroduction]
   }
