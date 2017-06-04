@@ -14,7 +14,6 @@
 \usepackage{titlesec}			% Customize titles section.
 \usepackage{xcolor}				% Provide color management (should be loaded before "tocstyle")
 \usepackage{tocstyle}			% Provide ability to customize toc.
-\usepackage{wasysym}			% Provide more characters.
 
 % Decration of variables.
 \newtoggle{optionFr}
@@ -38,10 +37,14 @@
 \iftoggle{optionFr}{%
 	\usepackage[francais]{babel}	% Set all pregenerated text and typo convetion to french.
 	\usepackage{caption}
-	\usepackage[T1]{fontenc}		% Set Frensh word splitting rules.
+	\usepackage[T1]{fontenc}		% Set French word splitting rules.
 	\def \compilationDateLabel {Date de compilation}
 	\def \softwareVersionReferenceLabel {Version logicielle de référence}
 }
+
+\usepackage[colorlinks]{hyperref}	% Make internal links in the document.
+\usepackage{glossaries}				%Should be after babel loading.
+\usepackage{wasysym}				% Provide more characters.
 
 % Manage "printed" option.
 \iftoggle{optionPrinted}{%
@@ -127,6 +130,8 @@
 %%%%%%%%%%%%%%%%%%
 %% New commands %%
 %%%%%%%%%%%%%%%%%%
+
+%%%% Introduction block after each section.
 \mdfdefinestyle{styleIntroduction}{%
 	backgroundcolor=backgroundIntroduction,
 	leftline=false,
@@ -150,5 +155,18 @@
 	\end{mdframed}
 	\end{minipage}
   }
+
+%%%% Exists still
+\newcommand\existstill[1]{%
+	{\footnotesize
+		\marginnote{#1}
+	}
+}
+
+\newcommand\lastupdated[1]{%
+	{\footnotesize
+		\marginnote{#1}[13pt]
+	}
+}
 
 \endinput

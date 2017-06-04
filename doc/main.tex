@@ -1,11 +1,13 @@
 \documentclass[fr, printed]{floday}
-
 \title{Floday}
 \subtitle{Documentation française}
 \author{Kevin Hagner}
 \email{jsaipakoimetr@spyzone.fr}
 \versionReference{1.0.0}
 \footer{Floday}
+
+\newglossaryentry{adt}{name=ADT,description={Atlantic Daylight Time}}
+\makeglossaries
 
 \begin{document}
 	\maketitle
@@ -14,4 +16,6 @@
 	\input{part/utilisation/text.tex}
 	\pagebreak
 	\input{part/developpement/text.tex}
+	\pagebreak
+	\printglossaries
 \end{document}
