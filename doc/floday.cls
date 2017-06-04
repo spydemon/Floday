@@ -11,7 +11,7 @@
 \usepackage{lastpage}			% Provide the number of the last page of the document.
 \usepackage{lmodern}			% Use vectorial typo instead of bitmap ones.
 \usepackage{sidenotes}			% Manage sidenotes.
-\usepackage{titlesec}			% Customize titles section.
+\usepackage[pagestyles]{titlesec}			% Customize titles section.
 \usepackage{xcolor}				% Provide color management (should be loaded before "tocstyle")
 \usepackage{tocstyle}			% Provide ability to customize toc.
 
