@@ -1,5 +1,44 @@
 \section{Utilisation de Floday}
-Voyons voir à quel point ceci fonctionne, ou pas.
 
-Je suis actuellement dans le paragraphe indenté avec \gls{adt}.
-\sidenote{C'est une note sensée être dans la marge.}
+\begin{intro}
+	Nous verrons dans cette première partie tout ce qui relatif à l'utilisation de \emph{Floday}~:
+	\begin{itemize}
+		\item Dans un premier temps, les principes de bases seront exposés afin de comprendre avec précision les tenants et aboutissants du logiciel.
+		\item Ensuite, un exemple d'implémentation sera présenté.
+		\item Enfin, une liste exaustive des fonctionnalités sera évoquée.
+	\end{itemize}
+\end{intro}
+
+\subsection{Comprentre les principes de base}
+
+\subsubsection{Une mise en situation}
+\existstill{1.0.0}
+
+Prenons la problématique suivante~:
+Kevin (le nom du personnage n'a pas été choisi par hasard), un passionné d'informatique s'adonne souvant aux tests de beaucoup de logiciels.
+La plupart auront été déployés avec une méthode proche de la \emph{RACHE}%
+\footnote{La \emph{RACHE} est une méthodologie de génie logiciel assez controversée. Plus d'information sur ce site~: \url{http://www.la-rache.com/}}%
+, et ce dans des temps reculés dont toutes traces du mode opératoire auront étés oubliés le jour malheureux ou l'auteur réalisera qu'ils ne fonctionnent plus comme il s'y attendait.
+
+De plus, cette perte de repère est amplifiée par la grosse hétérogénéité des applications~: certaines ont leur configuration dans {\tt/etc}, et leurs données dans {\tt/home/\$USER}, d'autres seront plutôt {\tt/home/\$USER/\emph{<service>}/.config} pour la configuration et {\tt/usr/var/} pour les données, etc.
+Sans oublié les scripts au fonctionnement variés qui peuvent être présent n'importe où (des règles \emph{iptables} dans {\tt/etc/init.d/80-custom}, des scripts de backup aux quatres coins de l'arborécences, etc.
+
+Quant au matériel, il est en général du même acabit~: un Rasperry Pi dans une boite en carton%
+\footnote{C'est une auto-promotion concernant un de mes anciens serveur de backup~: \url{http://blog.spyzone.fr/2013/11/utiliser-un-raspberry-pi-comme-serveur-de-backup/}}%
+, un dédié moisi qui doit tourner dans une cave d'un pays indéterminé ou alors un bout de cyberespace qu'on squatte sans réel garantie qu'on y aura encore accès dans cinq minutes.
+Bref\dots{} L'infrastructure physique n'étant pas pérenne, on sera un jour ou l'autre amené à tout redéployer ailleurs ce qui, on s'en doute, ne sera probablement pas réalisé de façon optimale aux vus des remarques précédentes.
+
+Toutes ces difficutés peuvent être acceptables (bien que peu régouissantes) si l'on conserve le postulat de base, celui qui dit que le seul but de cette démarche est de tester.
+En réalité, on se retrouve vite à utiliser ces services en production.
+Bien-sûr, l'échelle reste en général très limitée quant aux personnes impactés en cas d'éventuelle avarie car elles se limite souvent à l'utilisateur voir son entourage proche, mais elle ne rend pas cette perte négligeable pour autant.
+On peut parler ici de serveur emails, serveurs de chats, des forums, des blogs, etc.
+
+Pouvons-nous réellement prendre le risque de perdre tout ces «\,petits\,» services~?
+Non bien-sûr (enfin, ça ne serait en général pas la mort non plus de tout perdre ou d'avoir un long temps d'arrêt, mais ça ferait quand-même bien chier)
+du coup on rajoute encore plus de complexité au bordel ambiant pour essayer de garantir une certaine résilience~: mise en place d'un système de backup, du monitoring, une gestion avancée de la sécurité (utilisation d'apparmor par exemple), etc.
+Puis on fait des incantations aux dieux que l'on vénère pour espérer ne jamais avoir à affronter ce genre de cataclysme car souvent nous n'avons pas nous-même confiance en notre propre infrastructure (il serait prétentieux de parler de stratégie de restauration), tellement celle-ci est foireuse.
+C'est triste, n'est-ce-pas~? En tout cas, c'est contre ça que \emph{Floday} essaye de luter.
+
+\subsubsection{À quoi \emph{Floday} répond}
+\existstill{1.0.0}
+Les principaux objectifs de \emph{Floday} sont les suivants~:
