@@ -4,6 +4,7 @@
 
 \usepackage{amssymb}			% Provide more characters.
 \usepackage{calc}				% For alowing calculation like \textwidth+1cm.
+\usepackage{charter}			% Font to use.
 \usepackage{etoolbox}			% Manage conditions.
 \usepackage{mdframed}			% Add possibility to draw box with a background color.
 \usepackage[top=2cm, bottom=2cm, left=5cm, right=1cm]{geometry} %Set margins.
