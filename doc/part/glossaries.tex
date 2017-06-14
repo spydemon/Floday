@@ -1,0 +1,79 @@
+\newglossaryentry{application}{
+	name=application,
+	plural=applications,
+	description={%
+		Service concret rendu par le système informatique de référence, résultant du déploiement d'un \gls{conteneur}.
+		C'est l'entité pour laquelle \emph{Floday} existe~: le processus final utilisé par les clients.
+		Exemple~: un blog, un serveur \emph{Mumble}, un service de messagerie instantanée.
+	}
+}
+
+\newglossaryentry{attribut}{
+	name=attribut,
+	plural=attributs,
+	description={%
+		L'attribut est une entité d'information permettant de définir un \gls{conteneur}.
+		Il peut avoir des formes très variés, et se situent généralement au sein de la configuration d'un conteneur.
+		Il ont également des formes hiérarchiques~: un attribut peut en contenir d'autres.
+		De façon générale, les attributs peuplent intégralement les fichiers \emph{config.yml} présents au cœur de chaque conteneur.
+	}
+}
+
+\newglossaryentry{conteneur}{
+	name=conteneur,
+	plural=conteneurs,
+	description={%
+		Le conteneur est une recette à appliquer pour produire une \gls{application}.
+		Un même conteneur peut donc être utiliser pour générer plusieurs applications similères.
+		Par exemple~: un conteneur \emph{Wordpress} peut être utiliser pour générer plusieurs blogs.
+	}
+}
+
+\newglossaryentry{contraint}{
+	name=contrainte de conteneur,
+	plural=contraint,
+	text=contraint,
+	description={%
+		Un \gls{conteneur} contraint est un conteneur dont son propre fonctionnement est conditionné par un autre, appelé conteneur \gls{gestionnaire}.
+	}
+}
+
+\newglossaryentry{gestionnaire}{
+	name=gestion de conteneurs,
+	text=gestionnaire,
+	plural=gestionnaires,
+	description={%
+		Un \gls{conteneur} est gestionnaire s'il manage ou permet à d'autre conteneurs de fonctionner au travers lui.
+		Un gestionnaire s'occupe de conteneurs \glspl{contraint}.
+	}
+}
+
+\newglossaryentry{jeu_conteneur}{
+	name=jeu de conteneurs,
+	plural=jeux de conteneurs,
+	description={%
+		Le jeu de conteneurs constitue la définition même de ce que \emph{Floday} est capable de déployer.
+		Par défaut, le jeu doit être présent dans le répertoire {\tt/etc/floday/containers}.
+		Il est à la charge de l'utilisateur d'écrire son propre jeu, car seul lui est à-même de savoir comment son architecture devrait fonctionner.
+	}
+}
+
+\newglossaryentry{param_applicatifs}{
+	name=paramètre applicatif,
+	plural=paramètres applicatifs,
+	description={%
+		Un paramètre applicatif est une entité de configuration appliquée à une \gls{application}.
+		Il peut être implicite, si il est défini au niveau de la définition du \gls{conteneur} ou explicite, si il l'est plutôt au niveau du \gls{runfile}.
+		Il peut aussi être redéfini à chaque niveau~: dans un conteneur hérité, fils puis dans le runfile.
+		Comme exemple, nous pouvons prendre le cas d'un paramètre \emph{url} présent dans le conteneur \emph{Wordpress} permettant de savoir comment configurer correctement le \emph{CMS}.
+	}
+}
+
+\newglossaryentry{runfile}{
+	name=runfile,
+	description={%
+		Par défaut à l'emplacement {\tt/etc/runfile}, il s'agit du fichier définissant explicitement toutes les \glspl{application} a exécuter sur l'ensemble du «\,parc\,» informatique géré.
+		Le même fichier est donc utilisé sur plusieurs hôtes pour permettre là encore de voir les interactions (procédés de backup, ou de répartion de la charge, etc.).
+		Il contient donc une liste exaustive de toutes les applications à déployer, ainsi que la liste de tous les \glspl{param_applicatifs} non implicites.
+	}
+}
