@@ -1,0 +1,72 @@
+\subsubsection{Une mise en situation}
+\existstill{1.0.0}
+
+Prenons la problématique suivante~:
+Kevin (le nom du personnage n'a pas été choisi par hasard), un passionné d'informatique s'adonne souvant aux tests de beaucoup de logiciels.
+La plupart auront été déployés avec une méthode proche de la \emph{RACHE}%
+\footnote{La \emph{RACHE} est une méthodologie de génie logiciel assez controversée. Plus d'information sur ce site~: \url{http://www.la-rache.com/}}%
+, et ce dans des temps reculés dont toutes traces du mode opératoire auront étés oubliés le jour malheureux ou l'auteur réalisera qu'ils ne fonctionnent plus comme il s'y attendait.
+
+De plus, cette perte de repères est amplifiée par la grosse hétérogénéité des applications~: certaines ont leur configuration dans {\tt/etc}, et leurs données dans {\tt/home/\$USER}, d'autres seront plutôt {\tt/home/\$USER/\emph{<service>}/.config} pour la configuration et {\tt/usr/var/} pour les données, etc.
+Sans oublié les scripts aux fonctionnements variés qui peuvent être présent n'importe où (des règles \emph{iptables} dans {\tt/etc/init.d/80-custom}, des scripts de backup aux quatres coins de l'arborécence, etc.
+
+Quant au matériel, il est en général du même acabit~: un Rasperry Pi dans une boite en carton%
+\footnote{C'est une auto-promotion concernant un de mes anciens serveur de backup~: \url{http://blog.spyzone.fr/2013/11/utiliser-un-raspberry-pi-comme-serveur-de-backup/}}%
+, un dédié moisi qui doit tourner dans une cave d'un pays indéterminé ou alors un bout de cyberespace qu'on squatte sans réel garantie qu'on y aura encore accès dans cinq minutes.
+Bref\dots{} L'infrastructure physique n'étant pas pérenne, on sera un jour ou l'autre amené à tout redéployer ailleurs ce qui, on s'en doute, ne sera probablement pas réalisé de façon optimale aux vus des remarques précédentes.
+
+Toutes ces difficutés peuvent être acceptables (bien que peu régouissantes) si l'on conserve le postulat de base, celui qui dit que le seul but de cette démarche est de tester.
+En réalité, on se retrouve vite à utiliser ces services en production.
+Bien-sûr, l'échelle reste en général très limitée quant aux personnes impactés en cas d'éventuelle avarie car elles se limite souvent à l'utilisateur voir son entourage proche, mais elle ne rend pas cette perte négligeable pour autant.
+On peut parler ici de serveur emails, serveurs de chats, des forums, des blogs, etc.
+
+Pouvons-nous réellement prendre le risque de perdre tout ces «\,petits\,» services~?
+Non bien-sûr (enfin, ça ne serait en général pas la mort non plus de tout perdre ou d'avoir un long temps d'arrêt, mais ça ferait quand-même bien chier)
+du coup on rajoute encore plus de complexité au bordel ambiant pour essayer de garantir une certaine résilience~: mise en place d'un système de backup, du monitoring, une gestion avancée de la sécurité (utilisation d'apparmor par exemple), etc.
+Puis on fait des incantations aux dieux que l'on vénère pour espérer ne jamais avoir à affronter ce genre de cataclysme car souvent nous n'avons pas nous-même confiance en notre propre infrastructure (il serait prétentieux de parler de stratégie de restauration), tellement celle-ci est foireuse.
+C'est triste, n'est-ce-pas~? En tout cas, c'est contre ça que \emph{Floday} essaye de luter.
+
+\subsubsection{À quoi \emph{Floday} répond}
+\existstill{1.0.0}
+Les principaux objectifs de \emph{Floday} sont les suivants~:
+
+\paragraph{Regrouper la configuration logicielle}
+Le procédé a été pensé pour contenir toute la configuration et tous les processus d'installation et de mise en fonctionnement qu'un logiciel requière, cantoné à un même endroit.
+De cette façon, indépendamment de la complexité de celui-ci, il est simple de pouvoir au moins vérifier le fonctionnement actuel, et où rechercher pour le modifier.
+Il s'agit ici de la notion de \glspl{conteneur}.
+
+\paragraph{Clarifier par confinement}
+Chaque \gls{application} doit pouvoir fonctionner indépendemment des autres, dans une portée bien définie.
+Ainsi, aucune situation ambigues ne devrait être nécessessaire, comme avoir des fichiers utilisés à différents endroits.
+La communication inter-application est prévue pour ne se faire que via socket fichier ou réseau explicitement définies.
+C'est pour cela que la conteneurisation via \emph{LXC} semble être un bon choix.
+
+\paragraph{Uniformisé l'infrastructure}
+Un mécanisme d'héritage est également présent au niveau des \glspl{conteneur}, permettant de factoriser certaines tâches et du coup, de favoriser l'uniformité.
+Ainsi, nous pouvons imaginer le fait que plusieurs conteneurs aient besoin du réseau, ou d'un accès \emph{ssh}.
+Ces tâches pourront donc être héritées d'un conteneur parent.
+
+\paragraph{Faciliter la configuration}
+Trouver le juste milieu entre une uniformité excessive et un désordre entropique est souvent délicat.
+C'est avec cette remarque en contexte que le système de configuration, complexe au premier abord, mais semblant répondre aux nécessités d'adaptations tout en concervant l'uniformité a été pensé.
+En effet, chaque \gls{conteneur} est défini en fonction de nombreux \glspl{attribut}.
+Tous peuvent se voir réécrit dans des conteneurs fils.
+Les \glspl{param_applicatifs} peuvent même l'être au niveau du \gls{runfile}.
+
+\paragraph{Clarifier l'interaction logicielle}
+Chaque \gls{conteneur} peut être \gls{gestionnaire} et \gls{contraint}.
+L'interaction entre eux est forte, c'est-à-dire qu'un conteneur contraint n'est pas prévu pour pouvoir fonctionner sans son gestionnaire.
+Il est aussi possible d'avoir une contrainte sur plusieurs niveaux~: c'est-à-dire, de permettre au conteneur contraint d'être lui aussi gestionnaire.
+Nous pouvons prendre l'exemple d'un conteneur \emph{Wordpress}, chargé de déployer le \emph{CMS} éponyme, dont le gestionnaire serait \emph{Web}, un conteneur ayant rôle de proxy \emph{HTTP}.
+Cette hierarchisation est claire depuis le \gls{runfile}, le fichier de configuration.
+
+\paragraph{Faciliter la gestion multi-hôtes}
+Un seul \gls{runfile} devrait être utilisé par infrastructure, même si celle-ci s'appuie sur plusieurs hôtes réels.
+\emph{Floday} permet de définir quel hôte du runfile, on s'apprète à déployer.
+Encore une fois, le fait d'avoir toute la configuration dans un seul fichier permet de facilement avoir conscience de l'intégralité des acteurs.
+Imaginons le cas d'un serveur de backup~: à son déploiement, il aura directement accès à aux autres \gls{application} à backuper.
+
+\paragraph{Permettre une bonne résilience}
+Le déploiement d'une architecture via \emph{Floday} ne se veut pas universelle, dans le sens ou elle pourrait se faire partout, indépendemment de l'architecture de base.
+Par contre, elle est entièrement automatisée et redéployable ailleurs sans avoir besoin de modifier quoi que ce soit, sous réserve que le nouvel hôte respecte des postulats de base propres à chaque \gls{jeu_conteneur}.
+De cette façon, si une avarie physique survient sur une machine, les services pouront facilement être redéployés ailleurs et remis en route.

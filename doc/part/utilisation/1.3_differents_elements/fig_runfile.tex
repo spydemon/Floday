@@ -1,0 +1,37 @@
+\begin{lstlisting}[caption={runfile.yml}, label=fig_1.3_runfile]
+---
+hosts:
+	websites:
+		parameters:
+			type: riuk
+			external_ipv4: 192.168.15.151
+		applications:
+			web_application:
+				parameters:
+					ipv4: 10.0.3.5
+					gateway: 10.0.3.1
+					type: web
+				applications:
+					my_blog:
+						parameters:
+							ipv4: 10.0.3.6
+							gateway: 10.0.3.1
+							type: wordpress
+							data: /var/www/my_blog
+							hostname: blog.spyzone.fr
+					mum_blog:
+						parameters:
+							ipv4: 10.0.3.7
+							gateway: 10.0.3.1
+							type: pluxml
+							data: /var/www/mum_blog
+							hostname: mum.spyzone.fr
+	backup:
+		parameters:
+			type: jaxe
+			external_ipv4: 192.168.15.141
+		applications:
+			backup_application:
+				parameters:
+					type: backup_web
+\end{lstlisting}

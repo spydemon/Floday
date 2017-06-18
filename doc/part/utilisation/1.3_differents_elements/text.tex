@@ -1,0 +1,19 @@
+\subsection{Les différents éléments}
+\existstill{1.0.0}
+
+Nous allons à présent faire le tour des éléments centaux de la solution.
+
+\subsubsection{Le \emph{runfile}}
+\existstill{1.0.0}
+
+\input{part/utilisation/1.3_differents_elements/fig_runfile.tex}
+
+Il s'agit du cœur de l'application~: le fichier qui défini avec précision ce qui doit être déployé.
+La figure~\ref{fig_1.3_runfile} est un modèle qu'on utilisera comme exemple.
+
+On y voit la définition de deux \gls{hote}~: \emph{websites} et \emph{backup}.
+Dans le premier, on y peut y voir trois \glspl{application}~:\emph{web}, qui est \gls{gestionnaire} de \emph{my\_blog} et de \emph{mum\_blog}.
+Cela signifie que \emph{web} peut se baser sur ses \gls{contraint} pour se configurer correctement.
+\subsubsection{La définition de conteneurs}
+
+\subsubsection{L'amorçage}
