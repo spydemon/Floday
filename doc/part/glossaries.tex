@@ -28,6 +28,16 @@
 	}
 }
 
+\newglossaryentry{chemin_conteneur}{
+	name={chemin de conteneur},
+	plural={chemins de conteneurs},
+	description={%
+		Défini le type concrêt d'un conteneur en fonction de l'\gls{imbrication} de ses \glspl{gestionnaire}.
+		Un tiret est utilisé pour séparer les différentes imbrications.
+		Par exemple, on peut avoir~: \emph{riuk-web-wordress} pour un conteneur \emph{wordpress} contraint par \emph{web} dans le \gls{jeu_conteneur} \emph{riuk}.
+	}
+}
+
 \newglossaryentry{conteneur}{
 	name=conteneur,
 	plural=conteneurs,
@@ -44,6 +54,26 @@
 	text=contraint,
 	description={%
 		Un \gls{conteneur} contraint est un conteneur dont son propre fonctionnement est conditionné par un autre, appelé conteneur \gls{gestionnaire}.
+	}
+}
+
+\newglossaryentry{definition}{
+	name=définition -- de conteneurs,
+	text=définition,
+	description={%
+		Une définition de conteneur présente la façon dont le conteneur doit se déployer.
+		Il s'agit d'y définir les scripts à exécuter, dans quel ordres, ainsi que touts autres éléments nécessaires, comme la création des attributs.
+		Cette définition s'effecute dans les fichiers {\tt{}config.yml} du conteneur courant, de ceux de ses parents ainsi que du \gls{runfile} (pour les attributs surchargés).
+	}
+}
+
+\newglossaryentry{deploiement}{
+	name=déploiment -- d'applications,
+	text=déploiment,
+	plural=déploiments,
+	description={%
+		Le déploiment est l'action permettant de transformer la \gls{definition} d'un conteneur en \gls{application}.
+		Il est généralement constitué de deux étapes principales~: l'\gls{initialisation} et l'itération des différents scripts d'installation présent au niveau de la \gls{definition} du conteneur en question.
 	}
 }
 
@@ -76,6 +106,26 @@
 	}
 }
 
+\newglossaryentry{initialisation}{
+	name=initialisation,
+	description={%
+		Il s'agit du minimum à effectuer pour permettre le déploiment d'une \gls{application} fonctionnelle, c'est-à-dire généralement, avoir un \emph{OS} minimaliste permettant les fonctionnalités de base.
+		Actuellement, les seules initialisations de supportées le sont via des templates \emph{LXC}.
+		Concrètement, il s'agit donc d'exécuter la commande {\tt{}lxc-deploy} avec le bon template (\emph{flodayalpine} est fourni par défaut).
+		Comme son nom l'indique, il se contente de créer un conteneur \emph{Alpine Linux} minimaliste.
+		Actuellement, l'initialisation à utiliser pour chaque \gls{conteneur} est défini à l'aide du \gls{param_applicatifs} \emph{template}.
+	}
+}
+
+\newglossaryentry{instantiation}{
+	name=instantiation,
+	plural=instantiation,
+	description={%
+		Installation d'une \gls{application}.
+		C'est-à-dire qu'on déroule tous les scripts d'exécution pour mettre en place l'application et la rendre utilsable.
+	}
+}
+
 \newglossaryentry{jeu_conteneur}{
 	name=jeu de conteneurs,
 	plural=jeux de conteneurs,
@@ -103,14 +153,5 @@
 		Par défaut à l'emplacement {\tt/etc/runfile}, il s'agit du fichier définissant explicitement toutes les \glspl{application} a exécuter sur l'ensemble du «\,parc\,» informatique géré.
 		Le même fichier est donc utilisé sur plusieurs hôtes pour permettre là encore de voir les interactions (procédés de backup, ou de répartion de la charge, etc.).
 		Il contient donc une liste exaustive de toutes les applications à déployer, ainsi que la liste de tous les \glspl{param_applicatifs} non implicites.
-	}
-}
-
-\newglossaryentry{instantiation}{
-	name=instantiation,
-	plural=instantiation,
-	description={%
-		Installation d'une \gls{application}.
-		C'est-à-dire qu'on déroule tous les scripts d'exécution pour mettre en place l'application et la rendre utilsable.
 	}
 }

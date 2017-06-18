@@ -3,17 +3,106 @@
 
 Nous allons à présent faire le tour des éléments centaux de la solution.
 
+\subsubsection{Le fichier de configuration}
+\existstill{1.0.0}
+Un petit fichier de configuration existe à l'emplacement {\tt/etc/floday/config.cfg}.
+Celui-ci est au format \emph{INI}%
+\footnote{Courte définition du format \emph{INI} sur le site de \emph{Wikipedia}~:
+	\url{https://fr.wikipedia.org/wiki/Fichier_INI}
+}.
+Il s'agit du seul fichier dont l'emplacement soit imposé.
+Voici un descriptif de ce qu'il contient~:
+\newline
+
+\begin{tabular}{|l|l|p{4cm}|p{4.1cm}|}
+	\hline
+	Séction & Paramètre & Valeur par défaut & Description \\
+	\hline
+	containers & path & /etc/floday/containers & Emplacement du jeu de conteneurs.\\
+	floday & runfile & /etc/floday/runfile.yml & Emplacement du \gls{runfile}. \\
+	logging & metadata\_folder & /tmp/floday/logging & Dossier utilisé de façon interne par \emph{Floday} pour gérer l'indentation des messages de logs. \\
+	\hline
+\end{tabular}
+\newline
+
+Pour le moment, il est aussi possible d'avoir des valeurs de configuration utilisées par le \gls{jeu_conteneur}, voir par l'\gls{initialisation}.
+Je ne suis pas certain qu'il s'agisse de la meilleur façon de faire, du coup il faut s'attendre à ce que cela change peut-être un jour.
+
+Voici les paramètres de configuration existants actuellement pour  \emph{flodayalpine}, l'initialisation livré par défaut avec \emph{floday}~:
+\newline
+
+\begin{tabular}{|l|l|p{4cm}|p{5.25cm}|}
+	\hline
+	Séction & Paramètre & Valeur par défaut & Description \\
+	\hline
+	LXC & cache\_folder & /tmp/floday/lxc-flodayalpine & Dossier de cache utilisé pour stocker les logiciels déjà téléchargés.\\
+	LXC & id\_groups & 1000 & Nombre de groupes d'uid et de gid disponibles pour l'\gls{application} en cours d'\gls{instantiation}. Un groupe est choisi au hasard parmi ceux qui ne sont pas encore utilisés.\\
+	LXC & id\_range & 100000 & Nombre de uid et de gid diponnible au sein d'un même groupe.\\
+	LXC & repo & dl-4.alpinelinux.org & Dépôt sur lequel récupérer les packages à installer.\\
+	\hline
+\end{tabular}
+\newline
+
 \subsubsection{Le \emph{runfile}}
 \existstill{1.0.0}
 
 \input{part/utilisation/1.3_differents_elements/fig_runfile.tex}
 
 Il s'agit du cœur de l'application~: le fichier qui défini avec précision ce qui doit être déployé.
-La figure~\ref{fig_1.3_runfile} est un modèle qu'on utilisera comme exemple.
+Le code~\ref{fig_1.3_runfile} est un modèle qu'on utilisera comme exemple.
 
-On y voit la définition de deux \gls{hote}~: \emph{websites} et \emph{backup}.
-Dans le premier, on y peut y voir trois \glspl{application}~:\emph{web}, qui est \gls{gestionnaire} de \emph{my\_blog} et de \emph{mum\_blog}.
-Cela signifie que \emph{web} peut se baser sur ses \gls{contraint} pour se configurer correctement.
+On constate tout d'abord que ce fichier est en \emph{YAML}.
+C'est le cas pour l'ensemble des fichiers de configuration présent dans \emph{Floday}.
+On y voit ensuite la définition de deux \glspl{hote}~: \emph{websites} et \emph{backup}.
+Dans le premier, trois \glspl{application} y sont définies~:\emph{web}, qui est \gls{gestionnaire} des deux autres~: \emph{my\_blog} et \emph{mum\_blog}.
+Cela signifie que \emph{web} peut se baser sur ses \glspl{contraint} pour se configurer correctement.
+
+L'\gls{instantiation} elle aussi est hiérarchique~: dans un premier temps, l'hôte sera déployé, puis viendra le tour de \emph{web\_application} et enfin celui de \emph{my\_blog} et de \emph{num\_blog}.
+Notez d'ailleurs que l'ordre de ces deux derniers est aléatoire.
+Ce n'est donc pas parce que \emph{my\_blog} a été défini avant qu'il sera forcément déployé en premier.
+
+Nous pouvons voir que que pour chaques hôtes ou applications, deux clefs principales  y sont définies~:
+\begin{description}
+	\item[applications] défini toutes les applications qui seront contraintes par celle en cours de gls{definition}.
+	\item[parameters] surcharge la valeur de \glspl{param_applicatifs} définis dans le conteneur.
+\end{description}
+
 \subsubsection{La définition de conteneurs}
+\existstill{1.0.0}
 
+Dans le paragraphe précédent, on a vu comment définir les \glspl{application} que l'on voudrait voir déployer sur un hôte bien défini.
+Il nous reste à présent à définir en quoi consiste une application.
+
+Pour cela, la première notion à introduire et celle de \gls{chemin_conteneur}.
+Comme le glossaire l'indique, il ne s'agit ni plus, ni moins qu'une agrégation des types de l'\gls{imbrication} courante.
+Ce chemin permet de trouver facilement le fichier {\\tt{}config.yml} du conteneur en question.
+
+En prennant à nouveau l'exemple du code~\ref{fig_1.3_runfile}, on y défini un conteneurs de chemin \emph{riuk-web-wordpress}, un autre de chemin \emph{riuk-web-pluxml}, le gestionnaire \emph{riuk-web}, et enfin, un hôte \emph{riuk}.
+Avec un \gls{jeu_conteneur} à l'adresse par défaut, on peut par exemple trouver la \gls{definition} de notre premier conteneur à l'emplacement {\tt/etc/floday/containers/jaxe/children/web/children/wordpress/config.yml}.
+
+\input{part/utilisation/1.3_differents_elements/fig_config.tex}
+
+Nous alons à présent évoquer le contenu de ces fichiers {\tt{}config.yml}, en le découpant par section. le code~\ref{fig_1.3_config} est un exemple.
+
+\paragraph{Le nœud {\tt{}setups}}
+Une fois l'\gls{initialisation} complète, les scripts présents dans cette partie sont executés les uns après les autres pour finir le \gls{deploiement}.
+Chaque script peut avoir ces attributs~:
+\begin{description}
+	\item[exec] Chemin du script a exécuter. Celui-ci doit être exécutable par l'utilisateur effectuant le déploiment. Le script peut être présent n'importe où du moment qu'il soit accessible. Une convention veut cependant qu'il soit présent dans le dossier \emph{setups} au même emplacement que l'est le fichier \emph{config.yml} en cours d'écriture.
+	\item[priority] Permet de définir la priorité d'exécution du script pour les cas ou l'ordre ait une importance. Attention à bien prendre en compte les priorités des scripts définis dans les éventuels conteneurs parents. Les scripts sont exécutés par ordre croissant.
+\end{description}
+
+\paragraph{Le nœud {\tt parameters}}
+Nous y définissons les différents paramètres accessibles dans les scripts d'installation. Leurs valeurs peuvent être surchargées au niveau du \gls{runfile}.
+Chaque \gls{param_applicatifs} peut avoir ces attributs~:
+\begin{description}
+	\item[mandatory] Peut valoir \emph{true} ou \emph{false}%
+		\footnote{Attention, le support du type booléan en \emph{YAML} étant assez hasardeux en Perl~5, nous utilisons dans \emph{Floday} des chaines de carractères valant soit «\,true\,» soit «\,false\,». On ne peut donc pas utiliser les autres formes officielles acceptées en \emph{YAML} pour des booléen.}%
+		. Si l'attribut est obligatoire mais non défini lors du déploiment, une erreur sera émise par \emph{Floday} et tout le processus sera annulé.
+	\item[pattern] Cet attribut peut contenir une expression rationnelle \emph{PCRE} à laquelle sera soumit l'attribut. Si le test échoue, le déploiment sera là aussi annulé.
+	\item[value] Défini une valeur par défaut à l'attribut. Si celui-ci ne se retrouve pas surchargé au niveau du \gls{runfile}, c'est cette valeur qui sera utilisée.
+\end{description}
+
+\paragraph{Le nœud {tt hooks}}
+Il s'agit ici de pouvoir greffer des scripts durant le processus d'\emph{initialisation}.
 \subsubsection{L'amorçage}

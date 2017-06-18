@@ -13,7 +13,7 @@
 \usepackage{lmodern}			% Use vectorial typo instead of bitmap ones.
 \usepackage{sidenotes}			% Manage sidenotes.
 \usepackage[pagestyles]{titlesec}			% Customize titles section.
-\usepackage{xcolor}				% Provide color management (should be loaded before "tocstyle")
+\usepackage[table]{xcolor}				% Provide color management (should be loaded before "tocstyle")
 \usepackage{tocstyle}			% Provide ability to customize toc.
 
 % Decration of variables.
@@ -24,7 +24,9 @@
 \geometry{marginparwidth={3.7cm}} % Set margin width.
 
 % Declaration of colors
-\definecolor{backgroundIntroduction}{RGB}{200, 200, 200}
+\definecolor{backgroundIntroduction}{RGB}{237, 237, 237}
+\definecolor{table_one}{RGB}{255, 255, 255}
+\definecolor{table_two}{RGB}{237, 237, 237}
 
 \def \compilationDateLabel {Compilation date}
 \def \softwareVersionReferenceLabel {Software reference version}
@@ -50,6 +52,8 @@
 % Manage "printed" option.
 \iftoggle{optionPrinted}{%
 	\definecolor{backgroundIntroduction}{RGB}{255, 255, 255}
+	\definecolor{table_one}{RGB}{255, 255, 255}
+	\definecolor{table_two}{RGB}{255, 255, 255}
 }
 
 % Custom variables
@@ -127,6 +131,9 @@
 	\@starttoc{toc}%
 	\restoregeometry
 }
+
+% Table customization
+\rowcolors{2}{table_one}{table_two}
 
 %%%%%%%%%%%%%%%%%%
 %% New commands %%
