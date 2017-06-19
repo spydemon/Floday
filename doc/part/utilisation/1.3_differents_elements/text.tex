@@ -75,24 +75,36 @@ Il nous reste à présent à définir en quoi consiste une application.
 
 Pour cela, la première notion à introduire et celle de \gls{chemin_conteneur}.
 Comme le glossaire l'indique, il ne s'agit ni plus, ni moins qu'une agrégation des types de l'\gls{imbrication} courante.
-Ce chemin permet de trouver facilement le fichier {\\tt{}config.yml} du conteneur en question.
+Ce chemin permet de trouver facilement le fichier {\tt config.yml} du conteneur en question.
 
 En prennant à nouveau l'exemple du code~\ref{fig_1.3_runfile}, on y défini un conteneurs de chemin \emph{riuk-web-wordpress}, un autre de chemin \emph{riuk-web-pluxml}, le gestionnaire \emph{riuk-web}, et enfin, un hôte \emph{riuk}.
-Avec un \gls{jeu_conteneur} à l'adresse par défaut, on peut par exemple trouver la \gls{definition} de notre premier conteneur à l'emplacement {\tt/etc/floday/containers/jaxe/children/web/children/wordpress/config.yml}.
+Avec un \gls{jeu_conteneur} à l'emplassement par défaut, on peut par exemple trouver la \gls{definition} de notre premier conteneur à l'emplacement {\tt/etc/floday/containers/jaxe/children/web/children/wordpress/config.yml}.
 
 \input{part/utilisation/1.3_differents_elements/fig_config.tex}
 
 Nous alons à présent évoquer le contenu de ces fichiers {\tt{}config.yml}, en le découpant par section. le code~\ref{fig_1.3_config} est un exemple.
 
-\paragraph{Le nœud {\tt{}setups}}
-Une fois l'\gls{initialisation} complète, les scripts présents dans cette partie sont executés les uns après les autres pour finir le \gls{deploiement}.
-Chaque script peut avoir ces attributs~:
+\paragraph{Le nœud \emph{hooks}}
+Il s'agit ici de pouvoir greffer des scripts durant le processus d'\emph{initialisation}.
+Ils ne doivent être utilisés que dans les cas ou des actions doivent êtres prises durant cette phase.
+Les actions devraient rester le plus possible cantonées au nœud {\tt setups} car les hooks sont dépendant du processus d'initialisation choisi.
+
+Les attributs des hooks sont les mêmes que ceux des nœuds \emph{setups}.
+Voici la liste des hooks existant pour l'initialisation via le template \emph{LXC} \emph{flodayalpine}, utilisé par défaut~:
+
 \begin{description}
-	\item[exec] Chemin du script a exécuter. Celui-ci doit être exécutable par l'utilisateur effectuant le déploiment. Le script peut être présent n'importe où du moment qu'il soit accessible. Une convention veut cependant qu'il soit présent dans le dossier \emph{setups} au même emplacement que l'est le fichier \emph{config.yml} en cours d'écriture.
-	\item[priority] Permet de définir la priorité d'exécution du script pour les cas ou l'ordre ait une importance. Attention à bien prendre en compte les priorités des scripts définis dans les éventuels conteneurs parents. Les scripts sont exécutés par ordre croissant.
+	\item[lxc\_deploy\_before] Les scripts seront exécutés avant {\tt lxc-deploy}.
+	\item[lxc\_deploy\_after] Les scripts seront exécutés après {\tt lxc-deploy}.
+	\item[lxc\_destroy\_before] Les scripts seront exécutés avant {\tt lxc-destroy}.
+	\item[lxc\_destroy\_after] Les scripts seront exécutés après {\tt lxc-destroy}.
 \end{description}
 
-\paragraph{Le nœud {\tt parameters}}
+\paragraph{Le nœud \emph{inherit}}
+Cette liste comprend les \glspl{chemin_conteneur} de l'ensemble des parents du conteneur courant.
+Attention, l'ordre dans lesquels apparaissent les parents est ignoré.
+Il est donc impossible de le prévoir, ce qui posera des problèmes si les deux parents définissent un même \gls{attribut}  qui n'est pas réécrit dans le conteneur courant.
+
+\paragraph{Le nœud \emph{parameters}}
 Nous y définissons les différents paramètres accessibles dans les scripts d'installation. Leurs valeurs peuvent être surchargées au niveau du \gls{runfile}.
 Chaque \gls{param_applicatifs} peut avoir ces attributs~:
 \begin{description}
@@ -103,6 +115,14 @@ Chaque \gls{param_applicatifs} peut avoir ces attributs~:
 	\item[value] Défini une valeur par défaut à l'attribut. Si celui-ci ne se retrouve pas surchargé au niveau du \gls{runfile}, c'est cette valeur qui sera utilisée.
 \end{description}
 
-\paragraph{Le nœud {tt hooks}}
-Il s'agit ici de pouvoir greffer des scripts durant le processus d'\emph{initialisation}.
+\paragraph{Le nœud \emph{setups}}
+Une fois l'\gls{initialisation} complète, les scripts présents dans cette partie sont executés les uns après les autres pour finir le \gls{deploiement}.
+Chaque script peut avoir ces attributs~:
+\begin{description}
+	\item[exec] Chemin du script a exécuter. Celui-ci doit être exécutable par l'utilisateur effectuant le déploiment. Le script peut être présent n'importe où du moment qu'il soit accessible. Une convention veut cependant qu'il soit présent dans le dossier \emph{setups} au même emplacement que l'est le fichier \emph{config.yml} en cours d'écriture.
+	\item[priority] Permet de définir la priorité d'exécution du script pour les cas ou l'ordre ait une importance. Attention à bien prendre en compte les priorités des scripts définis dans les éventuels conteneurs parents. Les scripts sont exécutés par ordre croissant.
+\end{description}
+
 \subsubsection{L'amorçage}
+
+Une fois notre \emph{runfile} défini, et les applications qui s'y réfèrent égalemen, il ne reste plus qu'à amorcé le tout et permettre à \emph{Floday} d'effectuer sa principale raison d'être~!
