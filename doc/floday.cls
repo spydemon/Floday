@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{floday}[2017/05/11, v1.0]
-\LoadClass[a4paper, 11pt]{article}
+\LoadClass[a4paper, 10pt]{article}
 
 \usepackage{amssymb}			% Provide more characters.
 \usepackage{calc}				% For alowing calculation like \textwidth+1cm.
@@ -15,6 +15,7 @@
 \usepackage[pagestyles]{titlesec}			% Customize titles section.
 \usepackage[table]{xcolor}				% Provide color management (should be loaded before "tocstyle")
 \usepackage{tocstyle}			% Provide ability to customize toc.
+\usepackage[obeyspaces]{url}
 
 % Decration of variables.
 \newtoggle{optionFr}

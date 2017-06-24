@@ -1,0 +1,31 @@
+\subsection{L'exécution}
+
+\subsubsection{La gestion des logs}
+\existstill{1.0.0}
+
+Une fois notre \emph{runfile} et les applications qui s'y réfèrent de définies, il ne reste plus qu'à amorcer le tout et permettre à \emph{Floday} d'effectuer sa principale raison d'être~!
+Pour cela nous, n'avons qu'à lancer la commande {\tt floday} avec l'option {\tt --host} permettant de définir quel \gls{hote} du runfile nous voulons déployer.
+Des logs d'exécution seront ensuite affichés sur \emph{STDOUT} ainsi que via \emph{syslog}.
+
+\paragraph{Gestion du niveau des logs}
+Il n'est malheureusement pas possible actuellement de définir soi-même le niveau de verbosité à avoir sans toucher au code de l'application, mais ce problème sera peut-être résolu un jour%
+\footnote{Un ticket a été créé sur le bugtracker pour rendre la gestion du niveau de log plus pratique~: \url{https://dev.spyzone.fr/floday/ticket/29}}.
+
+Actuellement, pour le modifier, il faudra donc changer la valeur de la ligne 18 du fichier \emph{floday.pl}.
+Les niveaux disponibles sont ceux habituellement en vigeur sur n'importe quel système \emph{UNIX}.
+Pour plus de détails, voir le hash \emph{\%SYSLOG\_PRIORITY\_MAPPER} dans le fichier \emph{Floday/Helper/Logging.pm}.
+
+\input{part/utilisation/1.3_differents_elements/fig_floday_run.tex}
+
+Le listing~\ref{fig_1.4_floday} présente une sortie représentative d'un déploiement.
+Les messages sont découpée en plusieurs colonnes, dont voici description~:
+\begin{itemize}
+	\item La première n'est qu'une indiquation quant à la sévérité du log.
+	\item La seconde défini le module dans lequel le message est émit.
+	\item La dernière présente le message. Notez que l'indentation dans l'alignement permet de voir le degré d'imbrication. Grace à cela, nous pouvons rapidement voir, par exemple, que le script \emph{networking.pl} du log ligne~53 aura été exécuté dans le cadre de l'exécution des scripts de setup sur l'\gls{application} \emph{website-web\_application\_galek} contraint par \emph{website-web\_application} sur l'\gls{hote} \emph{websites}.
+\end{itemize}
+
+Pour le moment, cette sortie est également disponible via syslog, bien que le format sera peut-être amené à évolué sur celle-ci.
+
+Attention, notez qu'il y actuellement un bug générant une erreur dans le fichier de log lors du déploiement de l'hôte (présente à la ligne~10 sur le listing~\ref{fig_1.4_floday} celui-ci devrait être résolu un jour%
+\footnote{Lien vers le ticket présentant l'anomalie~: \url{https://dev.spyzone.fr/floday/ticket/31}}.

@@ -123,6 +123,7 @@ Chaque script peut avoir ces attributs~:
 	\item[priority] Permet de définir la priorité d'exécution du script pour les cas ou l'ordre ait une importance. Attention à bien prendre en compte les priorités des scripts définis dans les éventuels conteneurs parents. Les scripts sont exécutés par ordre croissant.
 \end{description}
 
-\subsubsection{L'amorçage}
-
-Une fois notre \emph{runfile} défini, et les applications qui s'y réfèrent égalemen, il ne reste plus qu'à amorcé le tout et permettre à \emph{Floday} d'effectuer sa principale raison d'être~!
+\paragraph{Le nœud \emph{end\_setup}}
+Tout comme \emph{setup}, celui-ci possède des informations sur les scripts à exécuter lors du déploiment.
+La différence vient du fait qu'ici, ils sont exécutés une fois l'ensemble des applications contraintes déloyés et non avant.
+Les attributs sont les mêmes que pour le nœud \emph{setup}.
