@@ -14,6 +14,7 @@
 \usepackage{sidenotes}			% Manage sidenotes.
 \usepackage[pagestyles]{titlesec}			% Customize titles section.
 \usepackage[table]{xcolor}				% Provide color management (should be loaded before "tocstyle")
+\usepackage{tikzsymbols}		% Provide more characters.
 \usepackage{tocstyle}			% Provide ability to customize toc.
 \usepackage[obeyspaces]{url}
 
