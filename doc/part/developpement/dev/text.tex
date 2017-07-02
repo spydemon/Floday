@@ -1,0 +1,94 @@
+\subsection{Démarrer une instance de dévelopment}
+
+La première étape pour contribuer et de réussir à exécuter \emph{Floday} dans un environnement contrôlé sur lequel des tests peuvent être exécutés sans craintes.
+Une façon de faire va être décrite dans cette section.
+
+Pour fonctionner, on utilisera deux images \emph{VirtualBox} dont l'une sera un clone le la première.
+Cette façon de procéder nous permet d'avoir un «\,effet mémoire\,» permettant d'exécuter \emph{Floday} sur une machine virtuelle et de pouvoir encore après-coup s'y connecter pour vérifier avec précision ce qui a été effectué.
+Si un test veut être refait, il nous suffira de détruire cette VM et d'en recloner une nouvelle basée sur celle de base.
+La machine virtuelle de base s'appellera \emph{Floday\_Clean} et la copie de travail courante \emph{Floday\_Work}.
+Toute la configuration sera à faire sur \emph{Floday\_Clean} car cette machine servant de base à \emph{Floday\_Work}, tout son contenu y sera déployé.
+À l'inverse, les modifications apportée à \emph{Floday\_Work} seront perdues dès le prochain clonage.
+
+Il est conseillé d'utiliser Debian 8.0 (Jessie) avec OpenRC comme système d'init.
+La création de cette infra reste assez bancale pour le moment, mais elle a le mérite de fonctionner très bien une fois les galères de l'installation passées.
+Le jeu en vaut donc la chandelle !
+Voici les étapes d'installation~:
+\begin{itemize}
+	\item Installation de \emph{VirtualBox}.
+	\item Création d'un dossier partagé appelé \emph{floday} entre \path{/opt/floday/} sur la VM et le dépôt Git sur l'hôte. Attention, ce partage doit être en lecture et écriture pour pouvoir passer tous les tests unitaires.
+	\item Création d'un lien symbolique entre \path{/usr/share/perl5/Virt} et \path{/opt/perlvirtlxc/lib/Virt}.
+	\item Configurer les réseaux pour avoir un pond sur \emph{eth0} et un réseau privé hôte sur \emph{eth1}.
+	\item Virer \emph{systemd} pour utiliser \emph{Open-RC} à la place~: \url{http://linuxmafia.com/kb/Debian/openrc-conversion.html}.
+	\item Installation des additions invités : \url{htps://virtualboxes.org/doc/installing-guest-additions-on-debian/}
+	\item Création du dossier \path{/opt/floday}, \path{/var/lib/floday} et \path{/etc/floday}.
+	\item Variables d'environnement à ajouter dans \path{/root/.bash}~:\\
+{\tt export FLODAY\_CONTAINERS="/opt/floday/src/containers/";\\
+export FLODAY\_T="/opt/floday/t/";\\
+export FLODAY\_T\_SRC="/opt/floday/src/";}
+	\item {\tt{}apt-get install -y --no-install-recommends bridge-utils cgroup-tools\\
+		cgroupfs-mount curl apparmor apparmor-utils lxc}
+	\item Édition du fichier \emph{/etc/network/interfaces}~:\\
+		{\tt{}source /etc/network/interfaces.d/*\\
+\\
+\# The loopback network interface\\
+auto lo\\
+iface lo inet loopback\\
+\\
+\# The primary network interface\\
+allow-hotplug eth0\\
+\\
+iface eth0 inet dhcp\\
+iface eth1 inet dhcp\\
+\# This is an autoconfigured IPv6 interface\\
+iface eth0 inet6 auto\\
+\\
+auto lxcbr0\\
+iface lxcbr0 inet static\\
+	address 10.0.3.1\\
+	netmask 255.255.255.0\\
+		}
+	\item Écrire le fichier \path{/etc.init.d/floday}.
+	Il faudra penser à changer \emph{192.168.1.12} par l'ip de votre VM appartenant à l'interface bridgé avec votre routeur allant vers Internet.\\
+	{\tt \#!/sbin/openrc-run\\
+\\
+depend() \{\\
+	~~need cgroupfs-mount\\
+	~~need vboxadd\\
+\}\\
+\\
+start() \{\\
+	ebegin "Init Floday stuff"\\
+	brctl addbr lxcbr0\\
+	ifup lxcbr0\\
+	dhclient eth1\\
+	mount -t vboxsf floday /opt/floday\\
+	mount -t vboxsf perlvirtlxc /opt/perlvirtlxc\\
+	echo 1 > /proc/sys/net/ipv4/ip\_forward\\
+	iptables -t nat -A POSTROUTING -s 10.0.3.0/24 -o eth0 $\backslash$\\
+	-j SNAT --to-source 192.168.1.12\\
+	eend 0\\
+	\}
+}
+	\item \path{rc-update add floday}
+	\item {\tt ln -s /opt/floday/lxc-templates/lxc-flodayalpine $\backslash$\\ /usr/share/lxc/templates/}
+	\item {\tt ln -s /opt/floday/floday.cfg /etc/floday/floday.cfg}
+	\item {\tt ln -s /opt/floday/samples/run.xml /etc/floday/run.xml}
+	\item Écrire le fichier \path{/etc/lxc/default.conf}~:
+		{\tt{}lxc.network.type = veth\\
+lxc.network.link = lxcbr0\\
+lxc.network.flags = up\\
+lxc.network.hwaddr = 00:16:3e:xx:xx:xx}
+	\item {\tt cpan Log::Any::Adapter Test::Exception Backticks Moo Config::Tiny File::Slurp YAML::Tiny Template::Alloy Hash::Merge IPC::Run Unix::Syslog}
+	\item Ajouter les paramètres \path{apparmor=1 security=apparmor} aux variables \path{GRUB_CMDLINE_LINUX} du fichier \emph{/etc/default/grub}.
+	\item {\tt sudo update grub}.
+	\item Ajouter la ligne \path{10.0.3.5 test.keh.keh test2.keh.keh} dans le fichier \emph{/etc/hosts} pour pouvoir réussir les tests d'intégration.
+	\item Rebooter le conteneur.
+\end{itemize}
+
+Pour valider que la configuration soit correcte, il vous est conseillé de jouer les tests d'intégrations.
+Si ils ne passent pas malgré le fait que vous ayez scrupuleusement suivit ce guide, vous êtes invités à poster un ticket de type \emph{question} afin que nous puissission enrichir la procédure.
+
+À terme, un script de déploiement automatique sera peut-être fourni.
+
+

@@ -1,3 +1,4 @@
+\subsection{Comprentre les principes de base}
 \subsubsection{Une mise en situation}
 \existstill{1.0.0}
 
@@ -21,8 +22,8 @@ Bien-sûr, l'échelle reste en général très limitée quant aux personnes impa
 On peut parler ici de serveur emails, serveurs de chats, des forums, des blogs, etc.
 
 Pouvons-nous réellement prendre le risque de perdre tout ces «\,petits\,» services~?
-Non bien-sûr (enfin, ça ne serait en général pas la mort non plus de tout perdre ou d'avoir un long temps d'arrêt, mais ça ferait quand-même bien chier)
-du coup on rajoute encore plus de complexité au bordel ambiant pour essayer de garantir une certaine résilience~: mise en place d'un système de backup, du monitoring, une gestion avancée de la sécurité (utilisation d'apparmor par exemple), etc.
+Non. Bien-sûr, ça ne serait en général pas non plus la mort si l'on venait à tout perdre ou d'avoir un long temps d'arrêt, mais ça ferait quand-même bien chier.
+Du coup on rajoute encore plus de complexité au bordel ambiant pour essayer de garantir une certaine résilience~: mise en place d'un système de backup, du monitoring, une gestion avancée de la sécurité (utilisation d'\emph{AppArmor} par exemple), etc.
 Puis on fait des incantations aux dieux que l'on vénère pour espérer ne jamais avoir à affronter ce genre de cataclysme car souvent nous n'avons pas nous-même confiance en notre propre infrastructure (il serait prétentieux de parler de stratégie de restauration), tellement celle-ci est foireuse.
 C'est triste, n'est-ce-pas~? En tout cas, c'est contre ça que \emph{Floday} essaye de luter.
 
@@ -31,8 +32,8 @@ C'est triste, n'est-ce-pas~? En tout cas, c'est contre ça que \emph{Floday} ess
 Les principaux objectifs de \emph{Floday} sont les suivants~:
 
 \paragraph{Regrouper la configuration logicielle}
-Le procédé a été pensé pour contenir toute la configuration et tous les processus d'installation et de mise en fonctionnement qu'un logiciel requière, cantoné à un même endroit.
-De cette façon, indépendamment de la complexité de celui-ci, il est simple de pouvoir au moins vérifier le fonctionnement actuel, et où rechercher pour le modifier.
+Le système a été pensé pour contenir toute la configuration et tous les scripts d'installation et de fonctionnement qu'un logiciel requière, cantoné à un même endroit.
+De cette façon, indépendamment de la complexité de celui-ci, la zone de recherche dans laquelle investiguer ou agir lors d'évolution sur le service en question reste très délimité et à l'écart du bruit introduit par le fonctionnement du reste.
 Il s'agit ici de la notion de \glspl{conteneur}.
 
 \paragraph{Clarifier par confinement}

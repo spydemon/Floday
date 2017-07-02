@@ -1,0 +1,31 @@
+\subsection{Participer à la documentaton}
+
+La documentation s'écrit de la même façon que la source du logiciel.
+En effet, il s'agit d'un document \LaTeX{} présent au sein même du répertoire \emph{Git} du projet.
+Cette carractéristique permet d'avoir une documentation qui soit toujours en adéquation avec la version en cours d'utilisation.
+
+\subsubsection{Comment compiler sois-même la documentation}
+Normalement, cette étape est assez simple si vous avez correstement installé \emph{pdflatex} et la dizaine de giga-octets de dépendances qu'il embarque.
+Il ne vous restera plus qu'à lancer les commandes suivantes, dans l'ordre donné~:
+\begin{itemize}
+	\item{\tt cd <racine du dépôt>/doc}
+	\item{\tt pdflatex main.tex}
+	\item{\tt pdflatex main.tex}
+	\item{\tt makeglossaries main}
+	\item{\tt pdflatex main.tex}
+\end{itemize}
+Si vous ne venez pas du monde merveilleusement chiant qu'est \LaTeX, vous seriez probablement étonné de voir trois fois la même commande\dots{}
+L'ordre et la fréquence est importante pour s'assurer une compilation correcte du glossaire, de la table des matières et des numéros de pages.
+
+\subsubsection{Quoi documenter~?}
+Tout devrait l'être.
+Bien entendu, quand une nouvelle fonctionnalité est ajouté à \emph{Floday}, il faut obligatoirement en parlé ici.
+Après, je consois aussi que cette documentation n'étant pas (initalement, en tout cas) rédigée par des gens qui savent écrire correctement, elle peut être pleine de fautes, ou à la compréhention douteuse.
+C'est pour cela que l'incrémentation des versions mineures du logiciel peut aussi s'expliqué par un enrichissement de la documentation.
+En effet, il est possible de poster sur le bug tracker des tickets indiquant des problèmes au niveau de la documentation.
+Ils doivent être traités de la même façon que n'importe quelle autre anomalie.
+Les correctifs devront donc finir sur des branches \emph{bugfix} ou \emph{development}.
+
+\subsubsection{Traductions de la documentation}
+Comme je suis français, il ne s'agit actuellement que de l'unique langue dans laquel cette documentation est dispnnible\dots{}
+Si vous voulez la traduire, n'hésitez pas à me contacter pour que l'on voit comment mettre ça en place~!

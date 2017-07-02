@@ -1,0 +1,129 @@
+\subsection{Apporter des modifications au code source}
+
+Une fois que vous accédez au code source de l'application, vous pouvez bien-entendu en faire ce que vous voulez.
+Si participer à l'évolution vous intéresse, vous êtes encouragé à me faire des pull requests que je mergerais dans le dépôt principal si votre travail répond correctement à un ticket \emph{accepté}.
+
+N'ayant jamais eu à effectuer ce genre d'actions pour le moment, je ne suis pas sûr qu'il s'agisse de la meilleure façon de faire, ni même qu'elle soit réellement pratique sur le long terme, mais on aura toujours l'occasion de changer ça une ce logiciel massivement maintenu \Winkey.
+
+\subsubsection{Convention de code}
+Malheureusement, j'avais oublié une partie de mes propres conventions lors de la rédaction de \emph{Floday}\dots
+C'est la raison pour laquel vous constaterez que le code ne suit pas exactement ce qui est préconisé ici.
+C'est mal, mais on tentera de corriger ça\dots{} un jour.
+
+\begin{itemize}
+	\item Les commentaires ainsi que les variables doivent être écrits en anglais.
+	\item On utilise le \emph{snake\_case}.
+	\item Une tabulation est utilisée pour l'indentation.
+	\item Deux espaces sont utilisées pour les brisements de lignes.
+	\item La virgule touche touche toujours un caractère à gauche, et a une espace ou un saut de ligne à droite.
+	\item On ne saute pas de ligne avant l'accolade ouvrante.
+	\item Une parenthèse, accolade ou crochet fermant doit toujours être au même niveau d'indentation que son binôme ouvrant. 
+\end{itemize}
+
+Le listing~\ref{fig_3.1_conventions} est un exemple permetant d'illustrer l'histoire de l'indentation et du brisements de lignes.
+Les boules grises représentent des espaces, et les flèches une indentation.
+
+\begin{lstlisting}[basicstyle=\normalsize, caption={Conventions de code}, label=fig_3.1_conventions]
+sub write_stuff(
+~{\color{gray}$\bullet\bullet$}~$param_one,
+~{\color{gray}$\bullet\bullet$}~$param_two
+) {
+~{\color{gray}--->}~print "$param_one $param_two";
+}
+\end{lstlisting}
+
+\subsubsection{Workflow \emph{Git}}
+
+\paragraph{Les types de branches}
+La figure~\ref{fig_3.2_git} (qui est moche pour le moment, mais sera refaite avec \emph{TikZ} un jour) ilustre de façon plus visuelle les explications ci-dessous.
+Notez qu'il manque néanmoins la branche \emph{master} sur celle-ci.
+
+\begin{description}
+	\item[Branche \emph{master}]
+		Elle pointera toujours sur la dernière version stable.
+		Même si cela nécessite un changement de version majeure.
+	\item[Branche \emph{development}]
+		C'est sur celle-ci qu'on mergera les tickets relatifs à la prochaine version mineure ou majeure en cours de développement.
+		Quand ceux-ci sont terminés, une nouvelle branche stable sera crée depuis celle-ci, ainsi que la branche \emph{bugsfix} correspondante.
+	\item[Branches stables]
+		Une branche est créée pour chaque version majeure et mineure du logiciel. Ces branches doivent être utilisées en production, elles permettent de toujours trouver la dernière release pour la version désirée.
+	\item[Branches bugsfix]
+		Permettent la préparation des correctifs.
+		Une branche \emph{bugsfix} n'existe que avant la publication d'une nouvelle version de correctifs.
+		Quand nous estimons que cette branche contient suffisamment d'éléments pour justifier une nouvelle release, elle sera mergée sur la branche stable correspondante, incrémentant ainsi le numéro \emph{z} de sa version, correspondant au correctif.
+		La branche pourra ensuite être supprimée et recrée à partir de la nouvelle version mineure si besoin est.
+	\item[Branches d'implémentations]
+		Une branche d'implémentation doit être crée pour chaque tickets.
+		La base de cette branche dépendra du type de ticket, on en parle dans un paragraphe sous-jacent.
+		Une fois les développements réalisés et mergés au bon endroit, nous pouvons supprimer la branche pour éviter de polluer le git avec des branches obsolètes.
+		Trois types de branches d'implémentation existent~:
+		\begin{description}
+			\item[Implémentation de fonctionalités]
+				Ces branches partent de l'état courant de \emph{development}.
+				Elles sont a utiliser pour l'accomplissement d'un ticket d'évolution, donc qui ajoute une fonctionnalité ou change une méthode de fonctionnement.
+			\item[Implémentation de correctifs]
+				Ces branches partent de la première version stable a présenter le problème.
+				Une fois le problème de réparé, elle sera mergée dans les branche \emph{bugfix} de chaques version stable présentant l'anomalie, voir dans \emph{development} si elle monte aussi haut.
+			\item[Implémentation de correctifs d'évolutions]
+				Les correctifs d'évolutions correspondent à des régressions entrainées par l'implémentation de quelque chose de nouveau, ou alors par un comportement de la nouvelle fonctionnalité qui n'est finalement pas comme attendu, mais déjà mergé dans \emph{development}.
+				Dans ce cas, le correctif aura le même comportement qu'une fonctionnalité~: on partira de \emph{development} pour la création du correctif, et une fois mature, il sera à nouveau mergé dans cette branche.
+		\end{description}
+\end{description}
+
+\paragraph{Procédure de merge}
+De façon générale, les messages de commit doivent être écrits en anglais. \emph{Git} doit aussi être correctement configuré pour que le nom et l'adresse email de l'utisateur soit les bons.
+Une fois une branche de développement prête à être mergée sur une branche \emph{bugfix} ou sur \emph{development}, le commit de merge devra avoir un message dont la première ligne ressemble à~:\\
+{\tt[<signe\_ticket>] \#<numéro\_ticket>: <description>.}\\
+Avec~:
+\begin{itemize}
+	\item\emph{<description>} -- doit commencer par une minuscule, et décrire de façon concise ce qui a été réalisé dans le commit.
+	\item\emph{<signe\_ticket>} -- le signe du ticket dépend grandement du type de branche sur laquelle nous sommes.
+\end{itemize}
+Si le message de commit mérite de plus amples informations, on pourra marquer ce texte après avoir sauter une ligne entre celui-ci, et la première ligne dont on parle ci-dessus.
+	Le signe du ticket peut ici avoir trois états différents~:
+		\begin{itemize}
+			\item {\tt+} en cas de traitement d'une évolution.
+			\item {\tt-} en cas de correction d'anomalie publiée.
+			\item {\tt*} en cas de correction d'anomalie d'évolution.
+		\end{itemize}
+
+\begin{description}
+	\item[Branches d'implémentations]
+		N'oubliez pas qu'il s'agit là des seules branches pouvant réellement avoir du contenu applicatif.
+		Les messages de commits peuvent ici avoir une forme assez libre.
+		Comme d'habitude, privilégiez de petits commits, dont leurs messages explique l'action contrète réalisée.
+	\item[Branche \emph{development}]
+		Une fois une fonctionnalité mature sur sa branche d'implémentation, elle peut être mergée sur \emph{development}.
+		À ce moment, la branche d'implémentation en question peut être supprimée.
+		Notez que ce merge doit être fait avec l'option \emph{--no-ff} pour éviter de n'avoir qu'un simple déplacement de pointeur au niveau de \emph{Git} sans avoir de commit de merge explicite.\\
+
+		Le message de ce commit peut avoir la forme générique présentée ci-dessus, avec un {\tt+} comme signe de ticket.
+		À partir de ce moment, si l'on apperçoit que le nouveau développement ne fonctionne pas comme il devrait, ou alors qu'il entraine des régressions, un ticket d'anomalie d'évolution devra être ouvert, et une nouvelle branche d'implémentation sera créée en adéquation.
+	\item[Branches stables]
+		Une fois la branche \emph{development} dans une situation satisfaisante, une nouvelle version pourra être publiée.
+		Il s'agirat soit d'une incrémentation de version mineure si la rétro-compatilibité n'est pas brisée, soit une branche incrémentation de la version majeur si c'est le cas.
+		Dans le cas d'une incrémentation mineure, n'oubliez pas d'également merger \emph{development} dans la branche stable correspondant à la version majeure concernée.\\
+
+		Concrètement parlant, on créera ici un commit vide (option \emph{allow-empty}) sur la branche \emph{development}, ayant comme première ligne sur le message de commit~:\\
+		{\tt[RELEASE] vx.y.0}\\
+		Avec \emph{x} et \emph{y} qui représente le nouveau numéro de version (\emph{z} sera forcément à zéro).
+		Les autres lignes peuvent être un rapide changelogs des différents tickets intégrés à l'évolution.\\
+
+		Depuis ce commit, un tag sera créé avec le même numéro de version(\path{git tag -m x.y.0 -a x.y.0}), mais sans le préfixe \emph{v}.
+		On crééra ensuite depuis ce commit la branche stable représentant la version en question.
+	\item[Branches bugfixs]
+		Une branche \emph{bugfix} devra être crée en parallèle de chaque version stable.
+		Elle se chargera d'aggréger les branches d'implémentation correspondant à des corrections à apporter par la version stable concernée.
+		Le changelog ne devra présenter que correctifs publiés.
+		Notons qu'il ne devrait de toute façon rien avoir d'autre de modifié.\\
+
+		Quand la branche \emph{bugfix} est freezée pour lui permettre une intégration dans la branche stable concernée, on procèdera comme pour la création d'une nouvelle branche stable~: on créera un commit vide (option \emph{--allow-empty}) avec comme message de commit {\tt[RELEASE] vx.y.z}, qui sera mergée sur la branche stable.
+		À présent, cette branche \emph{bugfix} pourra être supprimée et pourra être recrée depuis cette nouvelle version stable pour accueillir les nouveaux correctifs.
+\end{description}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.3]{part/developpement/code/fig_workflow_git.png}
+	\caption{Workflow git}
+	\label{fig_3.2_git}
+\end{figure}
