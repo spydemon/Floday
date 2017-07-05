@@ -89,7 +89,7 @@ sub getApplications {
 	$instancePath //= $this->getInstancePath();
 	my @applications;
 	for (keys %{$this->getRunlist->getDefinitionOf($instancePath)->{applications}}) {
-		push @applications, __PACKAGE__->new(instancePath => $this->getInstancePath() . '-' . $_);
+		push @applications, __PACKAGE__->new(instancePath => $instancePath . '-' . $_);
 	}
 	return @applications;
 }
