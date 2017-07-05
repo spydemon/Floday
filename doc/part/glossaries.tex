@@ -28,6 +28,17 @@
 	}
 }
 
+\newglossaryentry{chemin_application}{
+	name={chemin d'application},
+	plural={chemins d'applications},
+	description={%
+		Défini le nom concrêt d'une application en fonction de l'\gls{imbrication} de ses \glspl{gestionnaire}.
+		Un tiret est utilisé pour séparer les différentes imbrications.
+		Par exemple, on peut avoir~: \emph{spyzone-web-my\_blog} pour une application nommée \emph{my\_blog} contraint par \emph{web} sur l'hôte \emph{spyzone}.
+		Il s'agit ici d'une notion similaire à celle du \gls{chemin_conteneur}, mais avec le nom de l'application à la place du type de conteneur.
+	}
+}
+
 \newglossaryentry{chemin_conteneur}{
 	name={chemin de conteneur},
 	plural={chemins de conteneurs},
@@ -35,6 +46,7 @@
 		Défini le type concrêt d'un conteneur en fonction de l'\gls{imbrication} de ses \glspl{gestionnaire}.
 		Un tiret est utilisé pour séparer les différentes imbrications.
 		Par exemple, on peut avoir~: \emph{riuk-web-wordress} pour un conteneur \emph{wordpress} contraint par \emph{web} dans le \gls{jeu_conteneur} \emph{riuk}.
+		Il s'agit ici d'une notion similaire à celle du \gls{chemin_application}, mais avec le type de conteneur à la place du nom de l'application.
 	}
 }
 
@@ -50,7 +62,7 @@
 
 \newglossaryentry{contraint}{
 	name=contrainte -- de conteneur,
-	plural=contraint,
+	plural=contraints,
 	text=contraint,
 	description={%
 		Un \gls{conteneur} contraint est un conteneur dont son propre fonctionnement est conditionné par un autre, appelé conteneur \gls{gestionnaire}.
