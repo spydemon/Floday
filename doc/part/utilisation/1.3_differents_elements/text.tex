@@ -1,4 +1,4 @@
-\subsection{Les différents éléments}
+\subsection{Les éléments centraux}
 
 \subsubsection{Le fichier de configuration}
 \existstill{1.0.0}
@@ -43,6 +43,12 @@ Voici les paramètres de configuration existants actuellement pour  \emph{floday
 \subsubsection{Le \emph{runfile}}
 \existstill{1.0.0}
 
+\begin{figure}
+	\centerfloat
+	\caption{Illustrations des relations inter-conteneurs et des notions de chemin d'applications et de conteneurs.}
+	\label{relation_conteneurs}
+	\input{part/utilisation/1.2_vue_ensemble/figs/interconteneurs.tex}
+\end{figure}
 \input{part/utilisation/1.3_differents_elements/fig_runfile.tex}
 
 Il s'agit du cœur de l'application~: le fichier qui défini avec précision ce qui doit être déployé.
@@ -53,6 +59,7 @@ C'est le cas pour l'ensemble des fichiers de configuration présent dans \emph{F
 On y voit ensuite la définition de deux \glspl{hote}~: \emph{websites} et \emph{backup}.
 Dans le premier, trois \glspl{application} y sont définies~:\emph{web}, qui est \gls{gestionnaire} des deux autres~: \emph{my\_blog} et \emph{mum\_blog}.
 Cela signifie que \emph{web} peut se baser sur ses \glspl{contraint} pour se configurer correctement.
+La figure~\ref{relation_conteneurs} essaye de représenter visuellement ces notions.
 
 L'\gls{instantiation} elle aussi est hiérarchique~: dans un premier temps, l'hôte sera déployé, puis viendra le tour de \emph{web\_application} et enfin celui de \emph{my\_blog} et de \emph{num\_blog}.
 Notez d'ailleurs que l'ordre de ces deux derniers est aléatoire.
@@ -147,3 +154,7 @@ La ligne~24 présente une autre fonctionnalité du module \emph{Floday::Setup}, 
 Mais là encore, il est conseillé de se référer à \emph{perldoc} pour avoir des détails quant à l'utilisation qui devrait en être faite.
 
 La ligne~29 montre comment nous devons procéder pour agir non pas sur l'application en cours de déploiement, mais sur une autre (ici, ceux qu'il gère).
+
+TODO: parler aussi du debug :
+%root@spyzone:/home/spydemon# /etc/floday/containers/jaxe/children/backup_client/end_setup/volume_mounter.pl --container spyzone-backup
+

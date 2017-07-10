@@ -176,4 +176,10 @@
 	}
 }
 
+%%%% Allow centering without taking margin into account
+\newcommand*{\centerfloat}{%
+  \parindent \z@
+  \leftskip \z@ \@plus 1fil \@minus \textwidth
+  \parfillskip \z@skip}
+
 \endinput
