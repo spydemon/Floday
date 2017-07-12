@@ -41,7 +41,7 @@ sub generateLXCConfiguration{
 	my $range = getFlodayConfigurationValue('id_range');
 	open(my $configurationFile, '>', "$LXC_PATH/config");
 	`touch $LXC_ROOTFS/dev/urandom`;
-	my @configurationEntries = (
+	say $configurationFile, $_ for
 	  "lxc.id_map = u 0 $LXC_UG_ID $range",
 	  "lxc.id_map = g 0 $LXC_UG_ID $range",
 	  "lxc.mount.auto = proc:mixed",
@@ -54,13 +54,12 @@ sub generateLXCConfiguration{
 	  "lxc.rootfs = $LXC_ROOTFS",
 	  "lxc.start.auto = 1",
 	  "lxc.utsname = $LXC_NAME"
-	);
-	say{$configurationFile} $_ foreach @configurationEntries;
 }
 
 sub getAlpineVersionToUse {
-	'v' . $templateArguments{version} if $templateArguments{version} =~ /^[0-9]{1,2}\.[0-9]{1}$/
-	  or die "The version of alpine to use is mandatory";
+	$templateArguments{version} =~ /^[0-9]{1,2}\.[0-9]{1}$/
+	  ? "v$templateArguments{version}"
+	  : die "The version of alpine to use is mandatory";
 }
 
 sub getArchitectureToUse {
@@ -71,9 +70,8 @@ sub getFile {
 	my ($packageName) = @_;
 	my $repositoryAddress = getMainRepositoryAddress() . '/' . getArchitectureToUse();
 	my $pathForDownloadedFile = "$CACHE_FOLDER/files";
-	if (!-f "$pathForDownloadedFile/$packageName") {
-		`wget -q -P $pathForDownloadedFile $repositoryAddress/$packageName`;
-	}
+	-f "$pathForDownloadedFile/$packageName"
+	  or `wget -q -P $pathForDownloadedFile $repositoryAddress/$packageName`;
 	return "$pathForDownloadedFile/$packageName";
 }
 
@@ -81,9 +79,8 @@ sub getFlodayConfigurationValue {
 	my ($attribute) = @_;
 	state $config = Config::Tiny->read('/etc/floday/floday.cfg');
 	my $property = $config->{lxc}->{$attribute};
-	if (!defined $property) {
-		croak("The property lxc/$attribute was asked but is not defined in Floday configuration file");
-	}
+	defined $property
+	 or croak("The property lxc/$attribute was asked but is not defined in Floday configuration file");
 	return $property;
 }
 
