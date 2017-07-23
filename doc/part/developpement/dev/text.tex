@@ -55,6 +55,7 @@ iface lxcbr0 inet static\\
 depend() \{\\
 	~~need cgroupfs-mount\\
 	~~need vboxadd\\
+	~~before backup\_watcher\\
 \}\\
 \\
 start() \{\\

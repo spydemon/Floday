@@ -1,5 +1,53 @@
 \subsection{L'exécution}
 
+\subsubsection{Les différentes étapes}
+\existstill{1.0.0}
+
+Voici les différentes étapes par lesquelles nous passons pour le déploiement d'un hôte~:
+
+\begin{figure}
+	\centerfloat
+	\caption{Illustration du processus de définition de configuration et de déploiement d'applications.}
+	\label{1.4_definition_runlist}
+	\input{part/utilisation/1.4_execution/figs/fig_amorcage.tex}
+\end{figure}
+
+\begin{description}
+	\item[Définition de la \gls{runlist}]
+		Cette étape permet d'obtenir un tableau multi-dimentionnel clair de tout les éléments structurant nécessaires au déploiement.
+		Il peut lui-même se séparer en trois étapes~:
+		\begin{description}
+			\item[Itération du \gls{runfile}]
+				Le runfile est ici parcourru pour trouver les \glspl{chemin_conteneur} à déployer.
+			\item[Définition des conteneurs]
+				En fonction des chemins obtenus, on cherche à présent les fichiers \gls{definition} de ceux-ci.
+				Les éventuels héritages sont gérés à ce moment.
+			\item[Définition des applications]
+				À présent, sont mergées les valeurs propres à l'application courante à déployer.
+				Ces informations ne sont autres que les \gls{param_applicatifs} présents au niveau du runfile.
+		\end{description}
+		La figure~\ref{1.4_definition_runlist} illustre ces principes de façon plus visuelle.
+	\item[Déploiement des applications]
+		Pour chaque applications présentes dans l'hôte en cours de déploiement au niveau du runfile, on effectue les actions suivantes~:
+			\begin{description}
+				\item[Préparation]
+					On rend ici le système prêt à accueillir la nouvelle application que l'on s'apprète à déployer.
+					Concrètement, c'est ici que nous détruisons une précédente application que l'on remplacera avec ce déploiment.
+					L'éventuel commande \path{lxc-destroy} ainsi que les hooks \emph{lxc\_destroy\_before} et \emph{lxc\_destroy\_after} seront donc exécutés à ce moment.
+				\item[\Gls{initialisation}]
+					Il s'agit ici de lancer la commande \path{lxc-deploy} avec le template fourni en paramètre.
+					Les hooks \emph{lxc\_deploy\_before} et \emph{lxc\_deploy\_after} sont exécutés à ce moment.
+				\item[Installation]
+					Nous exécutons dans cette étapes l'ensemble des scripts \emph{setup} de l'application en cours de déploiement.
+				\item[Déploiement des contraints]
+					Les applications \gls{contraint}es sont ensuite intégrallement déployées (elle passe donc elles aussi par l'intégralité des étapes de la partie \emph{Déploiement des applications} de cette liste.
+				\item[Post-installation]
+					Une fois tous les contraints correctement déployés, nous exécutons l'intégralité des scripts présent dans le nœud \emph{end\_setup}.
+			\end{description}
+\end{description}
+Et voilà, on se retrouve à terme avec un hôte correctement déployé.
+Si j'ai la foie, je ferais un schéma récapitulant toutes ces étapes.
+
 \subsubsection{La gestion des logs}
 \existstill{1.0.0}
 

@@ -1,0 +1,141 @@
+\begin{tikzpicture}[
+  boxstyle/.style={%
+    draw=gray!70
+  },
+  varrow/.style={%
+    rectangle,
+    minimum height=2cm,
+    minimum width=0.5cm,
+    draw=gray!70
+  },
+  harrow/.style={%
+    right,
+    rectangle,
+    minimum width=5.5cm,
+    minimum height=0.5cm,
+    draw=gray!70
+  }
+]
+
+	%%%%%%%%%%%
+	% Runfile %
+	%%%%%%%%%%%
+	\draw[boxstyle] (-.75, 2.5) rectangle (4.75, -2);
+	\node[text width=3.75cm, right, text centered] at (0, 2) {Runfile};
+	\node[text width=3.75cm, right, text justified] at (0, 0) {%
+		\begin{lstlisting}[basicstyle=\scriptsize]
+host:
+  spyzone:[...]
+    applications:
+      web:[...]
+        parameters:
+          type: lighttpd
+          ipv4: 10.0.3.5
+          ssl: spyzone.fr
+        applications:
+          my_blog:[...]
+          mum_blog:[...]
+		\end{lstlisting}
+	};
+
+	%%%%%%%%%%%%%%%%%%%%
+	% riuk-core config %
+	%%%%%%%%%%%%%%%%%%%%
+	\node[text width=6.25, right, text justified] at (6, 5) {%
+		\begin{lstlisting}[basicstyle=\scriptsize]
+parameters:
+  gateway:
+    mandatory: true
+      pattern: [...]
+    value: 10.0.0.1
+  ipv4:
+    mandatory: true
+      pattern: [...]
+  template:
+    mandatory: true
+    value: flod...
+setups:
+  networking:
+    exec: r/c/c/s/net.pl
+    priority: 1-10
+  ssh:
+    exec: r/c/c/s/ssh.pl
+end_setups:
+  iptables:
+    exec: r/c/c/e/iptbl.pl
+    priority: 1-10
+		\end{lstlisting}
+	};
+
+	%%%%%%%%%%%%%%%%%%%%%%%%
+	% riuk-lighttpd config %
+	%%%%%%%%%%%%%%%%%%%%%%%%
+	\node[text width=6.25cm, right, text justified] at (6, 0) {%
+		\begin{lstlisting}[basicstyle=\scriptsize]
+inherit:
+  - riuk-core
+setups:
+  lighttpd_install:
+    exec: r/c/l/s/ltpd.pl
+    priority: 2-10
+parameters:
+  ssl:
+    mandatory: false
+		\end{lstlisting}
+	};
+
+	%%%%%%%%%%%%%%%
+	% Surcharges %
+	%%%%%%%%%%%%%%%
+	\node[text width=4cm, right, text centered, draw, boxstyle] at (6, -3) {Surcharges du runfile};
+
+	%%%%%%%%%%%
+	% Runlist %
+	%%%%%%%%%%%
+	\node[text width=6.25, text justified] at (11.5, 6) {%
+		\begin{lstlisting}[basicstyle=\scriptsize]
+host:
+  spyzone:[...]
+    applications:
+      web:
+        parameters:
+          gateway: 10.0.0.1
+          ipv4: 10.0.3.5
+          ssl: spyzone.fr
+          template: flodayalpine
+          type: lighttpd
+        setups:
+          1-10: r/c/c/s/net.pl
+          1-20: r/c/c/s/ssh.pl
+          2-10: r/c/l/s/ltpd.pl
+        end_setups:
+          2-10: r/c/l/s/iptbl.pl
+        applications:
+          my_blog: [...]
+          mum_blog: [...]
+		\end{lstlisting}
+	};
+
+	\draw[decorate, boxstyle, decoration={brace, amplitude=10pt}] (17, 8.5) -- (17, -2) node {};
+
+	%%%%%%%%%%%%%%%%%%%%%%
+	% Flèche horisontale %
+	%%%%%%%%%%%%%%%%%%%%%%
+	\node at (8.64, 10.5) {Définition de l'application};
+	\node[single arrow, draw=gray!70, minimum height=17.277cm, minimum width=1.5cm, right] at (0,10) {};
+	\node[harrow](h_arrow_1) at (0, 10) {1};
+	\node[harrow](h_arrow_2) [right=0cm of h_arrow_1] {2};
+	\node[harrow](h_arrow_3) [right=0cm of h_arrow_2] {3};
+
+	%%%%%%%%%%%%%%%%%%%%
+	% Flèche verticale %
+	%%%%%%%%%%%%%%%%%%%%
+	\node[rotate=-90] at (18.5, 3.1) {Déploiement de l'application};
+	\node[single arrow, draw=gray!70, minimum height=10.8cm, minimum width=1.5cm, rotate=-90, right] at (18, 8.5) {};
+	\node[varrow](v_arrow_1) at (18, 7.5) {1};
+	\node[varrow](v_arrow_2) [below=0cm of v_arrow_1] {2};
+	\node[varrow](v_arrow_3) [below=0cm of v_arrow_2] {3};
+	\node[varrow](v_arrow_4) [below=0cm of v_arrow_3] {4};
+	\node[varrow](v_arrow_5) [below=0cm of v_arrow_4] {5};
+\end{tikzpicture}
+
