@@ -17,12 +17,33 @@
   }
 ]
 
+	%%%%%%%%
+	% Text %
+	%%%%%%%%
+	\node[text width=9cm,below right, text justified] at (-4.5, 5.9) {%
+		\begin{description}
+			\item[1] Le runfile est parcouru, et la définition de chaque application est faite. Ici, on illustre celui de \emph{spyzone-web}.
+			\item[2] Pour chaque nœud d'application, nous récupérons la configuration du conteneur en question.
+			\item[3] La définition du conteneur est ainsi générée. Celle-ci prend en compte toutes les notions d'héritages.
+			\item[4] La définition de l'application est ensuite obtenue, en se contentant de fusionner la définition du conteneur
+			  avec les paramètres surchargés du runfile.
+			\item[5] À ce moment, la validité des paramètres applicatifs est testées. Il s'agit notament de vérifier si tous les
+			  attributs obligatoires (ceux avec le nœud \emph{mandatory: true} dans leur définition sont renseignés, et si leur forme
+			  est correcte (le nœud \emph{pattern}).
+			\item[6] Si tout est bon, la runlist est générée. Il ne s'agit en fait que d'un hash interne à \emph{Floday} représentant la définition de toutes les applications à déployer sous une forme simplifiée.
+			\item[7] Les applications sont déployées.
+		\end{description}
+	};
+
 	%%%%%%%%%%%
 	% Runfile %
 	%%%%%%%%%%%
-	\draw[boxstyle] (-.75, 2.5) rectangle (4.75, -2);
-	\node[text width=3.75cm, right, text centered] at (0, 2) {Runfile};
-	\node[text width=3.75cm, right, text justified] at (0, 0) {%
+	\node[text width=3.75cm,below right] at (-3.75, -4.25) {%
+		\color{gray!80} \textcircled{\raisebox{-.9pt} {1}}
+	};
+	\draw[boxstyle, dashed, above right] (-3.75, -4.25) rectangle ++(7.25, -5);
+	\node[above, text centered] at (-0.125, -5) {Runfile};
+	\node[text width=3.75cm,below right, text justified] at (-3, -5) {%
 		\begin{lstlisting}[basicstyle=\scriptsize]
 host:
   spyzone:[...]
@@ -37,11 +58,17 @@ host:
           mum_blog:[...]
 		\end{lstlisting}
 	};
+	\draw[decorate, boxstyle, above right, decoration={brace, amplitude=5pt}] (-1.15, -7.65) -- ++(0, .8) node {};
 
 	%%%%%%%%%%%%%%%%%%%%
 	% riuk-core config %
 	%%%%%%%%%%%%%%%%%%%%
-	\node[text width=6.25, right, text justified] at (6, 5) {%
+	\node[text width=3.75cm,below right] at (5.25, 5.75) {%
+		\color{gray!80} \textcircled{\raisebox{-.9pt} {2}}
+	};
+	\draw[boxstyle, dashed, above right] (5.25, 5.75) rectangle ++(7.25, -13);
+	\node[text width=6.25cm, above right, text centered] at (6, 5) {riuk-core config.yml};
+	\node[text width=6.25cm, below right, text justified] at (6, 5) {%
 		\begin{lstlisting}[basicstyle=\scriptsize]
 parameters:
   gateway:
@@ -56,13 +83,14 @@ parameters:
     value: flod...
 setups:
   networking:
-    exec: r/c/c/s/net.pl
+    exec: riuk/c/core/s/net.pl
     priority: 1-10
   ssh:
-    exec: r/c/c/s/ssh.pl
+    exec: riuk/c/core/s/ssh.pl
+    priority: 1-20
 end_setups:
   iptables:
-    exec: r/c/c/e/iptbl.pl
+    exec: riuk/c/core/e/iptbl.pl
     priority: 1-10
 		\end{lstlisting}
 	};
@@ -70,72 +98,124 @@ end_setups:
 	%%%%%%%%%%%%%%%%%%%%%%%%
 	% riuk-lighttpd config %
 	%%%%%%%%%%%%%%%%%%%%%%%%
-	\node[text width=6.25cm, right, text justified] at (6, 0) {%
+	\node[text width=6.25cm, above right, text centered] at (6, -3) {riuk-lighttpd config.yml};
+	\node[text width=6.25cm, below right, text justified] at (6, -3) {%
 		\begin{lstlisting}[basicstyle=\scriptsize]
 inherit:
   - riuk-core
 setups:
   lighttpd_install:
-    exec: r/c/l/s/ltpd.pl
+    exec: r/c/lighttpd/s/ltpd.pl
     priority: 2-10
+  ssh:
+    exec: r/c/lighttpd/s/ssh_rw.pl
 parameters:
   ssl:
     mandatory: false
+  gateway:
+    value: 10.6.6.6
 		\end{lstlisting}
 	};
 
-	%%%%%%%%%%%%%%%
-	% Surcharges %
-	%%%%%%%%%%%%%%%
-	\node[text width=4cm, right, text centered, draw, boxstyle] at (6, -3) {Surcharges du runfile};
+	%%%%%%%%%%%%%%%%%
+	% Def conteneur %
+	%%%%%%%%%%%%%%%%%
+	\node[text width=3.75cm,below right] at (5.25, -7.9) {%
+		\color{gray!80} \textcircled{\raisebox{-.9pt} {3}}
+	};
+	\draw[decorate, boxstyle, above right, decoration={brace, amplitude=10pt}] (12.1, -7.45) -- ++(-6.45, 0) node {};
+	\draw[boxstyle, dashed, above right] (5.25, -7.9) rectangle ++(7.25, -9);
+	\node[text width=6.25cm, above right, text centered] at (6, -8.5) {Définition de conteneur};
+	\node[text width=6.25cm, below right, text justified] at (6, -8.5) {%
+		\begin{lstlisting}[basicstyle=\scriptsize]
+parameters:
+  gateway:
+    mandatory: true
+      pattern: [...]
+    value: 10.6.6.6
+  ipv4:
+    mandatory: true
+      pattern: [...]
+  template:
+    mandatory: true
+    value: flod...
+  ssl:
+    mandatory: false
+setups:
+  networking:
+    exec: riuk/c/core/s/net.pl
+    priority: 1-10
+  ssh:
+    exec: riuk/c/lighttpd/s/ssh_rw.pl
+    priority: 1-20
+  lighttpd_install:
+    exec: riuk/c/lighttpd/s/ltpd.pl
+    priority: 2-10
+end_setups:
+  iptables:
+    exec: riuk/c/core/e/iptbl.pl
+    priority: 1-10
+		\end{lstlisting}
+	};
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Définition d'application %
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\node[text width=3.75cm,above right] at (-3.75, -11) {%
+		\color{gray!80} \textcircled{\raisebox{-.9pt} {4}}
+	};
+	\node[text width=3.75cm,above right] at (-3.75, -12) {%
+		\color{gray!80} \textcircled{\raisebox{-.9pt} {5}}
+	};
+	\node(plus) at (-0.125, -9.75) {\Large{$\oplus$}};
+	\node[boxstyle, text width=7cm,above right, text centered, dashed, draw](app_def) at (-3.75, -11) {Définition d'application};
+	\node[boxstyle, text width=7cm,above right, text centered, dashed, draw](param_val) at (-3.75, -12) {Validation des paramètres};
+	\draw[decorate, boxstyle, above right, decoration={brace, amplitude=10pt}] (5, -16.5) -- (5, -8.3) node {};
+	\draw [boxstyle, ->, >=latex, rounded corners=2pt] (4.65, -12.4)
+	  -| (4.2, -12.4)
+	  |- (plus);
+	\draw [boxstyle, ->, >=latex, rounded corners=2pt] (-1.32, -7.25)
+	  -- (-1.6, -7.25)
+	  |- (plus);
+	\draw [boxstyle, ->, >=latex] (plus) -- (app_def);
+	\draw [boxstyle, ->, >=latex] (app_def) -- (param_val);
+	\draw [boxstyle, ->, >=latex] (param_val) -- ++(0, -0.65);
 
 	%%%%%%%%%%%
 	% Runlist %
 	%%%%%%%%%%%
-	\node[text width=6.25, text justified] at (11.5, 6) {%
+	\node[text width=3.75cm,below right] at (-3.75, -12.35) {%
+		\color{gray!80} \textcircled{\raisebox{-.9pt} {6}}
+	};
+	\draw[boxstyle, dashed, above right] (-3.75, -12.35) rectangle ++(7.25, -6);
+	\node[above, text centered] at (-0.125, -13) {Runlist};
+	\node[text width=3.75cm,below right, text centered] at (-3, -13) {%
 		\begin{lstlisting}[basicstyle=\scriptsize]
 host:
-  spyzone:[...]
-    applications:
-      web:
-        parameters:
-          gateway: 10.0.0.1
-          ipv4: 10.0.3.5
-          ssl: spyzone.fr
-          template: flodayalpine
-          type: lighttpd
-        setups:
-          1-10: r/c/c/s/net.pl
-          1-20: r/c/c/s/ssh.pl
-          2-10: r/c/l/s/ltpd.pl
-        end_setups:
-          2-10: r/c/l/s/iptbl.pl
-        applications:
-          my_blog: [...]
-          mum_blog: [...]
+ spyzone:[...]:
+  applications:
+   web:
+    parameters:
+     gateway: 10.6.6.6
+     ipv4: 10.0.3.5
+     ssl: spyzone.fr
+     template: flodayalpine
+     type: lighttpd
+    setups:
+     1-10: riuk/c/core/s/net.pl
+     1-20: riuk/c/lighttpd/s/ssh_rw.pl
+     2-10: riuk/c/lighttpd/s/ltpd.pl
+    end-setups:
+     1-10: riuk/c/core/e/iptbl.pl
 		\end{lstlisting}
 	};
 
-	\draw[decorate, boxstyle, decoration={brace, amplitude=10pt}] (17, 8.5) -- (17, -2) node {};
-
-	%%%%%%%%%%%%%%%%%%%%%%
-	% Flèche horisontale %
-	%%%%%%%%%%%%%%%%%%%%%%
-	\node at (8.64, 10.5) {Définition de l'application};
-	\node[single arrow, draw=gray!70, minimum height=17.277cm, minimum width=1.5cm, right] at (0,10) {};
-	\node[harrow](h_arrow_1) at (0, 10) {1};
-	\node[harrow](h_arrow_2) [right=0cm of h_arrow_1] {2};
-	\node[harrow](h_arrow_3) [right=0cm of h_arrow_2] {3};
-
-	%%%%%%%%%%%%%%%%%%%%
-	% Flèche verticale %
-	%%%%%%%%%%%%%%%%%%%%
-	\node[rotate=-90] at (18.5, 3.1) {Déploiement de l'application};
-	\node[single arrow, draw=gray!70, minimum height=10.8cm, minimum width=1.5cm, rotate=-90, right] at (18, 8.5) {};
-	\node[varrow](v_arrow_1) at (18, 7.5) {1};
-	\node[varrow](v_arrow_2) [below=0cm of v_arrow_1] {2};
-	\node[varrow](v_arrow_3) [below=0cm of v_arrow_2] {3};
-	\node[varrow](v_arrow_4) [below=0cm of v_arrow_3] {4};
-	\node[varrow](v_arrow_5) [below=0cm of v_arrow_4] {5};
+	%%%%%%%%%%%%%%%
+	% Déploiement %
+	%%%%%%%%%%%%%%%
+	\node[text width=3.75cm,above right] at (5.25, -18.37) {%
+		\color{gray!80} \textcircled{\raisebox{-.9pt} {7}}
+	};
+	\node[boxstyle, text width=7cm,above right, text centered, dashed, draw] (deploiement) at (5.25, -18.37) {Déploiement des applications};
+	\draw[boxstyle, <-, >=latex] (deploiement.180) -- ++(-1.75, 0);
 \end{tikzpicture}
-
