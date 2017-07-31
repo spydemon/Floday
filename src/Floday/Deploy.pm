@@ -91,13 +91,13 @@ sub startDeployment {
 	$this->log->warningf('Deploying %s host', $this->getHostname);
 	$this->log->{adapter}->indent_inc();
 	$this->_runScripts($this->getHostname(), 'setups');
+	$this->log->warningf('Start deployment of %s applications.', $this->getHostname);
+	$this->log->{adapter}->indent_inc();
 	for($this->getRunlist->getApplicationsOf($this->getHostname)) {
-		$this->log->warningf('Start deployment of %s applications.', $this->getHostname);
-		$this->log->{adapter}->indent_inc();
 		$this->launch($_);
-		$this->log->{adapter}->indent_dec();
-		$this->log->warningf('End deployment of %s applications.', $this->getHostname);
 	}
+	$this->log->{adapter}->indent_dec();
+	$this->log->warningf('End deployment of %s applications.', $this->getHostname);
 	$this->_runScripts($this->getHostname, 'end_setups');
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('%s deployed.', $this->getHostname);
