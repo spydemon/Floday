@@ -115,6 +115,11 @@ sub getParameter {
 	return $value;
 }
 
+sub getRootPath() {
+	my ($this) = @_;
+	return '/var/lib/lxc/' . $this->getInstancePath . '/rootfs';
+}
+
 sub getParameters {
 	my ($this) = @_;
 	$this->getRunlist->getParametersForApplication($this->getInstancePath);

@@ -37,6 +37,8 @@ like($parentType, qr/riuk/, 'Parent fetch seems to work.');
 $APP->generateFile('riuk/children/web/children/php/setups/test/test.tt', {$APP->getParameters}, '/tmp/test.txt');
 like(`cat /var/lib/lxc/integration-web/rootfs/tmp/test.txt`, qr/Hello web !/, 'generateFile seems to work.');
 
+like ($APP->getRootPath(), qr#/var/lib/lxc/integration-web/rootfs#, 'getRootPath seems to work');
+
 for ($APP->getApplications()) {
 	ok($_->getInstancePath() ~~ ['integration-web-test', 'integration-web-secondtest'], 'Test getApplications seems to work');
 }
