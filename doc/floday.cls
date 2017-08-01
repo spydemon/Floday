@@ -48,7 +48,7 @@
 }
 
 \usepackage[colorlinks]{hyperref}	% Make internal links in the document.
-\usepackage{glossaries}				%Should be after babel loading.
+\usepackage[toc, appendix=appendix]{glossaries}				%Should be after babel loading.
 \usepackage{wasysym}				% Provide more characters.
 
 % Manage "printed" option.
@@ -182,4 +182,7 @@
   \leftskip \z@ \@plus 1fil \@minus \textwidth
   \parfillskip \z@skip}
 
+%%%% Create the changemargin command that allow us to change the margin for a given paragraph.
+\def\changemargin#1#2{\list{}{\rightmargin#2\leftmargin#1}\item[]}
+  \let\endchangemargin=\endlist
 \endinput
