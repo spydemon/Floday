@@ -48,7 +48,7 @@
 }
 
 \usepackage[colorlinks]{hyperref}	% Make internal links in the document.
-\usepackage[toc, appendix=appendix]{glossaries}				%Should be after babel loading.
+\usepackage[toc]{glossaries}				%Should be after babel loading.
 \usepackage{wasysym}				% Provide more characters.
 
 % Manage "printed" option.

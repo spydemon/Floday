@@ -9,9 +9,9 @@ La plupart auront été déployés avec une méthode proche de la \emph{RACHE}%
 , et ce dans des temps reculés dont toutes traces du mode opératoire auront étés oubliées le jour malheureux ou l'auteur réalisera qu'ils ne fonctionnent plus comme il s'y attendait.
 
 De plus, cette perte de repères est amplifiée par la grosse hétérogénéité des applications~: certaines ont leur configuration dans {\tt/etc}, et leurs données dans {\tt/home/\$USER}, d'autres seront plutôt {\tt/home/\$USER/\emph{<service>}/.config} pour la configuration et {\tt/usr/var/} pour les données, etc.
-Sans oublié les scripts aux fonctionnements variés qui peuvent être présent n'importe où (des règles \emph{iptables} dans {\tt/etc/init.d/80-custom}, des scripts de backup aux quatres coins de l'arborécence, etc.
+Sans oublier les scripts aux fonctionnements variés qui peuvent être présent n'importe où (des règles \emph{iptables} dans {\tt/etc/init.d/80-custom}, des scripts de backup aux quatres coins de l'arborécence, etc.).
 
-Quant au matériel, il est en général du même acabit~: un Rasperry Pi dans une boite en carton%
+Quant au matériel, il est en général du même acabit~: un Raspberry Pi dans une boite en carton%
 \footnote{C'est une auto-promotion concernant un de mes anciens serveur de backup~: \url{http://blog.spyzone.fr/2013/11/utiliser-un-raspberry-pi-comme-serveur-de-backup/}}%
 , un dédié moisi qui doit tourner dans une cave d'un pays indéterminé ou alors un bout de cyberespace qu'on squatte sans réel garantie qu'on y aura encore accès dans cinq minutes.
 Bref\dots{} L'infrastructure physique n'étant pas pérenne, on sera un jour ou l'autre amené à tout redéployer ailleurs ce qui, on s'en doute, ne sera probablement pas réalisé de façon optimale aux vus des remarques précédentes.
@@ -24,7 +24,7 @@ On peut parler ici de serveur emails ou de clavardage, des forums, des blogs, et
 Pouvons-nous réellement prendre le risque de perdre tout ces «\,petits\,» services~?
 Non. Bien-sûr, ça ne serait en général pas non plus la mort si l'on venait à tout perdre ou d'avoir un long temps d'arrêt, mais ça ferait quand-même bien chier.
 Du coup on rajoute encore plus de complexité au bordel ambiant pour essayer de garantir une certaine résilience~: mise en place d'un système de backup, du monitoring, une gestion avancée de la sécurité (utilisation d'\emph{AppArmor} par exemple), etc.
-Puis on fait des incantations aux dieux que l'on vénère pour espérer ne jamais avoir à affronter ce genre d'avarie car souvent nous n'avons pas nous-même confiance en notre propre infrastructure (il serait prétentieux de parler de stratégie de restauration), tellement celle-ci est foireuse.
+Puis on fait des incantations aux dieux que l'on vénère pour espérer ne jamais avoir à affronter ce genre d'accident, car souvent nous n'avons pas nous-même confiance en notre propre infrastructure (il serait prétentieux de parler de stratégie de restauration), tellement celle-ci est foireuse.
 C'est triste, n'est-ce-pas~? En tout cas, c'est contre ça que \emph{Floday} essaye de luter.
 
 \subsubsection{À quoi \emph{Floday} répond}
