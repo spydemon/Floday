@@ -1,0 +1,46 @@
+\begin{tikzpicture}[
+  boxstyle/.style={%
+    draw=gray!70
+  },
+  varrow/.style={%
+    rectangle,
+    minimum height=2cm,
+    minimum width=0.5cm,
+    draw=gray!70
+  },
+  harrow/.style={%
+    right,
+    rectangle,
+    minimum width=5.5cm,
+    minimum height=0.5cm,
+    draw=gray!70
+  }
+]
+
+	\umlstateinitial[x=0, y=0, name=initial]
+	\begin{umlstate}[x=0, y=-4, name=defapp]{Définition des applications}
+		\umlbasicstate[x=0, y=0, name=runfile]{Ouverture du runfile};
+		\umlstatedecision[y=-2, name=stillapp]{Application restante dans le host à déployer~?};
+		\umltrans[pos=0.5, arg=Application restante à parser ?]{runfile}{stillapp};
+		\umlbasicstate[x=0, y=-4, name=defineapp]{Définition de l'application};
+		\umltrans[recursive=180|150|5.5cm, arg=Définition des enfants récursivement, pos=2.5, recursive direction=left to top]{defineapp}{defineapp};
+		\umltrans[pos=0.1, arg=Oui]{stillapp}{defineapp};
+		\umlbasicstate[x=5, y=-4, name=validaterunfile]{Validation du runfile};
+		\umlHVtrans[pos=0.1, arg=Non]{stillapp}{validaterunfile};
+		\umlstatefinal[x=0, y=-6, name=validationfailed];
+		\umlVHtrans[pos=1.5, arg=Échec de la validation]{validaterunfile}{validationfailed};
+	\end{umlstate}
+	\umlHVtrans{initial}{defapp}
+	\begin{umlstate}[x=0, y=-14, name=runapp]{Déploiement des applications}
+		\umlstateinitial[x=0, y=0, name=initialdeploy]
+		\umlstatedecision[y=-1.5, name=stilldeplapp]{};
+		\umltrans[pos=0.5, arg=Applications restante à déployer ?]{initialdeploy}{stilldeplapp};
+		\umlstatedecision[y=-3, name=appallreadyexisting];
+		\umltrans[pos=0.5, arg=L'application existe déjà ?]{stilldeplapp}{appallreadyexisting};
+		%\umlbasicstate[x=-3, y=-5, name=appdestroy]{Destruction application};
+		\begin{umlstate}[x=-3, y=-5, name=appdestroy]
+			Destruction application
+		\end{umlstate}
+		\umlHVtrans[pos=0.1, arg=Oui]{appallreadyexisting}{appdestroy};
+	\end{umlstate}
+\end{tikzpicture}
