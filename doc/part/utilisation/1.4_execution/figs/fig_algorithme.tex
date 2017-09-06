@@ -17,30 +17,47 @@
   }
 ]
 
-	\umlstateinitial[x=0, y=0, name=initial]
-	\begin{umlstate}[x=0, y=-4, name=defapp]{Définition des applications}
+	%\umlstateinitial[x=0, y=0, name=initial]
+	\begin{umlstate}[x=2.70, y=-4, name=defapp, width=20ex]{Définition de la runlist}
+		\umlstateinitial[x=-3, y=0, name=init];
 		\umlbasicstate[x=0, y=0, name=runfile]{Ouverture du runfile};
-		\umlstatedecision[y=-2, name=stillapp]{Application restante dans le host à déployer~?};
-		\umltrans[pos=0.5, arg=Application restante à parser ?]{runfile}{stillapp};
+		\umltrans{init}{runfile};
+		\umlstatedecision[y=-2, name=stillapp]{Applications restantes dans le host à déployer~?};
+		\umltrans[pos=0.5, arg=Applications restantes à parser ?]{runfile}{stillapp};
 		\umlbasicstate[x=0, y=-4, name=defineapp]{Définition de l'application};
-		\umltrans[recursive=180|150|5.5cm, arg=Définition des enfants récursivement, pos=2.5, recursive direction=left to top]{defineapp}{defineapp};
+		\umltrans[recursive=180|150|6cm, arg=Définition des contraints récursivement, pos=2.5, recursive direction=left to top]{defineapp}{defineapp};
 		\umltrans[pos=0.1, arg=Oui]{stillapp}{defineapp};
 		\umlbasicstate[x=5, y=-4, name=validaterunfile]{Validation du runfile};
 		\umlHVtrans[pos=0.1, arg=Non]{stillapp}{validaterunfile};
-		\umlstatefinal[x=0, y=-6, name=validationfailed];
+		\umlstatefinal[x=.5, y=-6, name=validationfailed];
+		\umlstatefinal[x=9.5, y=-6, name=validationsucess];
 		\umlVHtrans[pos=1.5, arg=Échec de la validation]{validaterunfile}{validationfailed};
+		\umlVHtrans[pos=1.5, arg=Validation effectuée]{validaterunfile}{validationsucess};
+		\umltrans{defineapp}{validaterunfile}
 	\end{umlstate}
-	\umlHVtrans{initial}{defapp}
-	\begin{umlstate}[x=0, y=-14, name=runapp]{Déploiement des applications}
+	%\umlHVtrans{initial}{defapp}
+	\begin{umlstate}[x=4.4, y=-14, name=runapp, width=200cm]{Déploiement des applications}
 		\umlstateinitial[x=0, y=0, name=initialdeploy]
 		\umlstatedecision[y=-1.5, name=stilldeplapp]{};
-		\umltrans[pos=0.5, arg=Applications restante à déployer ?]{initialdeploy}{stilldeplapp};
+		\umltrans[pos=0.5, arg=Applications restantes à déployer ?]{initialdeploy}{stilldeplapp};
 		\umlstatedecision[y=-3, name=appallreadyexisting];
 		\umltrans[pos=0.5, arg=L'application existe déjà ?]{stilldeplapp}{appallreadyexisting};
 		%\umlbasicstate[x=-3, y=-5, name=appdestroy]{Destruction application};
-		\begin{umlstate}[x=-3, y=-5, name=appdestroy]
-			Destruction application
-		\end{umlstate}
+		\umlbasicstate[x=-3, y=-5, name=appdestroy]{Destruction application}{Infos};
 		\umlHVtrans[pos=0.1, arg=Oui]{appallreadyexisting}{appdestroy};
+		\umlstatedecision[y=-6, name=endappallreadyexisting]{};
+		\umlVHtrans{appdestroy}{endappallreadyexisting};
+		\umltrans[pos=0.1, arg=Non]{appallreadyexisting}{endappallreadyexisting};
+		\umlbasicstate[x=0, y=-8, name=predeploy]{Pré-installation};
+		\umltrans{endappallreadyexisting}{predeploy};
+		\umlstatedecision[y=-10, name=haschildren]{};
+		\umltrans[pos=0.5, arg=À encore des contraints à déployer ?]{predeploy}{haschildren};
+		%\umlHVHtrans[pos=0.1, arg=Oui, arm1=-6cm]{haschildren}{stilldeplapp};
+		\umlHVHtrans[pos=0.1, arg=Oui, arm1=-6cm]{haschildren}{initialdeploy};
+		\umlbasicstate[x=0, y=-12, name=postdeploy]{Post-installation};
+		\umltrans[pos=0.1, arg=Non]{haschildren}{postdeploy};
+		\umlstatefinal[x=6, y=-11.75, name=enddeploy];
+		\umltrans{postdeploy}{enddeploy};
 	\end{umlstate}
+	\umltrans{defapp}{runapp};
 \end{tikzpicture}
