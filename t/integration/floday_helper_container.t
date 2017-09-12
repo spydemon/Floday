@@ -7,7 +7,7 @@ use Test::More;
 
 use Floday::Helper::Container;
 
-my $expectedResult1 = {
+my $expected_result_1 = {
 	'setups'     => {
 		'network' => {
 			'priority' => '10',
@@ -85,14 +85,14 @@ my $expectedResult1 = {
 	}
 };
 
-cmp_ok (Floday::Helper::Container->new()->getContainerDefinitionFilePath('riuk-web-php'),
+cmp_ok (Floday::Helper::Container->new()->get_container_definition_file_path('riuk-web-php'),
   'eq',
   '/etc/floday/containers/riuk/children/web/children/php/config.yml',
   'Definition file path corectly fetched.'
 );
 
-cmp_deeply (Floday::Helper::Container->new()->getContainerDefinition('riuk-sftp'),
-  $expectedResult1,
+cmp_deeply (Floday::Helper::Container->new()->get_container_definition('riuk-sftp'),
+  $expected_result_1,
   'Definition of container correctly fetched.'
 );
 

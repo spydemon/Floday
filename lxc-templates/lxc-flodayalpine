@@ -16,32 +16,32 @@ use List::Util qw<pairs>;
 use Linux::LXC qw(ALLOW_UNDEF);
 
 my $CONFIG = Floday::Helper::Config->instance();
-my $CACHE_FOLDER = getFlodayConfigurationValue('cache_folder');
-my $LOGGING_FOLDER = $CONFIG->getFlodayConfig('logging', 'metadata_folder');
+my $CACHE_FOLDER = get_floday_configuration_value('cache_folder');
+my $LOGGING_FOLDER = $CONFIG->get_floday_config('logging', 'metadata_folder');
 my ($LXC_PATH, $LXC_NAME, $LXC_ROOTFS);
 GetOptions("path=s" => \$LXC_PATH,
   "name=s" => \$LXC_NAME,
   "rootfs=s" => \$LXC_ROOTFS
 );
-my $LXC_UG_ID = getUserId();
+my $LXC_UG_ID = get_user_id();
 
-my %templateArguments= (@ARGV);
+my %template_arguments= (@ARGV);
 
-sub deployAPKIndex {
+sub deploy_APK_index {
 	if (!-d "$CACHE_FOLDER/apkIndex") {
-		my $APKArchive = getFile('APKINDEX.tar.gz');
+		my $APK_archive = get_file('APKINDEX.tar.gz');
 		`mkdir -p $CACHE_FOLDER/apkIndex`;
-		`tar -xf $APKArchive -C $CACHE_FOLDER/apkIndex`;
+		`tar -xf $APK_archive -C $CACHE_FOLDER/apkIndex`;
 	}
 	return "$CACHE_FOLDER/apkIndex/APKINDEX";
 }
 
-sub generateLXCConfiguration{
+sub generate_LXC_configuration{
 	#TODO : Apply restriction by apparmor and seccomp.
-	my $range = getFlodayConfigurationValue('id_range');
-	open(my $configurationFile, '>', "$LXC_PATH/config");
+	my $range = get_floday_configuration_value('id_range');
+	open(my $configuration_file, '>', "$LXC_PATH/config");
 	`touch $LXC_ROOTFS/dev/urandom`;
-	say $configurationFile $_ for
+	say $configuration_file $_ for
 	  "lxc.id_map = u 0 $LXC_UG_ID $range",
 	  "lxc.id_map = g 0 $LXC_UG_ID $range",
 	  "lxc.mount.auto = proc:mixed",
@@ -57,26 +57,26 @@ sub generateLXCConfiguration{
 	  "lxc.utsname = $LXC_NAME"
 }
 
-sub getAlpineVersionToUse {
-	$templateArguments{version} =~ /^[0-9]{1,2}\.[0-9]{1}$/
-	  ? "v$templateArguments{version}"
+sub get_alpine_version_to_use {
+	$template_arguments{version} =~ /^[0-9]{1,2}\.[0-9]{1}$/
+	  ? "v$template_arguments{version}"
 	  : die "The version of alpine to use is mandatory";
 }
 
-sub getArchitectureToUse {
-	$templateArguments{architecture} // 'x86_64';
+sub get_architecture_to_use {
+	$template_arguments{architecture} // 'x86_64';
 }
 
-sub getFile {
-	my ($packageName) = @_;
-	my $repositoryAddress = getMainRepositoryAddress() . '/' . getArchitectureToUse();
-	my $pathForDownloadedFile = "$CACHE_FOLDER/files";
-	-f "$pathForDownloadedFile/$packageName"
-	  or `wget -q -P $pathForDownloadedFile $repositoryAddress/$packageName`;
-	return "$pathForDownloadedFile/$packageName";
+sub get_file {
+	my ($package_name) = @_;
+	my $repository_address = get_main_repository_address() . '/' . get_architecture_to_use();
+	my $path_for_downloaded_file = "$CACHE_FOLDER/files";
+	-f "$path_for_downloaded_file/$package_name"
+	  or `wget -q -P $path_for_downloaded_file $repository_address/$package_name`;
+	return "$path_for_downloaded_file/$package_name";
 }
 
-sub getFlodayConfigurationValue {
+sub get_floday_configuration_value {
 	my ($attribute) = @_;
 	state $config = Config::Tiny->read('/etc/floday/floday.cfg');
 	my $property = $config->{lxc}->{$attribute};
@@ -85,9 +85,9 @@ sub getFlodayConfigurationValue {
 	return $property;
 }
 
-sub getPackage {
+sub get_package {
 	my ($target) = @_;
-	my $index = read_file(deployAPKIndex());
+	my $index = read_file(deploy_APK_index());
 	while (
 	  $index =~ /
 	    ^P:(?P<name>.*)\n        #Get the next software name present in the index.
@@ -95,46 +95,46 @@ sub getPackage {
 	  /mgx
 	) {
 		if ($+{name} eq $target) {
-			return getFile("$+{name}-$+{version}.apk");
+			return get_file("$+{name}-$+{version}.apk");
 		}
 	}
 	die("Package $target was not found in APKIndex");
 }
 
 #TODO: should be unit tested.
-sub getUserId {
-	my @alreadyUsedUgid =
+sub get_user_id {
+	my @already_used_ugid =
 	  map {Linux::LXC->new(utsname => $_)->get_config('lxc.id_map', qr/^u \d+ (\d+) (\d+)$/, ALLOW_UNDEF)}
 	  grep {$_ ne $LXC_NAME}
 	  Linux::LXC->get_existing_containers();
-	my $range = getFlodayConfigurationValue('id_range');
-	my $groups = getFlodayConfigurationValue('id_groups');
+	my $range = get_floday_configuration_value('id_range');
+	my $groups = get_floday_configuration_value('id_groups');
 	REGENERATE_ID: for (1...10) {
-		my @alreadyUsedUgidCopy = @alreadyUsedUgid;
-		my $candidateId = int(rand($groups)+1) * $range;
-		foreach (pairs @alreadyUsedUgidCopy) {
-			my ($currentStartId, $currentRange) = @$_;
-			if ($currentStartId < ($candidateId + $range) && $candidateId < ($currentStartId + $currentRange)) {
+		my @already_used_ugid_copy = @already_used_ugid;
+		my $candidate_id = int(rand($groups)+1) * $range;
+		foreach (pairs @already_used_ugid_copy) {
+			my ($current_start_id, $current_range) = @$_;
+			if ($current_start_id < ($candidate_id + $range) && $candidate_id < ($current_start_id + $current_range)) {
 				next REGENERATE_ID;
 			}
 		}
-		return $candidateId;
+		return $candidate_id;
 	}
 	die('10 id collisions occured with already existing LXC containers. Maybe should you increase lxc.id_groups?');
 }
 
-sub getMainRepositoryAddress {
+sub get_main_repository_address {
 	'http://'
-	  . $CONFIG->getFlodayConfig('lxc', 'repo')
+	  . $CONFIG->get_floday_config('lxc', 'repo')
 	  . '/alpine/'
-	  . getAlpineVersionToUse()
+	  . get_alpine_version_to_use()
 	  . '/main'
 	;
 }
 
-sub initSystem {
-	my $apkRepoToUse = getMainRepositoryAddress();
-	my $arch = getArchitectureToUse();
+sub init_system {
+	my $apkRepoToUse = get_main_repository_address();
+	my $arch = get_architecture_to_use();
 	unless (-d "$CACHE_FOLDER/tmp") {
 		`mkdir -p $CACHE_FOLDER/apk && chmod a+rw $CACHE_FOLDER/apk`
 	}
@@ -144,9 +144,9 @@ sub initSystem {
 	`$LXC_ROOTFS/sbin/apk.static -U add --initdb --root $LXC_ROOTFS --arch $arch alpine-base`;
 }
 
-sub installPackage {
+sub install_package {
 	my ($packageName) = @_;
-	my $packagePath = getPackage($packageName);
+	my $packagePath = get_package($packageName);
 	`tar -xf '$packagePath' -C '$LXC_ROOTFS' 2>/dev/null`;
 	$packageName =~ s/\W//g;
 	if (defined &{"_installPackage_$packageName"}) {
@@ -155,7 +155,7 @@ sub installPackage {
 	}
 }
 
-sub manageSystemConfiguration {
+sub manage_system_configuration {
 	`rm -r $LXC_ROOTFS/etc/apk/cache && mkdir -p $LXC_ROOTFS/etc/apk/cache`;
 	`mkdir -p $LXC_ROOTFS/$LOGGING_FOLDER`;
 	`chmod 750 $LXC_PATH`;
@@ -171,7 +171,7 @@ sub manageSystemConfiguration {
 	map {say $inittab $_} @init_tab;
 }
 
-sub _installPackage_alpinekeys {
+sub _install_package_alpinekeys {
 	my %keys = (
 	  'v3.4' => {
 	    'alpine-devel@lists.alpinelinux.org-4a6a0840.rsa.pub' => '9c102bcc376af1498d549b77bdbfa815ae86faa1d2d82f040e616b18ef2df2d4',
@@ -189,35 +189,35 @@ sub _installPackage_alpinekeys {
 	    'alpine-devel@lists.alpinelinux.org-58199dcc.rsa.pub' => '73867d92083f2f8ab899a26ccda7ef63dfaa0032a938620eda605558958a8041'
 	  }
 	);
-	my $keyList = `echo $LXC_ROOTFS/etc/apk/keys/*.pub`;
-	my $keyChecked = 0;
-	while ($keyList =~ /
+	my $key_list = `echo $LXC_ROOTFS/etc/apk/keys/*.pub`;
+	my $key_checked = 0;
+	while ($key_list =~ /
 	    (?P<keyPathToUse>.*?                    #keyPathToUse will contain the absolute path of the next key.
 	      (?P<keyNameToUse>alpine-devel.*?)     #keyNameToUse will contain only the name of the next key.
 	    )
 	  \s/gx
 	) {
-		die("Undefined key for $+{keyNameToUse}") unless defined $keys{getAlpineVersionToUse()}->{$+{keyNameToUse}};
-		`cd $LXC_ROOTFS/etc/apk/keys && echo "$keys{getAlpineVersionToUse()}->{$+{keyNameToUse}} $+{keyNameToUse}" | sha256sum -c -`;
-		$keyChecked += 1;
+		die("Undefined key for $+{keyNameToUse}") unless defined $keys{get_alpine_version_to_use()}->{$+{keyNameToUse}};
+		`cd $LXC_ROOTFS/etc/apk/keys && echo "$keys{get_alpine_version_to_use()}->{$+{keyNameToUse}} $+{keyNameToUse}" | sha256sum -c -`;
+		$key_checked += 1;
 	}
-	die ('Too much key signatures are in this template') if ($keyChecked != keys %{$keys{getAlpineVersionToUse()}});
+	die ('Too much key signatures are in this template') if ($key_checked != keys %{$keys{get_alpine_version_to_use()}});
 }
 
-sub _installPackage_apktoolsstatic {
+sub _install_package_apktoolsstatic {
 	`echo $LXC_ROOTFS/sbin/apk.static.*.pub`     #Get the path of the file corresponding to apk.static signed hash.
 	  =~ /
 	    (?P<signatureToCheck>^.*                 #Capture the absolute path without the \n at the end of the line.
 	      (?P<keyToUse>alpine-devel[^\/]*)       #The name of the key used for the signature is present in the hash name.
 	    )
 	  \s$/x;
-	my $fileToCheck = "$LXC_ROOTFS/sbin/apk.static";
-	my $keyToUseForChecking = "$LXC_ROOTFS/etc/apk/keys/$+{keyToUse}";
-	`openssl dgst -sha1 -verify $keyToUseForChecking -signature $+{signatureToCheck} $fileToCheck`;
+	my $file_to_check = "$LXC_ROOTFS/sbin/apk.static";
+	my $key_to_use_for_checking = "$LXC_ROOTFS/etc/apk/keys/$+{keyToUse}";
+	`openssl dgst -sha1 -verify $key_to_use_for_checking -signature $+{signatureToCheck} $file_to_check`;
 }
 
-installPackage('alpine-keys');
-installPackage('apk-tools-static');
-initSystem();
-generateLXCConfiguration();
-manageSystemConfiguration();
+install_package('alpine-keys');
+install_package('apk-tools-static');
+init_system();
+generate_LXC_configuration();
+manage_system_configuration();

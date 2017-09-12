@@ -12,35 +12,35 @@ has config => (
 		Floday::Helper::Config->instance();
 	},
 	is => 'ro',
-	reader => 'getConfig'
+	reader => 'get_config'
 );
 
-sub getContainerDefinition {
-	my ($this, $containerPath) = @_;
-	my $containerDefinition = YAML::Tiny->read(
-	  $this->getContainerDefinitionFilePath($containerPath)
+sub get_container_definition {
+	my ($this, $container_path) = @_;
+	my $container_definition = YAML::Tiny->read(
+	  $this->get_container_definition_file_path($container_path)
 	)->[0];
-	for (@{$containerDefinition->{inherit}}) {
-		$containerDefinition = Hash::Merge
+	for (@{$container_definition->{inherit}}) {
+		$container_definition = Hash::Merge
 		  ->new('LEFT_PRECEDENT')
-		  ->merge($containerDefinition, $this->getContainerDefinition($_))
+		  ->merge($container_definition, $this->get_container_definition($_))
 		;
 	}
-	return $containerDefinition;
+	return $container_definition;
 }
 
-sub getContainerDefinitionFilePath {
-	my ($this, $containerPath) = @_;
-	$this->getContainerDefinitionFolder($containerPath) . '/config.yml';
+sub get_container_definition_file_path {
+	my ($this, $container_path) = @_;
+	$this->get_container_definition_folder($container_path) . '/config.yml';
 }
 
-sub getContainerDefinitionFolder {
-	my ($this, $containerPath) = @_;
-	my @containersType = split '-', $containerPath;
+sub get_container_definition_folder {
+	my ($this, $container_path) = @_;
+	my @containers_type = split '-', $container_path;
 	join('/',
-	  $this->getConfig()->getFlodayConfig('containers', 'path'),
-	  shift @containersType,
-	  (map {'children/' . $_} @containersType)
+	  $this->get_config()->get_floday_config('containers', 'path'),
+	  shift @containers_type,
+	  (map {'children/' . $_} @containers_type)
 	);
 }
 

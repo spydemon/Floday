@@ -11,7 +11,7 @@ use Test::More;
 
 use Floday::Helper::Host;
 
-my $attributesWithGoodName = {
+my $attributes_with_good_name = {
 	'parameters' => {
 		'name'          => 'agoodname',
 		'type'          => 'riuk',
@@ -19,28 +19,28 @@ my $attributesWithGoodName = {
 	}
 };
 
-my $attributesWithWrongType = {
+my $attributes_with_wrong_type = {
 	'parameters' => {
 		'name' => 'agoodname',
 		'type' => 'riuk-xx'
 	}
 };
 
-my $attributesWithWrongName = {
+my $attributes_with_wrong_name = {
 	'parameters' => {
 		'name' => 'yol0~~',
 		'type' => 'riuk'
 	}
 };
 
-my $attributesWithoutName = {
+my $attributes_without_name = {
 	'parameters' => {
 		'type' => 'riuk-php',
 		'type' => 'riuk'
 	}
 };
 
-my $attributesWithUnexistingParam = {
+my $attributes_with_unexisting_param = {
 	'parameters' => {
 		'name'          => 'agoodname',
 		'type'          => 'riuk',
@@ -49,7 +49,7 @@ my $attributesWithUnexistingParam = {
 	}
 };
 
-my $attributesWithChild = {
+my $attributes_with_child = {
 	'parameters'   => {
 		'name'          => 'agoodname',
 		'type'          => 'riuk',
@@ -74,7 +74,7 @@ my $attributesWithChild = {
 	}
 };
 
-my $attributesWithMissingParams = {
+my $attributes_with_missing_params = {
 	'parameters'   => {
 		'name' => 'integration',
 		'type' => 'riuk'
@@ -96,7 +96,7 @@ my $attributesWithMissingParams = {
 	}
 };
 
-my $attributesWithMissingTypeInChildren = {
+my $attributes_with_missing_type_in_children = {
 	'parameters'   => {
 		'name' => 'integration',
 		'type' => 'riuk'
@@ -117,7 +117,7 @@ my $attributesWithMissingTypeInChildren = {
 	}
 };
 
-my $complexHostToHashResult = {
+my $complex_host_to_hash_result = {
 	'applications' => {
 		'website2' => {
 			'parameters' => {
@@ -338,51 +338,51 @@ my $complexHostToHashResult = {
 	}
 };
 
-my @missingParamsErrors = (
+my @missing_params_errors = (
   'The \'mandatory_param\' mandatory parameter is missing in \'integration-rnbw\' application.',
   'The \'mandatory_param_two\' mandatory parameter is missing in \'integration-ctr\' application.',
   '\'mandatory_param_two\' parameter in \'integration-rnbw\' has value \'AAooo\' that doesn\'t respect the \'^[A|B]{3,5}\' regex.'
 );
 
-ok (Floday::Helper::Host->new('runfile' => $attributesWithGoodName), 'A instance is correctly created.');
-throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithWrongName)}
+ok (Floday::Helper::Host->new('runfile' => $attributes_with_good_name), 'A instance is correctly created.');
+throws_ok {Floday::Helper::Host->new('runfile' => $attributes_with_wrong_name)}
   qr/Invalid name 'yol0~~' for host initialization/,
   'Check exception at invalid hostname.';
-throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithoutName)}
+throws_ok {Floday::Helper::Host->new('runfile' => $attributes_without_name)}
   qr/Invalid name '' for host initialization/,
   'Check exception at invalid hostname.';
-throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithWrongType)}
+throws_ok {Floday::Helper::Host->new('runfile' => $attributes_with_wrong_type)}
   qr/Invalid type 'riuk-xx' for host initialization/,
   'Check exception at invalid container type.';
-throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithMissingTypeInChildren)->toHash()}
+throws_ok {Floday::Helper::Host->new('runfile' => $attributes_with_missing_type_in_children)->to_hash()}
   qr/Missing name or type for an application/,
   'Check exception if child type is missing.';
 
 #Test _mergeDefinition function:
-my $host = Floday::Helper::Host->new('runfile' => $attributesWithGoodName);
-cmp_ok ($host->toHash()->{'parameters'}{'external_ipv4'}{'value'}, 'eq', '10.11.22.33',
+my $host = Floday::Helper::Host->new('runfile' => $attributes_with_good_name);
+cmp_ok ($host->to_hash()->{'parameters'}{'external_ipv4'}{'value'}, 'eq', '10.11.22.33',
   'Check runfile parameters integration in runlist.');
-cmp_ok ($host->toHash()->{'parameters'}{'useless_param'}{'value'}, 'eq', 'we dont care',
+cmp_ok ($host->to_hash()->{'parameters'}{'useless_param'}{'value'}, 'eq', 'we dont care',
   'Check default runlist parameters values.');
-throws_ok {Floday::Helper::Host->new('runfile' => $attributesWithUnexistingParam)->toHash()}
+throws_ok {Floday::Helper::Host->new('runfile' => $attributes_with_unexisting_param)->to_hash()}
   qr/Parameter 'unknown_param' present in runfile but that doesn't exist in container definition/,
   'Check exception on unexisting parameter in container definition.';
 
-#Test _getContainerPath:
-my $complexHost = Floday::Helper::Host->new('runfile' => $attributesWithChild);
-$complexHost->{instancePathToManage} = 'agoodname-website1';
-cmp_ok $complexHost->_getContainerPath(), 'eq', 'riuk-web', 'Check containerTypePath resolution.';
-$complexHost->{instancePathToManage} = 'agoodname-website2';
-cmp_ok $complexHost->_getContainerPath(), 'eq', 'riuk-sftp', 'Check containerTypePath resolution.';
-$complexHost->{instancePathToManage} = 'agoodname';
+#Test _get_container_path:
+my $complex_host = Floday::Helper::Host->new('runfile' => $attributes_with_child);
+$complex_host->{instance_path_to_manage} = 'agoodname-website1';
+cmp_ok $complex_host->_get_container_path(), 'eq', 'riuk-web', 'Check _get_container_path resolution.';
+$complex_host->{instance_path_to_manage} = 'agoodname-website2';
+cmp_ok $complex_host->_get_container_path(), 'eq', 'riuk-sftp', 'Check _get_container_path resolution.';
+$complex_host->{instance_path_to_manage} = 'agoodname';
 
-#Test toHash
-cmp_deeply $complexHost->toHash(), $complexHostToHashResult, 'Check toHash result.';
+#Test to_hash
+cmp_deeply $complex_host->to_hash(), $complex_host_to_hash_result, 'Check to_hash result.';
 
 #Test error management in runlist initialization.
-my $testErrors = Floday::Helper::Host->new('runfile' => $attributesWithMissingParams);
-$testErrors->toHash();
-my @errorsFetched = @{$testErrors->getAllErrors()};
-cmp_bag(\@errorsFetched, \@missingParamsErrors, 'Test mandatory parameters checker');
+my $test_errors = Floday::Helper::Host->new('runfile' => $attributes_with_missing_params);
+$test_errors->to_hash();
+my @errors_fetched = @{$test_errors->get_all_errors()};
+cmp_bag(\@errors_fetched, \@missing_params_errors, 'Test mandatory parameters checker');
 
 done_testing;

@@ -28,13 +28,13 @@ our @EXPORT_OK = qw(ALLOW_UNDEF);
 has config => (
 	'is' => 'ro',
 	'default' => sub {Floday::Helper::Config->new()},
-	'reader' => 'getConfig'
+	'reader' => 'get_config'
 );
 
-has instancePath => (
+has instance_path => (
 	'is' => 'ro',
 	'required' => 1,
-	'reader' => 'getInstancePath',
+	'reader' => 'get_instance_path',
 	'isa' => sub {die unless $_[0] =~ /
 	  ^         #start of the line
 	  (?:\w-?)+ #should contain at least one letter and no double dash
@@ -43,40 +43,40 @@ has instancePath => (
 	}
 );
 
-has lxcInstance => (
+has lxc_instance => (
 	'is' => 'ro',
-	'reader' => 'getLxcInstance',
-	'default' => sub { Floday::Lib::Linux::LXC->new('utsname' => $_[0]->getInstancePath) },
+	'reader' => 'get_lxc_instance',
+	'default' => sub { Floday::Lib::Linux::LXC->new('utsname' => $_[0]->get_instance_path) },
 	'lazy' => 1
 );
 
 #TODO: runfile should be used here. Only runlist is needed.
-has runfilePath => (
+has runfile_path => (
 	default => sub {
-		Floday::Helper::Config->new()->getFlodayConfig('floday', 'runfile')
+		Floday::Helper::Config->new()->get_floday_config('floday', 'runfile')
 	},
 	is => 'ro',
-	reader => 'getRunfilePath'
+	reader => 'get_runfile_path'
 );
 
 has parent => (
-	builder => '_fetchParentApplication',
+	builder => '_fetch_parent_application',
 	is => 'ro',
 	lazy => 1,
-	reader => 'getParentApplication'
+	reader => 'get_parent_application'
 );
 
 has runlist => (
 	is => 'rw',
-	reader => 'getRunlist',
-	builder => '_initializeRunlist',
+	reader => 'get_runlist',
+	builder => '_initialize_runlist',
 	lazy => 1
 );
 
-has runlistPath => (
+has runlist_path => (
 	'is' => 'ro',
 	'default' => '/var/lib/floday/runlist.yml',
-	'reader' => 'getRunlistPath'
+	'reader' => 'get_runlist_path'
 );
 
 has log => (
@@ -84,85 +84,86 @@ has log => (
 	'default' => sub { Log::Any->get_logger }
 );
 
-sub getApplications {
-	my ($this, $instancePath) = @_;
-	$instancePath //= $this->getInstancePath();
+sub get_applications {
+	my ($this, $instance_path) = @_;
+	$instance_path //= $this->get_instance_path();
 	my @applications;
-	for (keys %{$this->getRunlist->getDefinitionOf($instancePath)->{applications}}) {
-		push @applications, __PACKAGE__->new(instancePath => $instancePath . '-' . $_);
+	for (keys %{$this->get_runlist->get_definition_of($instance_path)->{applications}}) {
+		push @applications, __PACKAGE__->new(instance_path => $instance_path . '-' . $_);
 	}
 	return @applications;
 }
 
-sub getDefinition {
+sub get_definition {
 	my ($this) = @_;
-	$this->getRunlist->getDefinitionOf($this->getInstancePath);
+	$this->get_runlist->get_definition_of($this->get_instance_path);
 }
 
-sub getParameter {
+sub get_parameter {
 	#TODO: use Perl subrouting signature feature instead of doing this shit.
 	push (@_, 0) if (@_ == 2);
 	my ($this, $parameter, $flags) = @_;
 	croak 'Parameter "' . $parameter . '" asked has an invalid name' if $parameter !~ /^\w{1,}$/;
-	my %parameters = $this->getParameters;
+	my %parameters = $this->get_parameters;
 	my $value = $parameters{$parameter};
 	if (!defined $value && $flags != ALLOW_UNDEF) {
-		$this->log->errorf('%s: get undefined %s parameter', $this->getInstancePath, $parameter);
-		croak 'undefined "' . $parameter . '" parameter asked for ' . $this->getInstancePath. ' application.';
+		$this->log->errorf('%s: get undefined %s parameter', $this->get_instance_path, $parameter);
+		croak 'undefined "' . $parameter . '" parameter asked for ' . $this->get_instance_path. ' application.';
 	} else {
-		$this->log->debugf('%s: get parameter "%s" with value: "%s"', $this->getInstancePath, $parameter, $value);
+		$this->log->debugf('%s: get parameter "%s" with value: "%s"', $this->get_instance_path, $parameter, $value);
 	}
 	return $value;
 }
 
-sub getRootPath() {
+sub get_root_path() {
 	my ($this) = @_;
-	return '/var/lib/lxc/' . $this->getInstancePath . '/rootfs';
+	return '/var/lib/lxc/' . $this->get_instance_path . '/rootfs';
 }
 
-sub getParameters {
+sub get_parameters {
 	my ($this) = @_;
-	$this->getRunlist->getParametersForApplication($this->getInstancePath);
+	$this->get_runlist->get_parameters_for_application($this->get_instance_path);
 }
 
-sub generateFile {
+sub generate_file {
 	my ($this, $template, $data, $location) = @_;
-	$this->log->debugf('%s: generate %s from %s', $this->getInstancePath, $location, $template);
-	$template = $this->getConfig()->getFlodayConfig('containers', 'path') . '/' . $template;
+	$this->log->debugf('%s: generate %s from %s', $this->get_instance_path, $location, $template);
+	$template = $this->get_config()->get_floday_config('containers', 'path') . '/' . $template;
 	my $i = File::Temp->new();
 	my $t = Template::Alloy->new(
 		ABSOLUTE => 1,
 	);
 	$t->process($template, $data, $i) or die $t->error . "\n";
-	if ($this->getLxcInstance()->is_existing()) {
-		$this->getLxcInstance->put($i, $location);
+	say "Dafuq?";
+	if ($this->get_lxc_instance()->is_existing()) {
+		$this->get_lxc_instance->put($i, $location);
 	} else {
 		#lxc instance doesn't exist when the file should be put on the host.
 		rename $i, $location;
 	}
 }
 
-sub _fetchParentApplication {
+sub _fetch_parent_application {
 	my ($this) = @_;
-	$this->log->debugf('%s: asking parent application', $this->getInstancePath);
-	my ($parentPath) = $this->getInstancePath =~ /^(.*)-.*$/;
-	if (defined $parentPath) {
-		return Floday::Setup->new(instancePath => $parentPath, runfilePath => $this->getRunfilePath);
+	$this->log->debugf('%s: asking parent application', $this->get_instance_path);
+	my ($parent_path) = $this->get_instance_path =~ /^(.*)-.*$/;
+	if (defined $parent_path) {
+		return Floday::Setup->new(instance_path => $parent_path, runfile_path => $this->get_runfile_path);
 	} else {
 		return undef;
 	}
 }
 
-sub _initializeRunlist {
+sub _initialize_runlist {
 	my ($this) = @_;
-	Floday::Helper::Runlist->new(runfile => $this->getRunfilePath);
+	Floday::Helper::Runlist->new(runfile => $this->get_runfile_path);
 }
 
 #Auto creation of the module variables
 my $container;
 GetOptions('container=s', \$container);
 if (defined $container) {
-	$APP = __PACKAGE__->new(instancePath => $container);
+	$APP = __PACKAGE__->new(instance_path => $container);
 }
 
 1;

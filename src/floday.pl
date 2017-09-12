@@ -25,4 +25,4 @@ $host // die('Host to launch is missing');
 
 $0 = "floday --host $host";
 my $floday = Floday::Deploy->new(hostname => $host);
-$floday->startDeployment;
+$floday->start_deployment;

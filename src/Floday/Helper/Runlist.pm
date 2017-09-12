@@ -17,7 +17,7 @@ has config => (
 	default => sub {
 		Floday::Helper::Config->instance();
 	},
-	reader => 'getConfig'
+	reader => 'get_config'
 );
 
 has log => (
@@ -30,41 +30,41 @@ has log => (
 has runfile => (
 	default => sub {
 		my ($this) = @_;
-		$this->getConfig->getFlodayConfig('floday', 'runfile')
+		$this->get_config->get_floday_config('floday', 'runfile')
 	},
 	is => 'ro',
 	isa => sub {
 		die 'runfile is not readable' unless -r $_[0];
 	},
-	reader => 'getRunFile',
+	reader => 'get_run_file',
 	required => 1,
 );
 
-has runlistErrors => (
+has runlist_errors => (
 	default => sub{[]},
 	is => 'rw',
-	reader => 'getRunlistErrors'
+	reader => 'get_runlist_errors'
 );
 
-has rawRunlist => (
+has raw_runlist => (
 	is => 'rw',
 	lazy => 1,
-	builder => '_initializeRunlist',
-	reader => 'getRawRunlist'
+	builder => '_initialize_runlist',
+	reader => 'get_raw_runlist'
 );
 
-has cleanRunlist => (
+has clean_runlist => (
 	is => 'rw',
 	lazy => 1,
-	builder => '_cleanRunlist',
-	reader => 'getCleanRunlist'
+	builder => '_clean_runlist',
+	reader => 'get_clean_runlist'
 );
 
 sub BUILD {
 	my ($this) = @_;
-	$this->getRawRunlist();
-	if (@{$this->getRunlistErrors()}) {
-		foreach (@{$this->getRunlistErrors()}) {
+	$this->get_raw_runlist();
+	if (@{$this->get_runlist_errors()}) {
+		foreach (@{$this->get_runlist_errors()}) {
 			$this->log->fatalf($_);
 		}
 		die $this->log->fatalf('Died because invalid runfile');
@@ -72,95 +72,95 @@ sub BUILD {
 	return $this;
 }
 
-sub getApplicationsOf {
-	my ($this, $applicationName) = @_;
-	my $definition = $this->getDefinitionOf($applicationName);
-	sort map{$_ = $applicationName . '-' . $_; $_} keys %{$definition->{applications}};
+sub get_applications_of {
+	my ($this, $application_name) = @_;
+	my $definition = $this->get_definition_of($application_name);
+	sort map{$_ = $application_name . '-' . $_; $_} keys %{$definition->{applications}};
 }
 
-sub getDefinitionOf {
-	my ($this, $applicationName) = @_;
-	my @containerPath = split /-/, $applicationName;
-	my $definition->{'applications'} = $this->getRunlist()->{'hosts'};
-	for (@containerPath) {
+sub get_definition_of {
+	my ($this, $application_name) = @_;
+	my @container_path = split /-/, $application_name;
+	my $definition->{'applications'} = $this->get_runlist()->{'hosts'};
+	for (@container_path) {
 		$definition = $definition->{'applications'}{$_};
 	}
 	return $definition;
 }
 
-sub getRunlist {
+sub get_runlist {
 	my ($this) = @_;
-	my $rn = $this->getCleanRunlist();
+	my $rn = $this->get_clean_runlist();
 	return $rn;
 }
 
-sub getParametersForApplication {
-	my ($this, $applicationName) = @_;
-	%{$this->getDefinitionOf($applicationName)->{parameters}};
+sub get_parameters_for_application {
+	my ($this, $application_name) = @_;
+	%{$this->get_definition_of($application_name)->{parameters}};
 }
 
-sub getExecutionListByPriorityForApplication {
-	my ($this, $applicationName, $executionTypeFirstLevel, $executionTypeSecondLevel) = @_;
-	return unless defined $this->getDefinitionOf($applicationName)->{$executionTypeFirstLevel};
-	my %setups = %{$this->getDefinitionOf($applicationName)->{$executionTypeFirstLevel}};
-	if (defined $executionTypeSecondLevel) {
-		my $setupsRef = $setups{$executionTypeSecondLevel};
-		return unless $setupsRef;
-		%setups = %$setupsRef;
+sub get_execution_list_by_priority_for_application {
+	my ($this, $application_name, $execution_type_first_level, $execution_type_second_level) = @_;
+	return unless defined $this->get_definition_of($application_name)->{$execution_type_first_level};
+	my %setups = %{$this->get_definition_of($application_name)->{$execution_type_first_level}};
+	if (defined $execution_type_second_level) {
+		my $setups_ref = $setups{$execution_type_second_level};
+		return unless $setups_ref;
+		%setups = %$setups_ref;
 	}
-	my %sortedScripts;
+	my %sorted_scripts;
 	while (my($key, $value) = each %setups) {
-		$sortedScripts{$value->{priority}} = {
+		$sorted_scripts{$value->{priority}} = {
 		  'exec' => $value->{exec},
 		  'name' => $key
 	  };
   }
-  return %sortedScripts;
+  return %sorted_scripts;
 }
 
-sub _cleanRunlist {
-	my ($this, $rawData) = @_;
+sub _clean_runlist {
+	my ($this, $raw_data) = @_;
 	my $first = 0;
-	my $cleanRunlist;
-	if (not defined $rawData) {
-		$rawData = $this->getRawRunlist()->{'hosts'};
+	my $clean_runlist;
+	if (not defined $raw_data) {
+		$raw_data = $this->get_raw_runlist()->{'hosts'};
 		$first = 1;
 	}
-	foreach $a (keys %$rawData) {
-		foreach (keys %{$rawData->{$a}{'parameters'}}) {
-			if (defined $rawData->{$a}{'parameters'}{$_}{'value'}) {
-				$cleanRunlist->{$a}{'parameters'}{$_} = $rawData->{$a}{'parameters'}{$_}{'value'};
+	foreach $a (keys %$raw_data) {
+		foreach (keys %{$raw_data->{$a}{'parameters'}}) {
+			if (defined $raw_data->{$a}{'parameters'}{$_}{'value'}) {
+				$clean_runlist->{$a}{'parameters'}{$_} = $raw_data->{$a}{'parameters'}{$_}{'value'};
 			}
 		}
-		if (defined $rawData->{$a}{'applications'}) {
-			$cleanRunlist->{$a}{'applications'} = $this->_cleanRunlist($rawData->{$a}{'applications'});
+		if (defined $raw_data->{$a}{'applications'}) {
+			$clean_runlist->{$a}{'applications'} = $this->_clean_runlist($raw_data->{$a}{'applications'});
 		}
-		if (defined $rawData->{$a}{'end_setups'}) {
-			$cleanRunlist->{$a}{'end_setups'} = $rawData->{$a}{'end_setups'};
+		if (defined $raw_data->{$a}{'end_setups'}) {
+			$clean_runlist->{$a}{'end_setups'} = $raw_data->{$a}{'end_setups'};
 		}
-		if (defined $rawData->{$a}{'hooks'}) {
-			$cleanRunlist->{$a}{'hooks'} = $rawData->{$a}{'hooks'};
+		if (defined $raw_data->{$a}{'hooks'}) {
+			$clean_runlist->{$a}{'hooks'} = $raw_data->{$a}{'hooks'};
 		}
-		if (defined $rawData->{$a}{'setups'}) {
-			$cleanRunlist->{$a}{'setups'} = $rawData->{$a}{'setups'};
+		if (defined $raw_data->{$a}{'setups'}) {
+			$clean_runlist->{$a}{'setups'} = $raw_data->{$a}{'setups'};
 		}
 	}
-	return {'hosts' => $cleanRunlist} if ($first);
-	return $cleanRunlist;
+	return {'hosts' => $clean_runlist} if ($first);
+	return $clean_runlist;
 }
 
-sub _initializeRunlist {
+sub _initialize_runlist {
 	my ($this) = @_;
-	my $hosts = YAML::Tiny->read($this->getRunFile())->[0]{hosts};
-	my $hostsInitialized;
+	my $hosts = YAML::Tiny->read($this->get_run_file())->[0]{hosts};
+	my $hosts_initialized;
 	for (keys %$hosts) {
 		my $attributes = $hosts->{$_};
 		$attributes->{parameters}{name} = $_;
 		my $host = Floday::Helper::Host->new('runfile' => $attributes);
-		$hostsInitialized->{'hosts'}{$_} = $host->toHash();
-		push @{$this->getRunlistErrors()}, @{$host->getAllErrors()};
+		$hosts_initialized->{'hosts'}{$_} = $host->to_hash();
+		push @{$this->get_runlist_errors()}, @{$host->get_all_errors()};
 	}
-	return $hostsInitialized;
+	return $hosts_initialized;
 }
 
 1

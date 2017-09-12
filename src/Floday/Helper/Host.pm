@@ -16,133 +16,133 @@ has runfile => (
      die "Invalid name '$hostName' for host initialization" if $hostName !~ /^\w+$/;
      die "Invalid type '$hostType' for host initialization" if $hostType !~ /^\w+$/;
   },
-  reader => '_getAttributesFromRunfile'
+  reader => '_get_attributes_from_runfile'
 );
 
-has instancePathToManage => (
+has instance_path_to_manage => (
   default => sub {
     my ($this) = @_;
-    $this->_getAttributesFromRunfile()->{parameters}{name};
+    $this->_get_attributes_from_runfile()->{parameters}{name};
   },
   is => 'ro',
   isa => sub {
     die if $_[0] !~ /^[\w-]+$/;
   },
   lazy => 1, #The lazyness is a trick for ensuring us that this attribute is load after "runfile" one.
-  reader => '_getInstancePathToManage'
+  reader => '_get_instance_path_to_manage'
 );
 
 has errors => (
   default => sub {[]},
   is => 'rw',
-  reader => 'getAllErrors'
+  reader => 'get_all_errors'
 );
 
-sub generateRunlist {
+sub generate_runlist {
 	my ($this) = @_;
-	my $runlist = $this->toHash();
-	my @errors = @{$this->getAllErrors()};
+	my $runlist = $this->to_hash();
+	my @errors = @{$this->get_all_errors()};
 	if (@errors > 0) {
 		die(map{$_ . "\n"} @errors);
 	}
 	return $runlist;
 }
 
-sub toHash {
+sub to_hash {
 	my ($this) = @_;
-	my $runlist = $this->_getInstanceDefinition();
-	my $currentInstanceAttributesFromRunfile = $this->_getInstanceToManageRunfileAttributes();
-	if (defined $currentInstanceAttributesFromRunfile->{applications}) {
-		for (keys %{$currentInstanceAttributesFromRunfile->{applications}}) {
-			$currentInstanceAttributesFromRunfile->{applications}{$_}{parameters}{name} =  $_;
+	my $runlist = $this->_get_instance_definition();
+	my $current_instance_attributes_from_runfile = $this->_get_instance_to_manage_runfile_attributes();
+	if (defined $current_instance_attributes_from_runfile->{applications}) {
+		for (keys %{$current_instance_attributes_from_runfile->{applications}}) {
+			$current_instance_attributes_from_runfile->{applications}{$_}{parameters}{name} =  $_;
 			$runlist->{applications}{$_} =
 			my $child = Floday::Helper::Host->new(
-			  'runfile' => $this->_getAttributesFromRunfile,
-			  'instancePathToManage' => $this->_getInstancePathToManage() . '-' . $_
+			  'runfile' => $this->_get_attributes_from_runfile,
+			  'instance_path_to_manage' => $this->_get_instance_path_to_manage() . '-' . $_
 			);
-			$runlist->{applications}{$_} = $child->toHash();
-			push @{$this->getAllErrors()}, @{$child->getAllErrors};
+			$runlist->{applications}{$_} = $child->to_hash();
+			push @{$this->get_all_errors()}, @{$child->get_all_errors};
 		}
 	}
-	push @{$this->getAllErrors()}, $this->_checkRunlistIntegrity($runlist);
+	push @{$this->get_all_errors()}, $this->_check_runlist_integrity($runlist);
 	return $runlist;
 }
 
-sub _checkRunlistIntegrity {
+sub _check_runlist_integrity {
 	my ($this, $runlist) = @_;
 	my @_errors;
-	for my $currParam (keys %{$runlist->{parameters}}) {
-		my $paramsAttributes = $runlist->{parameters}->{$currParam};
+	for my $curr_param (keys %{$runlist->{parameters}}) {
+		my $params_attributes = $runlist->{parameters}->{$curr_param};
 		#TODO: boolean are not managed with YAML::Tiny! It could be nice to user real Yaml boolean instead of a string equals to "true".
-		if (defined $paramsAttributes->{mandatory}
-		  and $paramsAttributes->{mandatory} eq 'true'
-		  and not (defined $paramsAttributes->{value})
+		if (defined $params_attributes->{mandatory}
+		  and $params_attributes->{mandatory} eq 'true'
+		  and not (defined $params_attributes->{value})
 		) {
-			push @_errors, "The '$currParam' mandatory parameter is missing in '$runlist->{parameters}{instance_path}{value}' application.";
+			push @_errors, "The '$curr_param' mandatory parameter is missing in '$runlist->{parameters}{instance_path}{value}' application.";
 		}
-		if (defined $paramsAttributes->{pattern}
-		  and defined $paramsAttributes->{value}
-		  and $paramsAttributes->{value} !~ qr/$paramsAttributes->{pattern}/
+		if (defined $params_attributes->{pattern}
+		  and defined $params_attributes->{value}
+		  and $params_attributes->{value} !~ qr/$params_attributes->{pattern}/
 		) {
-			push @_errors, "'$currParam' parameter in '$runlist->{parameters}{instance_path}{value}' has value '$paramsAttributes->{value}' that doesn't respect the '$paramsAttributes->{pattern}' regex.";
+			push @_errors, "'$curr_param' parameter in '$runlist->{parameters}{instance_path}{value}' has value '$params_attributes->{value}' that doesn't respect the '$params_attributes->{pattern}' regex.";
 		}
 	}
 	return @_errors;
 }
 
-sub _getInstanceDefinition {
+sub _get_instance_definition {
 	my ($this) = @_;
-	my $containerDefinition = Floday::Helper::Container->new()->getContainerDefinition($this->_getContainerPath());
-	$this->_mergeDefinition($containerDefinition);
+	my $container_definition = Floday::Helper::Container->new()->get_container_definition($this->_get_container_path());
+	$this->_merge_definition($container_definition);
 }
 
-sub _getInstanceToManageRunfileAttributes {
-	my $attributesFromRunfile;
+sub _get_instance_to_manage_runfile_attributes {
+	my $attributes_from_runfile;
 	eval {
 		use warnings FATAL => 'uninitialized';
 		my ($this) = @_;
-		$attributesFromRunfile->{applications}{$this->_getAttributesFromRunfile->{parameters}{name}} = $this->_getAttributesFromRunfile();
-		for (split '-', $this->_getInstancePathToManage()) {
-			$attributesFromRunfile = $attributesFromRunfile->{applications}{$_};
+		$attributes_from_runfile->{applications}{$this->_get_attributes_from_runfile->{parameters}{name}} = $this->_get_attributes_from_runfile();
+		for (split '-', $this->_get_instance_path_to_manage()) {
+			$attributes_from_runfile = $attributes_from_runfile->{applications}{$_};
 		}
 	};
 	die ("Missing name or type for an application") if $@ ne '';
-	return $attributesFromRunfile;
+	return $attributes_from_runfile;
 }
 
-sub _getContainerPath {
-	my $containerPath;
+sub _get_container_path {
+	my $container_path;
 	eval {
 		use warnings FATAL => 'uninitialized';
 		my ($this) = @_;
-		my @containerTypePath;
-		my $runfileConfig->{applications}{$this->_getAttributesFromRunfile()->{parameters}{name}} = $this->_getAttributesFromRunfile();
-		for (split ('-', $this->_getInstancePathToManage())) {
-			$runfileConfig = $runfileConfig->{applications}{$_};
-			push @containerTypePath, $runfileConfig->{parameters}{type};
+		my @container_type_path;
+		my $runfile_config->{applications}{$this->_get_attributes_from_runfile()->{parameters}{name}} = $this->_get_attributes_from_runfile();
+		for (split ('-', $this->_get_instance_path_to_manage())) {
+			$runfile_config = $runfile_config->{applications}{$_};
+			push @container_type_path, $runfile_config->{parameters}{type};
 		}
-		$containerPath = join '-', @containerTypePath;
+		$container_path = join '-', @container_type_path;
 	};
 	die ("Missing name or type for an application") if $@ ne '';
-	return $containerPath;
+	return $container_path;
 }
 
-sub _mergeDefinition {
-	my ($this, $containerDefinition) = @_;
-	my $runfileAttributes = $this->_getInstanceToManageRunfileAttributes();
-	$runfileAttributes = $runfileAttributes->{'parameters'};
-	$containerDefinition->{parameters}{name}{value} = undef;
-	$containerDefinition->{parameters}{name}{required} = 'true';
-	$containerDefinition->{parameters}{type}{value} = undef;
-	$containerDefinition->{parameters}{type}{required} = 'true';
-	for (keys %$runfileAttributes) {
+sub _merge_definition {
+	my ($this, $container_definition) = @_;
+	my $runfile_attributes = $this->_get_instance_to_manage_runfile_attributes();
+	$runfile_attributes = $runfile_attributes->{'parameters'};
+	$container_definition->{parameters}{name}{value} = undef;
+	$container_definition->{parameters}{name}{required} = 'true';
+	$container_definition->{parameters}{type}{value} = undef;
+	$container_definition->{parameters}{type}{required} = 'true';
+	for (keys %$runfile_attributes) {
 		croak ("Parameter '$_' present in runfile but that doesn't exist in container definition")
-		  unless defined $containerDefinition->{parameters}{$_};
-		$containerDefinition->{parameters}{$_}{value} = $runfileAttributes->{$_};
+		  unless defined $container_definition->{parameters}{$_};
+		$container_definition->{parameters}{$_}{value} = $runfile_attributes->{$_};
 	}
-	$containerDefinition->{parameters}{instance_path}{value} = $this->_getInstancePathToManage();
-	$containerDefinition->{parameters}{container_path}{value} = $this->_getContainerPath();
-	return $containerDefinition;
+	$container_definition->{parameters}{instance_path}{value} = $this->_get_instance_path_to_manage();
+	$container_definition->{parameters}{container_path}{value} = $this->_get_container_path();
+	return $container_definition;
 }
 
 1

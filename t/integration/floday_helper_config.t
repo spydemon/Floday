@@ -15,8 +15,8 @@ throws_ok {Floday::Helper::Config->new()}
 `mv /etc/floday/floday.cfg.back /etc/floday/floday.cfg`;
 
 my $config = Floday::Helper::Config->new();
-cmp_ok ($config->getFlodayConfig('containers', 'path'), 'eq', '/etc/floday/containers', 'Check Floday configuration fetching.');
-throws_ok {$config->getFlodayConfig('containers', 'nonexisting')}
+cmp_ok ($config->get_floday_config('containers', 'path'), 'eq', '/etc/floday/containers', 'Check Floday configuration fetching.');
+throws_ok {$config->get_floday_config('containers', 'nonexisting')}
   qr/Undefined 'nonexisting' key in Floday configuration 'containers' section/,
   'Check Floday configuration fetch with non existing key';
 

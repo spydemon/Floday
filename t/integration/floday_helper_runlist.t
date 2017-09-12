@@ -278,12 +278,12 @@ my $runlist = {
 };
 
 my $test = Floday::Helper::Runlist->new(runfile => 'floday_helper_runlist.d/runfile.yml');
-my @children = $test->getApplicationsOf('integration-web');
+my @children = $test->get_applications_of('integration-web');
 cmp_deeply(\@children, ['integration-web-secondtest', 'integration-web-test'], 'Test of getApplicationsOf seems good.');
-my %parameters = $test->getParametersForApplication('integration-web-secondtest');
-is $parameters{bridge}, 'lxcbr0', 'Test of getParametersForApplication seems good.';
-my %scripts = $test->getExecutionListByPriorityForApplication('integration-web-test', 'setups');
-cmp_deeply([sort keys %scripts], [10, 20, 30], 'getSetupsByPriorityForApplication seems to correctly apply priorities.');
-cmp_deeply($test->getRunlist(), $runlist, 'getPlainData return the expected runlist.');
+my %parameters = $test->get_parameters_for_application('integration-web-secondtest');
+is $parameters{bridge}, 'lxcbr0', 'Test of get_parameters_for_application seems good.';
+my %scripts = $test->get_execution_list_by_priority_for_application('integration-web-test', 'setups');
+cmp_deeply([sort keys %scripts], [10, 20, 30], 'get_setups_by_priority_for_application seems to correctly apply priorities.');
+cmp_deeply($test->get_runlist(), $runlist, 'get_runlist return the expected runlist.');
 
 done_testing;

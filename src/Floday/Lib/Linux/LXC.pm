@@ -3,9 +3,7 @@ package Floday::Lib::Linux::LXC;
 use v5.20;
 
 use Floday::Helper::Runlist;
-#use Log::Any;
 use Moo;
-use Data::Dumper;
 
 extends 'Linux::LXC';
 our @EXPORT_OK = ('ALLOW_UNDEF', 'ERASING_MODE', 'ADDITION_MODE');
@@ -15,7 +13,7 @@ has config => (
 		Floday::Helper::Config->instance();
 	},
 	is => 'ro',
-	reader => 'getConfig'
+	reader => 'get_floday_config'
 );
 
 has log => (
@@ -29,12 +27,12 @@ has runlist => (
 	builder => sub {
 		Floday::Helper::Runlist->instance;
 	},
-	reader => 'getRunlist'
+	reader => 'get_runlist'
 );
 
 after deploy => sub {
 	my ($this) = @_;
-	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
+	my %hooks = $this->get_runlist->get_execution_list_by_priority_for_application(
 	  $this->get_utsname, 'hooks', 'lxc_deploy_after'
 	);
 	$this->log->warningf('End deploying LXC container.');
@@ -43,7 +41,7 @@ after deploy => sub {
 	$this->log->{adapter}->indent_inc();
 	for(sort {$a <=> $b} keys %hooks) {
 		$this->log->infof('Running script: %s', $hooks{$_}{exec});
-		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
+		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
 		`$prefix/$hooks{$_}{exec}`;
 	}
 	$this->log->{adapter}->indent_dec();
@@ -52,7 +50,7 @@ after deploy => sub {
 
 after destroy => sub {
 	my ($this) = @_;
-	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
+	my %hooks = $this->get_runlist->get_execution_list_by_priority_for_application(
 		$this->get_utsname, 'hooks', 'lxc_destroy_after'
 	);
 	$this->log->warningf('End LXC container destruction.');
@@ -60,7 +58,7 @@ after destroy => sub {
 	$this->log->{adapter}->indent_inc();
 	for (sort {$a cmp $b} keys %hooks) {
 		$this->log->infof('Running script: %s', $hooks{$_}{exec});
-		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
+		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
 		my $container = $this->get_utsname();
 		`$prefix/$hooks{$_}{exec} --container $container`;
 	}
@@ -117,12 +115,12 @@ before destroy => sub {
 	my ($this) = @_;
 	$this->log->warningf('Start pre destruction hooks.');
 	$this->log->{adapter}->indent_inc();
-	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
+	my %hooks = $this->get_runlist->get_execution_list_by_priority_for_application(
 		$this->get_utsname, 'hooks', 'lxc_destroy_before'
 	);
 	for (sort {$a cmp $b} keys %hooks) {
 		$this->log->infof('Running script: %s', $hooks{$_}{exec});
-		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
+		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
 		my $container = $this->get_utsname();
 		`$prefix/$hooks{$_}{exec} --container $container`;
 	}
@@ -135,12 +133,12 @@ before deploy => sub {
 	my ($this) = @_;
 	$this->log->warningf('Start pre deployment hooks.');
 	$this->log->{adapter}->indent_inc();
-	my %hooks = $this->getRunlist->getExecutionListByPriorityForApplication(
+	my %hooks = $this->get_runlist->get_execution_list_by_priority_for_application(
 	  $this->get_utsname, 'hooks', 'lxc_deploy_before'
 	);
 	for(sort {$a cmp $b} keys %hooks) {
 		$this->log->infof('Running script: %s', $hooks{$_}{exec});
-		my $prefix = $this->getConfig()->getFlodayConfig('containers', 'path');
+		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
 		my $container = $this->get_utsname();
 		`$prefix/$hooks{$_}{exec} --container $container`;
 	}

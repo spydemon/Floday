@@ -25,7 +25,7 @@ my $hook_lxc_deploy_before_test = threads->create(sub {
   -f '/tmp/floday/test_lxc_hooks'
 });
 
-$test->startDeployment;
+$test->start_deployment;
 
 ok ($hook_lxc_deploy_before_test->join(), 'The test file was correctly created by the lxc_deploy_before hook.');
 ok ((!-f '/tmp/floday/test_lxc_hooks'), 'The test file was correctly removed by the lxc_deploy_after hook.');
@@ -35,7 +35,7 @@ like(`cat /var/lib/lxc/integration-web/rootfs/etc/endsetup`, qr/end_setup works/
 `rm $runlist`;
 
 #We rerun the deployement for testing lxc hook on container destruction.
-$test->startDeployment;
+$test->start_deployment;
 my $containers_before_last_destruction = `cat /tmp/floday/lxc_destroy_before`;
 my $containers_after_last_destruction = `cat /tmp/floday/lxc_destroy_after`;
 chomp $containers_before_last_destruction;

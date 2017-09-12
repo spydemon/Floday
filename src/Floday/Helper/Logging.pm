@@ -47,7 +47,7 @@ my %PREFFIX_PRIORITY_MAPPER = (
   emergency => 'EMGY'
 );
 
-my $PATH = $CONFIG->getFlodayConfig('logging', 'metadata_folder');
+my $PATH = $CONFIG->get_floday_config('logging', 'metadata_folder');
 my $INDENT_FILE = 'indent';
 my $LOGLEVEL_FILE = 'loglevel';
 
