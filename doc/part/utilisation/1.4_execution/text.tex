@@ -42,23 +42,20 @@ Ce schéma pourrait être plus représentatif, mais je me suis promis de ne pas 
 	\item[Déploiement des applications]
 		Pour chaque applications présentes dans l'hôte en cours de déploiement au niveau du runfile, on effectue les actions suivantes~:
 			\begin{description}
-				\item[Préparation]
-					On rend ici le système prêt à accueillir la nouvelle application que l'on s'apprète à déployer.
-					Concrètement, c'est ici que nous détruisons une précédente application que l'on remplacera avec ce déploiment.
-					L'éventuel commande \path{lxc-destroy} ainsi que les hooks \emph{lxc\_destroy\_before} et \emph{lxc\_destroy\_after} seront donc exécutés à ce moment.
-				\item[\Gls{initialisation}]
-					Il s'agit ici de lancer la commande \path{lxc-deploy} avec le template fourni en paramètre.
-					Les hooks \emph{lxc\_deploy\_before} et \emph{lxc\_deploy\_after} sont exécutés à ce moment.
-				\item[Installation]
-					Nous exécutons dans cette étapes l'ensemble des scripts \emph{setup} de l'application en cours de déploiement.
+				\item[Destruction de l'application]
+					S'il s'agit d'un redéploiement, c'est-à-dire qu'une application avec un chemain similaire est déjà existante, la première étape consistera en la destruction de celui-ci.
+					C'est à cette étape que nous exécuterons les hooks \path{lxc-destroy-before} et \path{lxc-destroy-after}. Bien-entenu, entre ces deux hooks, le précédent conteneur servant à accueillir l'ancienne version de l'application sera détruit.
+				\item[Pré-installation]
+					On commencera par exécuter les scripts présent au niveau du hook \path{lxc-deploy-before}.
+					Ensuite le conteneur \emph{LXC} sera déployé via le template défini (par défaut \emph{lxc-flodayalpine}). Nous jouerons ensuite les hooks \path{lxc-deploy-after}.
+					Finalement, c'est l'ensemble des scripts \emph{setup} de l'application en cours de déploiement qui seront exécutés.
 				\item[Déploiement des contraints]
-					Les applications \gls{contraint}es sont ensuite intégrallement déployées (elle passe donc elles aussi par l'intégralité des étapes de la partie \emph{Déploiement des applications} de cette liste.
+					Les applications \gls{contraint}es sont ensuite intégrallement déployées (elles passent donc elles aussi par l'intégralités des étapes de la partie \emph{Déploiement des applications} de cette liste.
 				\item[Post-installation]
-					Une fois tous les contraints correctement déployés, nous exécutons l'intégralité des scripts présent dans le nœud \emph{end\_setup}.
+					Une fois tous les contraints correctement déployés, nous exécutons les scripts présents dans le nœud \emph{end\_setup}.
 			\end{description}
 \end{description}
 Et voilà, on se retrouve à terme avec un hôte correctement déployé.
-Si j'ai la foie, je ferais un schéma récapitulant toutes ces étapes.
 
 \subsubsection{La gestion des logs}
 \existstill{1.0.0}
