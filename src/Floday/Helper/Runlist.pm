@@ -5,7 +5,6 @@ use v5.20;
 use Floday::Helper::Config;
 use Floday::Helper::Host;
 
-use Data::Dumper;
 use Log::Any;
 use Moo;
 use YAML::Tiny;

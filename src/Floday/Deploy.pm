@@ -9,8 +9,6 @@ use Log::Any qw($log);
 use Moo;
 use YAML::Tiny;
 
-$Data::Dumper::Indent = 1;
-
 has config => (
 	default => sub {
 		Floday::Helper::Config->instance();
@@ -58,24 +56,24 @@ has log => (
 );
 
 sub launch {
-	my ($this, $instance_path) = @_;
-	my %parameters = $this->get_runlist->get_parameters_for_application($instance_path);
-	$log->warningf('Launching %s application.', $parameters{instance_path});
+	my ($this, $application_path) = @_;
+	my %parameters = $this->get_runlist->get_parameters_for_application($application_path);
+	$log->warningf('Launching %s application.', $parameters{application_path});
 	$this->log->{adapter}->indent_inc();
-	my $container = Floday::Lib::Linux::LXC->new('utsname' => $parameters{instance_path});
+	my $container = Floday::Lib::Linux::LXC->new('utsname' => $parameters{application_path});
 	if ($container->is_existing) {
 		$container->destroy;
 	}
 	$container->set_template($parameters{template});
 	my ($state, $stdout, $stderr) = $container->deploy;
 	die $stderr unless $state;
-	$this->_run_scripts($parameters{instance_path}, 'setups');
+	$this->_run_scripts($parameters{application_path}, 'setups');
 	$container->stop if $container->is_running;
 	$container->start;
-	for ($this->get_runlist->get_applications_of($parameters{instance_path})) {
+	for ($this->get_runlist->get_applications_of($parameters{application_path})) {
 		$this->launch($_);
 	}
-	$this->_run_scripts($parameters{instance_path}, 'end_setups');
+	$this->_run_scripts($parameters{application_path}, 'end_setups');
 	$this->log->{adapter}->indent_dec();
 }
 
@@ -104,16 +102,16 @@ sub start_deployment {
 }
 
 sub _run_scripts {
-	my ($this, $hostname, $family) = @_;
+	my ($this, $application_path, $family) = @_;
 	$this->log->warningf('Start running %s scripts.', $family);
-	my %scripts = $this->get_runlist()->get_execution_list_by_priority_for_application($hostname, $family);
+	my %scripts = $this->get_runlist()->get_execution_list_by_priority_for_application($application_path, $family);
 	my $containers_folder = $this->get_config()->get_floday_config('containers', 'path');
 	for(sort {$a cmp $b} keys %scripts) {
 		my $scriptPath = "$containers_folder/" . $scripts{$_}->{exec};
 		$this->log->{adapter}->indent_inc();
 		$this->log->infof('Running script: %s', $scriptPath);
 		$this->log->{adapter}->indent_inc();
-		print `$scriptPath --container $hostname`;
+		print `$scriptPath --application $application_path`;
 		$this->log->{adapter}->indent_dec();
 		$this->log->{adapter}->indent_dec();
 	}

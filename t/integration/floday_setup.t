@@ -5,7 +5,7 @@ use warnings;
 use experimental 'smartmatch';
 
 BEGIN {
-	push @ARGV, qw/--container integration-web/;
+	push @ARGV, qw/--application integration-web/;
 }
 
 use Cwd;
@@ -40,7 +40,7 @@ like(`cat /var/lib/lxc/integration-web/rootfs/tmp/test.txt`, qr/Hello web !/, 'g
 like ($APP->get_root_path(), qr#/var/lib/lxc/integration-web/rootfs#, 'get_root_path seems to work');
 
 for ($APP->get_applications()) {
-	ok($_->get_instance_path() ~~ ['integration-web-test', 'integration-web-secondtest'], 'Test get_applications seems to work');
+	ok($_->get_application_path() ~~ ['integration-web-test', 'integration-web-secondtest'], 'Test get_applications seems to work');
 }
 
 $lxc->destroy;

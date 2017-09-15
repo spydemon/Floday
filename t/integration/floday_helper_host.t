@@ -169,7 +169,7 @@ my $complex_host_to_hash_result = {
 				'container_path'         => {
 					'value' => 'riuk-sftp'
 				},
-				'instance_path'          => {
+				'application_path'          => {
 					'value' => 'agoodname-website2'
 				}
 			},
@@ -305,7 +305,7 @@ my $complex_host_to_hash_result = {
 				'container_path' => {
 					'value' => 'riuk-web'
 				},
-				'instance_path'  => {
+				'application_path'  => {
 					'value' => 'agoodname-website1'
 				}
 			}
@@ -332,7 +332,7 @@ my $complex_host_to_hash_result = {
 		'container_path' => {
 			'value' => 'riuk'
 		},
-		'instance_path'  => {
+		'application_path'  => {
 			'value' => 'agoodname'
 		}
 	}
@@ -344,7 +344,7 @@ my @missing_params_errors = (
   '\'mandatory_param_two\' parameter in \'integration-rnbw\' has value \'AAooo\' that doesn\'t respect the \'^[A|B]{3,5}\' regex.'
 );
 
-ok (Floday::Helper::Host->new('runfile' => $attributes_with_good_name), 'A instance is correctly created.');
+ok (Floday::Helper::Host->new('runfile' => $attributes_with_good_name), 'A application is correctly created.');
 throws_ok {Floday::Helper::Host->new('runfile' => $attributes_with_wrong_name)}
   qr/Invalid name 'yol0~~' for host initialization/,
   'Check exception at invalid hostname.';
@@ -370,11 +370,11 @@ throws_ok {Floday::Helper::Host->new('runfile' => $attributes_with_unexisting_pa
 
 #Test _get_container_path:
 my $complex_host = Floday::Helper::Host->new('runfile' => $attributes_with_child);
-$complex_host->{instance_path_to_manage} = 'agoodname-website1';
+$complex_host->{application_path_to_manage} = 'agoodname-website1';
 cmp_ok $complex_host->_get_container_path(), 'eq', 'riuk-web', 'Check _get_container_path resolution.';
-$complex_host->{instance_path_to_manage} = 'agoodname-website2';
+$complex_host->{application_path_to_manage} = 'agoodname-website2';
 cmp_ok $complex_host->_get_container_path(), 'eq', 'riuk-sftp', 'Check _get_container_path resolution.';
-$complex_host->{instance_path_to_manage} = 'agoodname';
+$complex_host->{application_path_to_manage} = 'agoodname';
 
 #Test to_hash
 cmp_deeply $complex_host->to_hash(), $complex_host_to_hash_result, 'Check to_hash result.';

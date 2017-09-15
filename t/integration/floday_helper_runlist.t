@@ -10,8 +10,6 @@ use Test::More;
 
 use Floday::Helper::Runlist;
 
-$Data::Dumper::Indent = 1;
-
 my $runlist = {
 	'hosts' => {
 		'backup' => {
@@ -20,7 +18,7 @@ my $runlist = {
 				'name' => 'backup',
 				'external_ipv4' => '192.168.15.152',
 				'container_path' => 'riuk',
-				'instance_path' => 'backup',
+				'application_path' => 'backup',
 				'useless_param' => 'we dont care'
 			},
 			'applications' => {
@@ -35,7 +33,7 @@ my $runlist = {
 						'netmask' => '255.255.255.0',
 						'template' => 'flodayalpine -- version 3.4',
 						'container_path' => 'riuk-web',
-						'instance_path' => 'backup-web'
+						'application_path' => 'backup-web'
 					},
 					'setups' => {
 						'network' => {
@@ -93,7 +91,7 @@ my $runlist = {
 				'external_ipv4' => '192.168.15.151',
 				'useless_param' => 'we dont care',
 				'container_path' => 'riuk',
-				'instance_path' => 'integration'
+				'application_path' => 'integration'
 			},
 			'applications' => {
 				web => {
@@ -107,7 +105,7 @@ my $runlist = {
 						'netmask' => '255.255.255.0',
 						'template' => 'flodayalpine -- version 3.4',
 						'container_path' => 'riuk-web',
-						'instance_path' => 'integration-web'
+						'application_path' => 'integration-web'
 					},
 					'setups' => {
 						'network' => {
@@ -170,7 +168,7 @@ my $runlist = {
 								'template' => 'flodayalpine -- version 3.4',
 								'hostname' => 'test.keh.keh',
 								'container_path' => 'riuk-web-php',
-								'instance_path' => 'integration-web-test'
+								'application_path' => 'integration-web-test'
 							},
 							'setups' => {
 								'network' => {
@@ -227,7 +225,7 @@ my $runlist = {
 								'template' => 'flodayalpine -- version 3.4',
 								'hostname' => 'test2.keh.keh',
 								'container_path' => 'riuk-web-php',
-								'instance_path' => 'integration-web-secondtest'
+								'application_path' => 'integration-web-secondtest'
 							},
 							'setups' => {
 								'network' => {

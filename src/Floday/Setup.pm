@@ -31,10 +31,10 @@ has config => (
 	'reader' => 'get_config'
 );
 
-has instance_path => (
+has application_path => (
 	'is' => 'ro',
 	'required' => 1,
-	'reader' => 'get_instance_path',
+	'reader' => 'get_application_path',
 	'isa' => sub {die unless $_[0] =~ /
 	  ^         #start of the line
 	  (?:\w-?)+ #should contain at least one letter and no double dash
@@ -46,7 +46,7 @@ has instance_path => (
 has lxc_instance => (
 	'is' => 'ro',
 	'reader' => 'get_lxc_instance',
-	'default' => sub { Floday::Lib::Linux::LXC->new('utsname' => $_[0]->get_instance_path) },
+	'default' => sub { Floday::Lib::Linux::LXC->new('utsname' => $_[0]->get_application_path) },
 	'lazy' => 1
 );
 
@@ -85,18 +85,18 @@ has log => (
 );
 
 sub get_applications {
-	my ($this, $instance_path) = @_;
-	$instance_path //= $this->get_instance_path();
+	my ($this, $application_path) = @_;
+	$application_path //= $this->get_application_path();
 	my @applications;
-	for (keys %{$this->get_runlist->get_definition_of($instance_path)->{applications}}) {
-		push @applications, __PACKAGE__->new(instance_path => $instance_path . '-' . $_);
+	for (keys %{$this->get_runlist->get_definition_of($application_path)->{applications}}) {
+		push @applications, __PACKAGE__->new(application_path => $application_path . '-' . $_);
 	}
 	return @applications;
 }
 
 sub get_definition {
 	my ($this) = @_;
-	$this->get_runlist->get_definition_of($this->get_instance_path);
+	$this->get_runlist->get_definition_of($this->get_application_path);
 }
 
 sub get_parameter {
@@ -107,34 +107,33 @@ sub get_parameter {
 	my %parameters = $this->get_parameters;
 	my $value = $parameters{$parameter};
 	if (!defined $value && $flags != ALLOW_UNDEF) {
-		$this->log->errorf('%s: get undefined %s parameter', $this->get_instance_path, $parameter);
-		croak 'undefined "' . $parameter . '" parameter asked for ' . $this->get_instance_path. ' application.';
+		$this->log->errorf('%s: get undefined %s parameter', $this->get_application_path, $parameter);
+		croak 'undefined "' . $parameter . '" parameter asked for ' . $this->get_application_path. ' application.';
 	} else {
-		$this->log->debugf('%s: get parameter "%s" with value: "%s"', $this->get_instance_path, $parameter, $value);
+		$this->log->debugf('%s: get parameter "%s" with value: "%s"', $this->get_application_path, $parameter, $value);
 	}
 	return $value;
 }
 
 sub get_root_path() {
 	my ($this) = @_;
-	return '/var/lib/lxc/' . $this->get_instance_path . '/rootfs';
+	return '/var/lib/lxc/' . $this->get_application_path . '/rootfs';
 }
 
 sub get_parameters {
 	my ($this) = @_;
-	$this->get_runlist->get_parameters_for_application($this->get_instance_path);
+	$this->get_runlist->get_parameters_for_application($this->get_application_path);
 }
 
 sub generate_file {
 	my ($this, $template, $data, $location) = @_;
-	$this->log->debugf('%s: generate %s from %s', $this->get_instance_path, $location, $template);
+	$this->log->debugf('%s: generate %s from %s', $this->get_application_path, $location, $template);
 	$template = $this->get_config()->get_floday_config('containers', 'path') . '/' . $template;
 	my $i = File::Temp->new();
 	my $t = Template::Alloy->new(
 		ABSOLUTE => 1,
 	);
 	$t->process($template, $data, $i) or die $t->error . "\n";
-	say "Dafuq?";
 	if ($this->get_lxc_instance()->is_existing()) {
 		$this->get_lxc_instance->put($i, $location);
 	} else {
@@ -145,10 +144,10 @@ sub generate_file {
 
 sub _fetch_parent_application {
 	my ($this) = @_;
-	$this->log->debugf('%s: asking parent application', $this->get_instance_path);
-	my ($parent_path) = $this->get_instance_path =~ /^(.*)-.*$/;
+	$this->log->debugf('%s: asking parent application', $this->get_application_path);
+	my ($parent_path) = $this->get_application_path =~ /^(.*)-.*$/;
 	if (defined $parent_path) {
-		return Floday::Setup->new(instance_path => $parent_path, runfile_path => $this->get_runfile_path);
+		return Floday::Setup->new(application_path => $parent_path, runfile_path => $this->get_runfile_path);
 	} else {
 		return undef;
 	}
@@ -160,10 +159,10 @@ sub _initialize_runlist {
 }
 
 #Auto creation of the module variables
-my $container;
-GetOptions('container=s', \$container);
-if (defined $container) {
-	$APP = __PACKAGE__->new(instance_path => $container);
+my $application;
+GetOptions('application=s', \$application);
+if (defined $application) {
+	$APP = __PACKAGE__->new(application_path => $application);
 }
 
 1;
