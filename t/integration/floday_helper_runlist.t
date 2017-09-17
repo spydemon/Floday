@@ -276,7 +276,7 @@ my $runlist = {
 };
 
 my $test = Floday::Helper::Runlist->new(runfile => 'floday_helper_runlist.d/runfile.yml');
-my @children = $test->get_applications_of('integration-web');
+my @children = $test->get_sub_applications_of('integration-web');
 cmp_deeply(\@children, ['integration-web-secondtest', 'integration-web-test'], 'Test of getApplicationsOf seems good.');
 my %parameters = $test->get_parameters_for_application('integration-web-secondtest');
 is $parameters{bridge}, 'lxcbr0', 'Test of get_parameters_for_application seems good.';

@@ -71,7 +71,7 @@ sub BUILD {
 	return $this;
 }
 
-sub get_applications_of {
+sub get_sub_applications_of {
 	my ($this, $application_name) = @_;
 	my $definition = $this->get_definition_of($application_name);
 	sort map{$_ = $application_name . '-' . $_; $_} keys %{$definition->{applications}};

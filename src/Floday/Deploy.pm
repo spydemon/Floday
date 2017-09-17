@@ -70,7 +70,7 @@ sub launch {
 	$this->_run_scripts($parameters{application_path}, 'setups');
 	$container->stop if $container->is_running;
 	$container->start;
-	for ($this->get_runlist->get_applications_of($parameters{application_path})) {
+	for ($this->get_runlist->get_sub_applications_of($parameters{application_path})) {
 		$this->launch($_);
 	}
 	$this->_run_scripts($parameters{application_path}, 'end_setups');
@@ -91,7 +91,7 @@ sub start_deployment {
 	$this->_run_scripts($this->get_hostname(), 'setups');
 	$this->log->warningf('Start deployment of %s applications.', $this->get_hostname);
 	$this->log->{adapter}->indent_inc();
-	for($this->get_runlist->get_applications_of($this->get_hostname)) {
+	for($this->get_runlist->get_sub_applications_of($this->get_hostname)) {
 		$this->launch($_);
 	}
 	$this->log->{adapter}->indent_dec();

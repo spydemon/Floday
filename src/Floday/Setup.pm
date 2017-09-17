@@ -59,11 +59,11 @@ has runfile_path => (
 	reader => 'get_runfile_path'
 );
 
-has parent => (
-	builder => '_fetch_parent_application',
+has manager => (
+	builder => '_fetch_manager',
 	is => 'ro',
 	lazy => 1,
-	reader => 'get_parent_application'
+	reader => 'get_manager'
 );
 
 has runlist => (
@@ -84,7 +84,7 @@ has log => (
 	'default' => sub { Log::Any->get_logger }
 );
 
-sub get_applications {
+sub get_sub_applications {
 	my ($this, $application_path) = @_;
 	$application_path //= $this->get_application_path();
 	my @applications;
@@ -115,7 +115,7 @@ sub get_parameter {
 	return $value;
 }
 
-sub get_root_path() {
+sub get_root_folder() {
 	my ($this) = @_;
 	return '/var/lib/lxc/' . $this->get_application_path . '/rootfs';
 }
@@ -142,12 +142,12 @@ sub generate_file {
 	}
 }
 
-sub _fetch_parent_application {
+sub _fetch_manager {
 	my ($this) = @_;
-	$this->log->debugf('%s: asking parent application', $this->get_application_path);
-	my ($parent_path) = $this->get_application_path =~ /^(.*)-.*$/;
-	if (defined $parent_path) {
-		return Floday::Setup->new(application_path => $parent_path, runfile_path => $this->get_runfile_path);
+	$this->log->debugf('%s: asking manager application', $this->get_application_path);
+	my ($manager_path) = $this->get_application_path =~ /^(.*)-.*$/;
+	if (defined $manager_path) {
+		return Floday::Setup->new(application_path => $manager_path, runfile_path => $this->get_runfile_path);
 	} else {
 		return undef;
 	}

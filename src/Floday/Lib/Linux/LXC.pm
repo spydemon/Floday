@@ -59,8 +59,8 @@ after destroy => sub {
 	for (sort {$a cmp $b} keys %hooks) {
 		$this->log->infof('Running script: %s', $hooks{$_}{exec});
 		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
-		my $container = $this->get_utsname();
-		`$prefix/$hooks{$_}{exec} --container $container`;
+		my $application= $this->get_utsname();
+		`$prefix/$hooks{$_}{exec} --application $application`;
 	}
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('End post destroy hook.');
@@ -121,8 +121,8 @@ before destroy => sub {
 	for (sort {$a cmp $b} keys %hooks) {
 		$this->log->infof('Running script: %s', $hooks{$_}{exec});
 		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
-		my $container = $this->get_utsname();
-		`$prefix/$hooks{$_}{exec} --container $container`;
+		my $application = $this->get_utsname();
+		`$prefix/$hooks{$_}{exec} --application $application`;
 	}
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('End pre destruction hooks.');
@@ -139,8 +139,8 @@ before deploy => sub {
 	for(sort {$a cmp $b} keys %hooks) {
 		$this->log->infof('Running script: %s', $hooks{$_}{exec});
 		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
-		my $container = $this->get_utsname();
-		`$prefix/$hooks{$_}{exec} --container $container`;
+		my $application = $this->get_utsname();
+		`$prefix/$hooks{$_}{exec} --application $application`;
 	}
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('End pre deployment hook.');

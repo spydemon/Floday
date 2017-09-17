@@ -10,7 +10,7 @@ my $lxc = $APP->get_lxc_instance;
 my $definition = $APP->get_definition;
 $lxc->start if $lxc->is_stopped;
 
-my $hostIp = $APP->get_parent_application()->get_parameter('external_ipv4');
+my $hostIp = $APP->get_manager()->get_parameter('external_ipv4');
 
 my @websites;
 for (values %{$definition->{applications}}) {

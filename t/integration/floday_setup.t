@@ -31,15 +31,15 @@ throws_ok { $APP->get_parameter('yolooo'); }
 $APP->get_parameter('yolooo', ALLOW_UNDEF);
 like($lxc->get_utsname, qr/integration-web/, 'Linux::LXC instance fetched seems good.');
 
-my $parentType = $APP->get_parent_application->get_parameter('type');
+my $parentType = $APP->get_manager->get_parameter('type');
 like($parentType, qr/riuk/, 'Parent fetch seems to work.');
 
 $APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/test.txt');
 like(`cat /var/lib/lxc/integration-web/rootfs/tmp/test.txt`, qr/Hello web !/, 'generate_file seems to work.');
 
-like ($APP->get_root_path(), qr#/var/lib/lxc/integration-web/rootfs#, 'get_root_path seems to work');
+like ($APP->get_root_folder(), qr#/var/lib/lxc/integration-web/rootfs#, 'get_root_path seems to work');
 
-for ($APP->get_applications()) {
+for ($APP->get_sub_applications()) {
 	ok($_->get_application_path() ~~ ['integration-web-test', 'integration-web-secondtest'], 'Test get_applications seems to work');
 }
 
