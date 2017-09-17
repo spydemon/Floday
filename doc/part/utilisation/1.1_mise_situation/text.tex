@@ -55,9 +55,9 @@ Tous peuvent se voir réécrit dans des conteneurs fils.
 Les \glspl{param_applicatifs} peuvent même l'être au niveau du \gls{runfile}.
 
 \paragraph{Clarifier l'interaction logicielle}
-Chaque \gls{conteneur} peut être \gls{gestionnaire} et \gls{contraint}.
-L'interaction entre eux est forte, c'est-à-dire qu'un conteneur contraint n'est pas prévu pour pouvoir fonctionner sans son gestionnaire.
-Il est aussi possible d'avoir une contrainte sur plusieurs niveaux~: c'est-à-dire, de permettre au conteneur contraint d'être lui aussi gestionnaire.
+Chaque \gls{conteneur} peut être \gls{gestionnaire} et \gls{sous-conteneur}.
+L'interaction entre eux est forte, c'est-à-dire qu'un sous-conteneur n'est pas prévu pour pouvoir fonctionner sans son gestionnaire.
+Il est aussi possible d'avoir une contrainte sur plusieurs niveaux~: c'est-à-dire, de permettre au sous-conteneur d'être lui aussi gestionnaire.
 Nous pouvons prendre l'exemple d'un conteneur \emph{Wordpress}, chargé de déployer le \emph{CMS} éponyme, dont le gestionnaire serait \emph{Web}, un conteneur ayant rôle de proxy \emph{HTTP}.
 Cette hierarchisation est explicite depuis le \gls{runfile} et depuis le \gls{jeu_conteneur}.
 

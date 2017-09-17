@@ -23,19 +23,19 @@ Ce schéma pourrait être plus représentatif, mais je me suis promis de ne pas 
 
 \begin{description}
 	\item[Définition de la \gls{runlist}]
-		Cette étape permet d'obtenir un tableau multi-dimentionnel clair de tout les éléments structurants nécessaires au déploiement.
+		Cette étape permet d'obtenir un tableau multi-dimentionnel clair de tous les éléments structurants nécessaires au déploiement.
 		Il peut lui-même se séparer en trois étapes~:
 		\begin{description}
 			\item[Ouverture du \gls{runfile}]
 				Nous récupérons le \emph{runfile} depuis le fichier de configuration.
 				Il est ensuite parcouru pour trouver les \glspl{chemin_conteneur} à déployer.
 			\item[Définition des applications]
-				En fonction des chemins obtenus, on cherche à présent les fichiers \gls{definition} des conteneurs utilisés.
+				En fonction des \glspl{chemin_conteneur} obtenus, on cherche à présent les fichiers \gls{definition} des conteneurs utilisés.
 				Les éventuels héritages sont gérés à ce moment.
 				À présent, sont mergées les valeurs propres à l'application courante à déployer.
-				Ces informations ne sont autres que les \gls{param_applicatifs} présents au niveau du runfile.
+				Il s'agit des \glspl{param_applicatifs} présents au niveau du runfile.
 			\item[Validation de la runlist]
-				Nous pouvons à présent valider la conformité de la runlist.
+				Nous pouvons à présent valider la conformité de la \gls{runlist}.
 				Si quelque chose ne correspond pas, le déploiement est annulé avant de faire réellement quoi que ce soit.
 		\end{description}
 		La figure~\ref{1.4_definition_runlist} illustre ces principes de façon plus visuelle.
@@ -46,13 +46,13 @@ Ce schéma pourrait être plus représentatif, mais je me suis promis de ne pas 
 					S'il s'agit d'un redéploiement, c'est-à-dire qu'une application avec un chemain similaire est déjà existante, la première étape consistera en la destruction de celui-ci.
 					C'est à cette étape que nous exécuterons les hooks \path{lxc-destroy-before} et \path{lxc-destroy-after}. Bien-entenu, entre ces deux hooks, le précédent conteneur servant à accueillir l'ancienne version de l'application sera détruit.
 				\item[Pré-installation]
-					On commencera par exécuter les scripts présent au niveau du hook \path{lxc-deploy-before}.
+					On commencera par exécuter les scripts présents au niveau du hook \path{lxc-deploy-before}.
 					Ensuite le conteneur \emph{LXC} sera déployé via le template défini (par défaut \emph{lxc-flodayalpine}). Nous jouerons ensuite les hooks \path{lxc-deploy-after}.
 					Finalement, c'est l'ensemble des scripts \emph{setup} de l'application en cours de déploiement qui seront exécutés.
-				\item[Déploiement des contraints]
-					Les applications \gls{contraint}es sont ensuite intégrallement déployées (elles passent donc elles aussi par l'intégralités des étapes de la partie \emph{Déploiement des applications} de cette liste.
+				\item[Déploiement des sous-applications]
+					Les \glspl{sous-application}es sont ensuite intégrallement déployées (elles passent donc elles aussi par l'intégralité des étapes de la partie \emph{Déploiement des applications} de cette liste.
 				\item[Post-installation]
-					Une fois tous les contraints correctement déployés, nous exécutons les scripts présents dans le nœud \emph{end\_setup}.
+					Une fois toutes les sous-applications correctement déployés, nous exécutons les scripts présents dans le nœud \emph{end\_setup}.
 			\end{description}
 \end{description}
 Et voilà, on se retrouve à terme avec un hôte correctement déployé.
@@ -61,7 +61,7 @@ Et voilà, on se retrouve à terme avec un hôte correctement déployé.
 \existstill{1.0.0}
 
 Une fois notre \emph{runfile} et les applications qui s'y réfèrent de définies, il ne reste plus qu'à amorcer le tout et permettre à \emph{Floday} d'effectuer sa principale raison d'être~!
-Pour cela nous, n'avons qu'à lancer la commande {\tt floday} avec l'option {\tt --host} permettant de définir quel \gls{hote} du runfile nous voulons déployer.
+Pour cela nous, n'avons qu'à lancer la commande \path{floday} avec l'option \path{--host} permettant de définir quel \gls{hote} du runfile nous voulons déployer.
 Des logs d'exécution seront ensuite affichés sur \emph{STDOUT} ainsi que via \emph{syslog}.
 
 \paragraph{Gestion du niveau des logs}

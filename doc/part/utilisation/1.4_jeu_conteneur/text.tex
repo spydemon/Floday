@@ -1,7 +1,9 @@
 \subsection{Écrire son jeu de conteneurs}
 \existstill{1.0.0}
 
-Vous pouvez vous inspirer du jeu de contenur \path{riuk}, présent dans le dossier \path{floday/containers/riuk} pour savoir comment procéder.
+\emph{Floday} ne prévoit pas de distribuer en plus de cette mécanique, des conteneurs concrêt que vous pouriez utiliser directement.
+C'est à vous d'écrire les vôtres, de façon à ce qu'ils conviennent parfaitement à votre architecture, et que vous sachiez précisément ce qu'ils font~!
+Vous pouvez tout de même vous inspirer du jeu de contenur \path{riuk}, présent dans le dossier \path{floday/containers/riuk} pour savoir comment procéder.
 
 Globalement, le seul fichier imposé est le fichier de configuration définissant le conteneur.
 Les scripts d'exécutions ou les paramètres peuvent être défini comme vous le souhaitez.
@@ -11,4 +13,4 @@ Utiliser Perl pour les scripts peut néamoins être un choix à privilégier car
 La documentation du module étant complète, je vous invite à faire un \path{perldoc Floday::Setup} pour avoir une définition exaustive de ce qu'il propose.
 
 Par défaut, le \gls{jeu_conteneur} devra être présent dans le dossier \path{/etc/floday/containers}.
-Une fois vos conteneurs d'écrits, il ne vous restera plus qu'à écrire le \gls{runfile} qui se chargera de les transformer en applications~!
+Une fois vos conteneurs d'écrits, il ne vous restera plus qu'à faire le \gls{runfile} qui se chargera de les transformer en applications~!

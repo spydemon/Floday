@@ -60,12 +60,24 @@
 	}
 }
 
-\newglossaryentry{contraint}{
-	name=contrainte -- de conteneur,
-	plural=contraints,
-	text=contraint,
+\newglossaryentry{sous-conteneur}{
+	name=sous-conteneur,
+	plural=sous-conteneurs,
+	text=sous-conteneur,
 	description={%
-		Un \gls{conteneur} contraint est un conteneur dont son propre fonctionnement est conditionné par un autre, appelé conteneur \gls{gestionnaire}.
+		Un sous-conteneur est un conteneur dont son propre fonctionnement est conditionné par un autre, appelé conteneur \gls{gestionnaire}.
+		Ce terme permet d'établir la hiérarchie entre les différents conteneurs. Exemple~: \emph{spyzone-web-wordpress}. Ici, \emph{wordpress} est un sous-conteneur de
+		\emph{web}. Ça signifie que \emph{web} aura, dans la propre définition, des actions à prendre en fonction de ses sous-applications (une configuration adéquat
+		au niveau du serveur Web, par exemple).
+	}
+}
+
+\newglossaryentry{sous-application}{
+	name=sous-application,
+	plurial=sous=applications,
+	text=sous-application,
+	description={%
+		Une sous-application représente une instance de \gls{sous-conteneur}. Il ne s'agit là aussi que d'un terme permettant utile à la clarification de la hiérarchie entre les applications.
 	}
 }
 
@@ -95,7 +107,7 @@
 	plural=gestionnaires,
 	description={%
 		Un \gls{conteneur} est gestionnaire s'il manage ou permet à d'autre conteneurs de fonctionner au travers lui.
-		Un gestionnaire s'occupe de conteneurs \glspl{contraint}.
+		Un gestionnaire s'occupe de ses \glspl{sous-conteneur}.
 	}
 }
 
@@ -112,9 +124,10 @@
 \newglossaryentry{imbrication}{
 	name=imbrication,
 	description={%
-		L'imbrication représente un niveau de \gls{contraint}.
-		L'imbrication zéro représente l'\gls{hote} sur lequel les applications s'exécutes.
+		L'imbrication représente un niveau de hiérarchie entre les \glspl{sous-application} et les \glspl{gestionnaire}.
+		L'imbrication zéro représente l'\gls{hote} sur lequel les applications s'exécute.
 		Une application d'imbrication deux signifie qu'elle est contrainte par une autre application présente entre elle-même et l'hôte.
+		Par exemple~: \emph{host-web-wordpress}.
 	}
 }
 

@@ -59,16 +59,16 @@ On constate tout d'abord que ce fichier est en \emph{YAML}.
 C'est le cas pour l'ensemble des fichiers de configuration présent dans \emph{Floday}.
 On y voit ensuite la définition de deux \glspl{hote}~: \emph{websites} et \emph{backup}.
 Dans le premier, trois \glspl{application} y sont définies~:\emph{web}, qui est \gls{gestionnaire} des deux autres~: \emph{my\_blog} et \emph{mum\_blog}.
-Cela signifie que \emph{web} peut se baser sur ses \glspl{contraint} pour se configurer correctement.
+Cela signifie que \emph{web} peut se baser sur ses \glspl{sous-conteneur} pour se configurer correctement.
 La figure~\ref{relation_conteneurs} essaye de représenter visuellement ces notions.
 
-L'\gls{instantiation} elle aussi est hiérarchique~: dans un premier temps, l'hôte sera déployé, puis viendra le tour de \emph{web\_application} et enfin celui de \emph{my\_blog} et de \emph{num\_blog}.
+L'\gls{instantiation} elle aussi est hiérarchique~: dans un premier temps, l'hôte sera déployé, puis viendra le tour de \emph{web\_application} et enfin celui de \emph{my\_blog} et de \emph{mum\_blog}.
 Notez d'ailleurs que l'ordre de ces deux derniers est aléatoire.
 Ce n'est donc pas parce que \emph{my\_blog} a été défini avant qu'il sera forcément déployé en premier.
 
 Nous pouvons voir que pour chaque hôte ou application deux clefs principales y sont définies~:
 \begin{description}
-	\item[applications] défini toutes les applications qui seront contraintes par celle en cours de \gls{definition}.
+	\item[applications] défini toutes les \glspl{sous-application} qui seront gérées par l'application en cours de \gls{definition}.
 	\item[parameters] surcharge la valeur de \glspl{param_applicatifs} définis dans le conteneur.
 		Le seul paramètre applicatif obligatoire est \emph{name} car il permet d'identifier le nom de l'application et de former son \gls{chemin_application}.
 		Tous les autres dépendent du conteneur en cours de définition.
@@ -132,12 +132,12 @@ Chaque script peut avoir ces attributs~:
 
 \paragraph{Le nœud \emph{end\_setup}}
 Tout comme \emph{setup}, celui-ci possède des informations sur les scripts à exécuter lors du déploiment.
-La différence vient du fait qu'ici, ils sont exécutés une fois l'ensemble des applications contraintes déployées et non avant.
+La différence vient du fait qu'ici, ils sont exécutés une fois l'ensemble des sous-applications de déployées et non avant.
 Les attributs sont les mêmes que pour le nœud \emph{setup} et \emph{hooks}.
 
 \subsubsection{Écrire les scripts d'exécution}
 Il s'agit ici de présenter un exemple de script pouvant être présent dans un nœud \emph{setup}, \emph{end\_setup} ou \emph{hook} dans la \gls{definition} d'un \gls{conteneur}.
-Le code~\ref{fig_1.3_setup} est un exemple de script permettant de configurer \emph{lighttpd} de façon à ce qu'il puisse communiquer avec l'extérieur et qu'il puisse faire le proxy entre les différentes applications qu'il \gls{contraint}.
+Le code~\ref{fig_1.3_setup} est un exemple de script permettant de configurer \emph{lighttpd} de façon à ce qu'il puisse communiquer avec l'extérieur et qu'il puisse faire le proxy entre ses différentes \gls{sous-application}.
 
 \input{part/utilisation/1.3_differents_elements/fig_setup.tex}
 
@@ -156,6 +156,9 @@ Mais là encore, il est conseillé de se référer à \emph{perldoc} pour avoir 
 
 La ligne~29 montre comment nous devons procéder pour agir non pas sur l'application en cours de déploiement, mais sur une autre (ici, ceux qu'il gère).
 
-TODO: parler aussi du debug :
-%root@spyzone:/home/spydemon# /etc/floday/containers/jaxe/children/backup_client/end_setup/volume_mounter.pl --container spyzone-backup
+\subsubsection{Déboguer un script}
+Chaque script \path{setups}, \path{end-setup} ou tout autres types de scripts peuvent facilement être testés sans avoir à redéployer l'ensemble des applications.
+Nous pouvons lancer un script de façon unitaire en lui renseignant un paramètre \emph{application} ayant la valeur du \gls{chemin_application} sur laquelle nous voulons voir le script travailler.
+Par exemple~:
+\path{/etc/floday/containers/jaxe/children/backup_client/end_setup/volume_mounter.pl --application spyzone-backup}
 
