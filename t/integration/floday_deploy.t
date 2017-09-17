@@ -22,12 +22,14 @@ my $test = Floday::Deploy->new(hostname => 'integration');
 
 my $hook_lxc_deploy_before_test = threads->create(sub {
   sleep 5;
-  -f '/tmp/floday/test_lxc_hooks'
+  my $application_path = `cat /tmp/floday/test_lxc_hooks`;
+  chomp $application_path;
+  return $application_path;
 });
 
 $test->start_deployment;
 
-ok ($hook_lxc_deploy_before_test->join(), 'The test file was correctly created by the lxc_deploy_before hook.');
+cmp_ok ($hook_lxc_deploy_before_test->join(), 'eq', 'integration-web', 'lxc_deploy_before seems to have acces to the $APP variable.');
 ok ((!-f '/tmp/floday/test_lxc_hooks'), 'The test file was correctly removed by the lxc_deploy_after hook.');
 
 like(`cat /var/lib/lxc/integration-web/rootfs/etc/endsetup`, qr/end_setup works/, 'end_setups scripts seem to work.');
