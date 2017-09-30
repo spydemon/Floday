@@ -171,6 +171,19 @@ sub manage_system_configuration {
 	map {say $inittab $_} @init_tab;
 }
 
+sub regenerate_subxid {
+	my @ids = split "\n", `ls -l /var/lib/lxc | cut -d' ' -f 4 | grep .`;
+	open my $subuid, '>', '/etc/subuid';
+	open my $subgid, '>', '/etc/subgid';
+	my $id_range = get_floday_configuration_value('id_range');
+	for my $id_start (@ids) {
+		print $subuid "root:$id_start:$id_range\n";
+		print $subgid "root:$id_start:$id_range\n";
+	}
+	close $subuid;
+	close $subgid;
+}
+
 sub _install_package_alpinekeys {
 	my %keys = (
 	  'v3.4' => {
@@ -226,3 +239,4 @@ install_package('apk-tools-static');
 init_system();
 generate_LXC_configuration();
 manage_system_configuration();
+regenerate_subxid();

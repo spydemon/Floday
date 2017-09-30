@@ -12,6 +12,9 @@ chdir $FindBin::Bin;
 my $PATH = 'src/';
 
 my %dependencies;
+$dependencies{'MooX::Singleton'} = 1;
+$dependencies{'File::Slurp'} = 1;
+
 lookup_dir($PATH);
 
 my $current_dir = $FindBin::Bin;
@@ -19,6 +22,7 @@ my $current_dir = $FindBin::Bin;
 `ln -s $current_dir/src/Floday /etc/perl/`;
 
 for (keys %dependencies) {
+	say "Installing $_";
 	`cpan $_`;
 }
 
