@@ -3,7 +3,7 @@
 	plural=actions,
 	description={%
 		Une action consiste en un procédé actif réalisé par \emph{Floday} dans le cadre du déploiement.
-		Elles peuvent être des exécutions de commandes, des écritures de configuration, ou de toute autres formes prévues par la définition du \gls{conteneur} en cours d'\gls{instantiation}.
+		Elles peuvent être des exécutions de commandes, des écritures de configuration, ou de toutes autres formes prévues par la définition du \gls{conteneur} en cours d'\gls{instantiation}.
 	}
 }
 
@@ -22,8 +22,8 @@
 	plural=attributs,
 	description={%
 		L'attribut est une entité d'information permettant de définir un \gls{conteneur}.
-		Il peut avoir des formes très variés, et se situent généralement au sein de la configuration d'un conteneur.
-		Il ont également des formes hiérarchiques~: un attribut peut en contenir d'autres.
+		Il peut avoir des formes très variées, et se situent généralement au sein de la configuration d'un conteneur.
+		Ils ont également des formes hiérarchiques~: un attribut peut en contenir d'autres.
 		De façon générale, les attributs peuplent intégralement les fichiers \emph{config.yml} présents au cœur de chaque conteneur.
 	}
 }
@@ -56,7 +56,7 @@
 	description={%
 		Le conteneur est une recette à appliquer pour produire une \gls{application}.
 		Un même conteneur peut donc être utiliser pour générer plusieurs applications similères.
-		Par exemple~: un conteneur \emph{Wordpress} peut être utiliser pour générer plusieurs blogs.
+		Par exemple~: un conteneur \emph{Wordpress} peut être utilisé pour générer plusieurs blogs.
 	}
 }
 
@@ -77,7 +77,7 @@
 	plural=sous=applications,
 	text=sous-application,
 	description={%
-		Une sous-application représente une instance de \gls{sous-conteneur}. Il ne s'agit là aussi que d'un terme permettant utile à la clarification de la hiérarchie entre les applications.
+		Une sous-application représente une instance de \gls{sous-conteneur}. Il ne s'agit là aussi que d'un terme utile à la clarification de la hiérarchie entre les applications.
 	}
 }
 
@@ -86,7 +86,7 @@
 	text=définition,
 	description={%
 		Une définition de conteneur présente la façon dont le conteneur doit se déployer.
-		Il s'agit d'y définir les scripts à exécuter, dans quel ordres, ainsi que touts autres éléments nécessaires, comme la création des attributs.
+		Il s'agit d'y définir les scripts à exécuter, dans quel ordre, ainsi que tous autres éléments nécessaires, comme la création des attributs.
 		Cette définition s'effecute dans les fichiers {\tt{}config.yml} du conteneur courant, de ceux de ses parents ainsi que du \gls{runfile} (pour les attributs surchargés).
 	}
 }
@@ -106,7 +106,7 @@
 	text=gestionnaire,
 	plural=gestionnaires,
 	description={%
-		Un \gls{conteneur} est gestionnaire s'il manage ou permet à d'autre conteneurs de fonctionner au travers lui.
+		Un \gls{conteneur} est gestionnaire s'il manage ou permet à d'autre conteneurs de fonctionner au travers de lui.
 		Un gestionnaire s'occupe de ses \glspl{sous-conteneur}.
 	}
 }
@@ -125,7 +125,7 @@
 	name=imbrication,
 	description={%
 		L'imbrication représente un niveau de hiérarchie entre les \glspl{sous-application} et les \glspl{gestionnaire}.
-		L'imbrication zéro représente l'\gls{hote} sur lequel les applications s'exécute.
+		L'imbrication zéro représente l'\gls{hote} sur lequel les applications s'exécutent.
 		Une application d'imbrication deux signifie qu'elle est contrainte par une autre application présente entre elle-même et l'hôte.
 		Par exemple~: \emph{host-web-wordpress}.
 	}
@@ -180,7 +180,7 @@
 		On parlera de propulsion de version l'action de stopper les développements en cours et de les publier. Par exemple, nous pouvons dire~:
 		\begin{itemize}
 			\item La branche \emph{développement} propulsera la prochaine version majeure.
-			\item La branche \emph{bugsfix1.2} propulsera la nouvelle version \emph{v1.2.z}.
+			\item La branche \emph{bugfixes1.2} propulsera la nouvelle version \emph{v1.2.z}.
 		\end{itemize}
 		Le terme peut également être utilisé pour indiquer dans quelles versions se situent un ticket, ou une fonctionnalité précise. Nous pouvons dire~:
 		\begin{itemize}
@@ -193,7 +193,7 @@
 \newglossaryentry{runfile}{
 	name=runfile,
 	description={%
-		Par défaut à l'emplacement {\tt/etc/runfile}, il s'agit du fichier définissant explicitement toutes les \glspl{application} a exécuter sur l'ensemble du «\,parc\,» informatique géré.
+		Par défaut à l'emplacement {\tt/etc/runfile}, sont rôle est de définir explicitement toutes les \glspl{application} a exécuter sur l'ensemble du «\,parc\,» informatique géré.
 		Le même fichier est donc utilisé sur plusieurs hôtes pour permettre là encore de voir les interactions (procédés de backup, ou de répartion de la charge, etc.).
 		Il contient donc une liste exaustive de toutes les applications à déployer, ainsi que la liste de tous les \glspl{param_applicatifs} non implicites.
 	}

@@ -8,9 +8,10 @@ En effet, on y trouve toutes les demandes d'évolutions, les constats d'anomalie
 Ces tickets peuvent donc être de trois types~:
 
 \subsubsection{Les types de tickets}
-\paragraph{Les tickets d'évolution} Ils représentent les nouvelles fonctionnalités à implémenter dans le programme. Ces développements seront à merger sur la prochaine version majeure publiée, et doivent généralement être documentés ici.
-\paragraph{Les tickets d'anomalies} Ils représentent les anomalies repérés dans le logiciel. Une fois l'anomalie détectée, celle-ci est corrigée à l'aide d'un correctif écrit pour l'occasion, et publiée sur chaque version en ayant besoin.
-\paragraph{Les ticktes de documentation} Il présentent un manquement quant à la compréhention de quelque chose. Ces tickets peuvent être utilisés pour poser une question sur le fonctionnement d'une partie du logiciel non comprise et dont l'information n'a été trouvée nul part. Ces tickets doivent mener à une amélioration de ce document ainsi que des pages de manuels des différents modules Perl mis à disposition via \emph{Floday}.
+\paragraph{Les tickets d'évolution} Ils représentent les nouvelles fonctionnalités à implémenter dans le programme. Ces développements seront à merger sur la prochaine version majeure publiée, et doivent généralement être documentés dans ce manuel.
+\paragraph{Les tickets d'anomalies} Ils représentent les anomalies repérées dans le logiciel. Une fois le bogue découvert, celui-ci est corrigé à l'aide d'un correctif écrit pour l'occasion, et publiée sur chaque version du logiciel en ayant besoin.
+\paragraph{Les ticktes de documentation} Il présentent un manquement quant à la compréhention de quelque chose. Ces tickets peuvent être utilisés pour poser une question sur le fonctionnement d'une partie du logiciel non comprise et dont l'information n'a été trouvée nul part.
+Ces tickets doivent mener à une amélioration de ce document ainsi que des pages de manuels des différents modules Perl mis à disposition via \emph{Floday}.
 
 \subsubsection{La rédaction d'un ticket}
 Attention, il est préférable que vous écrivez en anglais lors de la création de votre ticket.
@@ -23,7 +24,7 @@ Voici une description des informations qui vous seront demandées~:
 	\hline
 	Résumé & Sujet du ticket, soit une phrase qui décrit en une ligne de quoi il parle.\\
 	Rapporteur & Laisser la valeur par défaut (Spydemon). Il n'y a que moi qui travaille sur le projet pour le moment de toute façon.\\
-	Description & Il faut expliquer avec le plus détails possibles l'objet de votre demande ici afin que les autres (moi~?) aient le plus de chances possible de la comprendre.\\
+	Description & Il faut expliquer avec le plus détails possibles l'objet de votre demande ici afin que les autres (moi~?) aient le plus de chances possibles de la comprendre.\\
 	Type & Les différents types disponibles sont expliqués au paragraphe précédent.\\
 	Priorité & Sauf ticket d'anomalie critique, la priorité doit toujours être à \emph{normale}.\\
 	Version & La version que vous êtes en train d'utiliser. À noter que pour les tickets d'évolutions, il vaut mieux que celle-ci soit la plus récente possible.\\
@@ -36,9 +37,9 @@ Voici une description des informations qui vous seront demandées~:
 \subsubsection{Le workflow du bug tracker}
 
 Une fois votre ticket créé, il prendra le status \emph{ouvert}.
-Il restera dans cet état jusqu'à ce qu'il soit comprit et pris en compte par l'équipe concernée (moi~?).
+Il restera dans cet état jusqu'à ce qu'il soit comprit et prit en compte par l'équipe concernée (moi~?).
 Avant ce moment, des échanges auront peut-être lieux dans les commentaires du ticket pour essayer d'en savoir plus.
 Il pourra à ce moment passer soit à l'état \emph{accepté}, ce qui signifiera qu'il sera pris en compte un jour, soit \emph{rejeté}.
-Dans ce cas, le ticket sera ignoré pour la suite des dévelopements.
+Dans le second cas, le ticket sera ignoré pour la suite des dévelopements.
 Si le ticket a été accepté, il prendra l'état \emph{en cours de traitement} lors-ce-que quelqu'un commencera à travailler dessus, avant de finir en \emph{terminé} une fois le développement de publié.
 À ce moment, il sera intégré à un jalon définissant à partir de quelle version le développement relatif au ticket sera intégré à \emph{Floday}.

@@ -9,7 +9,7 @@ La machine virtuelle de base s'appellera \emph{Floday\_Clean} et la copie de tra
 Toute la configuration sera à faire sur \emph{Floday\_Clean} car cette machine servant de base à \emph{Floday\_Work}, tout son contenu y sera déployé.
 De cette façon, si un déploiement se passe mal, il sera toujours possible de réinitialiser \emph{Floday\_Work} en y reclonant \emph{Floday\_Clean}.
 
-Je présente ici comment installer cette architecture sur une Debian 8.0 (Jessie) avec OpenRC comme système d'init, car c'est ce que je compte utiliser pour mon infrastructure réelle.
+Je présente ici comment installer cette architecture sur une Debian 8.0 (Jessie) avec OpenRC comme système d'init.
 Il n'y a cependant aucune restriction quant à celle-ci, vous pouvez utiliser le socle que vous voulez, tant que \emph{LXC} y soit correctement supporté.
 Notez aussi que \emph{riuk}, le jeu de conteneur de test nécessite \emph{OpenRC} pour fonctionner correctement.
 
@@ -17,7 +17,7 @@ La création de cette infra reste assez bancale pour le moment, mais elle a le m
 Le jeu en vaut donc la chandelle !
 Voici les étapes d'installation~:
 \begin{itemize}
-	\item Installation de \emph{VirtualBox}.
+	\item Installation de \emph{VirtualBox} sur l'hôte.
 	\item Création d'un dossier partagé appelé \emph{floday} entre \path{/opt/floday/} sur la VM et le dépôt Git sur l'hôte. Attention, ce partage doit être en lecture et écriture pour pouvoir passer tous les tests unitaires.
 	\item Configurer les réseaux \emph{VirtualBox} pour avoir un pond sur \emph{eth0} et un réseau privé hôte sur \emph{eth1}.
 	\item Virer \emph{systemd} pour utiliser \emph{Open-RC} à la place~: \url{http://linuxmafia.com/kb/Debian/openrc-conversion.html}.
@@ -88,7 +88,7 @@ lxc.network.hwaddr = 00:16:3e:xx:xx:xx
 	\item {\tt cpan Log::Any::Adapter Test::Exception Backticks Moo Config::Tiny File::Slurp YAML::Tiny Template::Alloy Hash::Merge IPC::Run Unix::Syslog}
 	\item Ajouter les paramètres \path{apparmor=1 security=apparmor} aux variables \path{GRUB_CMDLINE_LINUX} du fichier \emph{/etc/default/grub}.
 	\item {\tt sudo update grub}.
-	\item Ajouter la ligne \path{10.0.3.5 test.keh.keh test2.keh.keh} dans le fichier \emph{/etc/hosts} pour pouvoir réussir les tests d'intégrations.
+	\item Ajouter la ligne \path{10.0.3.5 test.keh.keh test2.keh.keh} dans le fichier \emph{/etc/hosts} de la machine virtuelle pour pouvoir réussir les tests d'intégrations.
 	\item Rebooter la machine virtuelle.
 \end{itemize}
 
