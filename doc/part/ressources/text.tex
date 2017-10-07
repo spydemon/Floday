@@ -1,41 +1,41 @@
 \section{Ressources}
 \begin{intro}
-Avant toute chose, il est de bon ton de prendre un petit moment pour lister les différents outils utiles pour travailler avec \emph{Floday}.
-Ils peuvent se montrer utile pour prolonger la compréhention que vous voulez avoir de l'outil, ou pour participer de façon plus active au projet.
+Avant toute chose, il est de bon ton de prendre un petit moment pour lister les différents éléments qui gravitent au tour de \emph{Floday}.
+Ils peuvent se montrer appréciables pour prolonger la compréhension que vous voulez avoir de l'outil, ou pour participer de façon plus active au projet.
 \end{intro}
 
 \subsection{Ce document}
 \existstill{1.0.0}
 Vous êtes en train de lire la documentation du logiciel \emph{Floday}.
-Il peut vous sembler étrange que celle-ci soit délivrée sous la forme d'un document texte, plutôt que de la présenter sous une forme plus interactive permise par les technologies du Web via la création d'un site dédié, ou au moins d'un wiki.
-Ce choix me parait néanmoins pertinant car il permet la création d'une resource clairement délimitée sensée contenir l'intégralité des informations existantes.
-Dans la même philosophie, une version du document existera pour chaque version de \emph{Floday}, il n'y a donc pas de risque à ce que la documentation dont vous disposez se mette à diverger avec le logiciel que vous êtes effectivement en train d'utiliser.
-Enfin, il me semble plus pratique d'avoir un seul document à conserver plutôt que de devoir aller cliquer partout le jour ou une information viendra à nous manquer.
+Il peut vous sembler étrange que celle-ci soit délivrée sous la forme d'un fichier \emph{PDF}, plutôt que d'être présenté sous une forme plus interactive permise par les technologies du Web.
+Ce choix me parait néanmoins pertinent, car il impose la création d'une ressource clairement délimitée censée contenir l'intégralité des informations existantes.
+Dans la même philosophie, une version de cette documentation existera pour chaque version de \emph{Floday} délivrée. Il n'y a donc pas de risque à ce que celle-ci commence à diverger avec le logiciel que vous êtes effectivement en train d'utiliser.
+Enfin, il me semble plus pratique de n'avoir qu'un seul document à conserver plutôt que de devoir aller cliquer partout le jour ou une information viendra à nous manquer.
+Notez aussi que par manque de temps, cette documentation n'existe aujourd'hui qu'en français.
 
-Bien-sûr, le fait que la documentation soit un \emph{PDF} n'exclu pas le fait qu'on trouvera plus tard des ressources ailleurs, mais ce n'est pas en projet pour le moment.
-Notez quand-même qu'il reste un vestige de wiki présent sur le bug tracker~: \url{https://dev.spyzone.fr/floday/wiki}.
-Notez également qu'il n'a pas été mit à jour depuis longtemps, et qu'une grande partie des informations qu'il contient sont fausses.
-Vous ne devez donc pas le prendre comme référence, je vais d'ailleurs probablement le supprimer sous peu.
+\subsection{La documentation du code}
+\existstill{1.0.0}
+Le code source du projet en lui-même possède une documentation utile aux développeurs.
+Celle-ci est accessible soit en le lisant directement, ou alors à travers l'outil \emph{perldoc}, car \emph{Floday} est intégralement écrit en \emph{Perl 5}.
 
 \subsection{Le bug tracker}
 \existstill{1.0.0}
 Un bug tracker est disponible à l'adresse \url{https://dev.spyzone.fr/floday/query}.
-Comme son nom l'indique, il liste l'intégralité des demandes d'évolutions et des rapports de bugs constatés sur le projet.
-C'est aussi un point d'entré privilégié si cette présente documentation ne répond pas correctement à l'une de vos questions.
+Comme son nom l'indique, il liste l'intégralité des demandes d'évolutions et des rapports de bogues constatés sur le projet.
+C'est aussi un point d'entrée privilégié si cette présente documentation ne répond pas correctement à l'une de vos questions.
 En effet, ce document est considéré comme faisant partie intégrante du projet.
-Si il n'est pas clair ou imcomplet, l'amélioration du logiciel passera aussi par sa réécriture, ou par celle de la documentation présente directement au sein du code source (accessible via \path{perldoc}).
 
-Avant de poster un nouveau ticket, il vous est néanmoins demandé de vérifier si aucun doublons ne sera introduit par votre action.
-En effet, limité le bruit et les redondances et un élément simple et qui permet de faire gagner du temps précieux aux développeurs qui l'allouerons à meilleur escient ailleurs \smiley.
+Avant de poster un nouveau ticket, il vous est néanmoins demandé de vérifier si aucun doublon ne sera introduit par votre action.
+ Limiter le bruit et les redondances et un élément simple et qui permet de faire gagner du temps précieux aux contributeurs qui l'allouerons à meilleur escient ailleurs \smiley.
 
 Ce document présente \hyperref[sec:contribution_bt]{une partie entière} allouée à l'utilisation du bug tracker.
-La lire vous est également vivement conseillé si vous comptez contribuer.
+La lire vous est également vivement conseillé si vous comptez participer.
 
 \subsection{Le dépôt \emph{Git}}
 \existstill{1.0.0}
-Certes, le projet est sensé être libre, mais le dépôt \emph{Git} n'est pour l'instant pas totalement publique\dots{}
-Les raisons derrières cette limitation sont en fait techniques~: actuellement, \emph{Gitolite} est utilisé pour faire la gestion des permissions sur le dépôt.
-Or, ce dernier nécessite une connexion via \emph{SSH}, qui elle-même nécessite au serveur de posséder votre clef publique.
-Sans cette clef, il est donc actuellement impossible de récupérer la moindre source.
-Bien-sûr, je vous donnerais les accès en lecture si vous m'envoyez la votre par email.
-Ce problème devrait néamoins être résolu un jour.
+Certes, le projet est censé être libre, mais le dépôt \emph{Git} n'est pour l'instant pas totalement public\dots{}
+Les raisons derrière cette limitation sont en fait techniques~: actuellement, \emph{Gitolite} est utilisé pour faire la gestion des permissions sur le dépôt.
+Or, ce dernier nécessite une connexion via \emph{SSH}, qui, elle-même impose au serveur de posséder votre clef publique.
+Sans cette clef, il est donc impossible de récupérer la moindre source.
+Bien sûr, je vous donnerais les accès en lecture si vous m'envoyez la vôtre par email.
+Ce problème devrait être résolu un jour, car le projet devrait migrer sous \emph{Gitlab}.
