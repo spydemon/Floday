@@ -172,7 +172,7 @@ sub manage_system_configuration {
 }
 
 sub regenerate_subxid {
-	my @ids = split "\n", `ls -l /var/lib/lxc | cut -d' ' -f 4 | grep .`;
+	my @ids = split "\n", `ls -ln /var/lib/lxc | cut -d' ' -f 4 | grep .`;
 	open my $subuid, '>', '/etc/subuid';
 	open my $subgid, '>', '/etc/subgid';
 	my $id_range = get_floday_configuration_value('id_range');
