@@ -3,7 +3,7 @@
 \subsubsection{Les différentes étapes}
 \existstill{1.0.0}
 
-Voici les différentes étapes par lesquelles nous passons pour le déploiement d'un hôte~:
+Voici les différentes étapes par lesquelles on procède lors du déploiement d'un hôte~:
 La figure \ref{1.4_algorithme_complet} illustre à peu près le fonctionnement via un genre d'\emph{UML}.
 Ce schéma pourrait être plus représentatif, mais je me suis promis de ne pas passer plus de 7h dessus.
 
@@ -24,7 +24,7 @@ Ce schéma pourrait être plus représentatif, mais je me suis promis de ne pas 
 \begin{description}
 	\item[Définition de la \gls{runlist}]
 		Cette étape permet d'obtenir un tableau multidimensionnel clair de tous les éléments structurants nécessaires au déploiement.
-		Il peut lui-même se distinguer en trois étapes~:
+		Il peut lui-même se distinguer en trois parties~:
 		\begin{description}
 			\item[Ouverture du \gls{runfile}]
 				Nous récupérons le \emph{runfile} depuis le fichier de configuration.
@@ -32,7 +32,7 @@ Ce schéma pourrait être plus représentatif, mais je me suis promis de ne pas 
 			\item[Définition des applications]
 				En fonction des \glspl{chemin_conteneur} obtenus, on cherche à présent les fichiers \gls{definition} des conteneurs utilisés.
 				Les éventuels héritages sont gérés à ce moment.
-				À présent, sont mergées les valeurs propres à l'application courante à déployer.
+				Ensuite sont mergées les valeurs propres à l'application courante à déployer.
 				Il s'agit des \glspl{param_applicatifs} présents au niveau du runfile.
 			\item[Validation de la runlist]
 				Nous pouvons à présent valider la conformité de la \gls{runlist}.
@@ -44,15 +44,15 @@ Ce schéma pourrait être plus représentatif, mais je me suis promis de ne pas 
 			\begin{description}
 				\item[Destruction de l'application]
 					S'il s'agit d'un redéploiement, c'est-à-dire qu'une application avec un chemin similaire est déjà existante, la première étape consistera en la destruction de celui-ci.
-					C'est à cette étape que nous exécuterons les hooks \path{lxc-destroy-before} et \path{lxc-destroy-after}. Bien entenu, entre ces deux hooks, le précédent conteneur servant à accueillir l'ancienne version de l'application sera détruit.
+					C'est à cette étape que nous exécuterons les hooks \path{lxc-destroy-before} et \path{lxc-destroy-after}. Bien entendu, entre ces deux hooks, le précédent conteneur servant à accueillir l'ancienne version de l'application sera supprimé.
 				\item[Pré-installation]
 					On commencera par exécuter les scripts présents au niveau du hook \path{lxc-deploy-before}.
-					Ensuite, le conteneur \emph{LXC} sera déployé via le template défini (par défaut \emph{lxc-flodayalpine}). Nous jouerons ensuite les hooks \path{lxc-deploy-after}.
-					Finalement, c'est l'ensemble des scripts \emph{setup} de l'application en cours de déploiement qui seront exécutés.
+					Ensuite, le conteneur \emph{LXC} sera déployé via le template défini (par défaut \emph{lxc-flodayalpine}), puis les hooks \path{lxc-deploy-after} seront lancés.
+					Finalement, c'est l'ensemble des \emph{setup} de l'application qui seront exécutés.
 				\item[Déploiement des sous-applications]
-					Les \glspl{sous-application} sont ensuite intégralement déployées (elles passent donc elles aussi par l'intégralité des étapes de la partie \emph{Déploiement des applications} de cette liste.
+					Les \glspl{sous-application} sont ensuite intégralement déployées (elles passent donc elles aussi par les étapes de la partie \emph{Déploiement des applications} de cette liste).
 				\item[Post-installation]
-					Une fois toutes les sous-applications correctement déployées, nous exécutons les scripts présents dans le nœud \emph{end\_setup}.
+					Pour finir,  nous exécutons les scripts présents dans le nœud \emph{end\_setup}.
 			\end{description}
 \end{description}
 Et voilà, on se retrouve à terme avec un hôte correctement déployé.
@@ -60,8 +60,8 @@ Et voilà, on se retrouve à terme avec un hôte correctement déployé.
 \subsubsection{La gestion des logs}
 \existstill{1.0.0}
 
-Une fois notre \emph{runfile} et les applications qui s'y réfèrent de définies, il ne reste plus qu'à amorcer le tout et permettre à \emph{Floday} d'effectuer sa principale raison d'être~!
-Pour cela nous, n'avons qu'à lancer la commande \path{floday} avec l'option \path{--host} permettant de définir quel \gls{hote} du runfile nous voulons déployer.
+Il ne reste plus qu'à amorcer le tout et permettre à \emph{Floday} d'effectuer sa principale raison d'être~!
+Pour cela, nous n'avons qu'à lancer la commande \path{floday} avec l'option \path{--host}, définissant quel \gls{hote} du runfile nous voulons déployer.
 Des logs d'exécution seront ensuite affichés sur \emph{STDOUT} ainsi que via \emph{syslog}.
 
 \paragraph{Gestion du niveau des logs}
@@ -77,12 +77,12 @@ Pour plus de détails, voir le hash \emph{\%SYSLOG\_PRIORITY\_MAPPER} dans le fi
 Le listing~\ref{fig_1.4_floday} présente une sortie représentative d'un déploiement.
 Les messages sont découpés en plusieurs colonnes dont voici les descriptions~:
 \begin{itemize}
-	\item La première n'est qu'une indication quant à la sévérité du log.
-	\item La seconde présente le module dans lequel le message est émis.
-	\item La dernière présente le message. Notez que l'indentation dans l'alignement permet de voir le degré d'imbrication. Grâce à cela, nous pouvons rapidement voir, par exemple, que le script \emph{networking.pl} du log ligne~53 aura été exécuté dans le cadre de l'exécution des scripts de setup sur l'\gls{application} \emph{website-web\_application\_galek} contraint par \emph{website-web\_application} sur l'\gls{hote} \emph{websites}.
+	\item La première annonce la sévérité du log.
+	\item La seconde, le module d'émission.
+	\item La dernière, le message. Notez que l'indentation dans l'alignement indique le degré d'imbrication. Grâce à cela, nous pouvons rapidement voir, par exemple, que le script \emph{networking.pl} du log ligne~53 aura été exécuté dans le cadre des setups sur \emph{website-web\_application\_galek}, sous-application de \emph{website-web\_application} sur l'\gls{hote} \emph{websites}.
 \end{itemize}
 
 Pour le moment, cette sortie est également disponible via syslog, bien que le format sera peut-être amené à évoluer sur celle-ci.
 
-Attention, notez qu'il y actuellement un bug générant une erreur dans le fichier de log lors du déploiement de l'hôte (présente à la ligne~10 sur le listing~\ref{fig_1.4_floday} celui-ci devrait être résolu un jour%
+Attention, notez qu'il y a actuellement un bug générant une erreur dans le fichier de log lors du déploiement de l'hôte (présente à la ligne~10 sur le listing~\ref{fig_1.4_floday} celui-ci devrait être résolu un jour%
 \footnote{Lien vers le ticket présentant l'anomalie~: \url{https://dev.spyzone.fr/floday/ticket/31}}.

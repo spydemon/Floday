@@ -22,7 +22,7 @@
 		\umlstateinitial[x=-3, y=0, name=init];
 		\umlbasicstate[x=0, y=0, name=runfile]{Ouverture du runfile};
 		\umltrans{init}{runfile};
-		\umlstatedecision[y=-2, name=stillapp]{Applications restantes dans le host à déployer~?};
+		\umlstatedecision[y=-2, name=stillapp]{Applications restantes dans l'host à déployer~?};
 		\umltrans[pos=0.5, arg=Applications restantes à parser ?]{runfile}{stillapp};
 		\umlbasicstate[x=0, y=-4, name=defineapp]{Définition de l'application};
 		\umltrans[recursive=180|150|6cm, arg=Définition des contraints récursivement, pos=2.5, recursive direction=left to top]{defineapp}{defineapp};
