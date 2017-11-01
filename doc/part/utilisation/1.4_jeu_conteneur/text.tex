@@ -1,16 +1,16 @@
 \subsection{Écrire son jeu de conteneurs}
 \existstill{1.0.0}
 
-\emph{Floday} ne prévoit pas de distribuer en plus de cette mécanique, des conteneurs concrêt que vous pouriez utiliser directement.
+\emph{Floday} ne prévoit pas de distribuer en plus de cette mécanique, des conteneurs concrets que vous pourriez utiliser directement.
 C'est à vous d'écrire les vôtres, de façon à ce qu'ils conviennent parfaitement à votre architecture, et que vous sachiez précisément ce qu'ils font~!
-Vous pouvez tout de même vous inspirer du jeu de contenur \path{riuk}, présent dans le dossier \path{floday/containers/riuk} pour savoir comment procéder.
+Vous pouvez tout de même vous inspirer du jeu de conteneurs \path{riuk}, présent dans le dossier \path{floday/containers/riuk} pour avoir des indications sur la façon de procéder.
 
-Globalement, le seul fichier imposé est le fichier de configuration définissant le conteneur.
-Les scripts d'exécutions ou les paramètres peuvent être définis où vous le souhaitez, bien que conserver une structure cohérente (comme celle présente dans \emph{riuk} peut être conseillée.
-De la même façon les scripts peuvent être écrits dans le langage que vous voulez, la seul contrainte est que ceux-ci aient les droits d'exécutions par l'utilisateur executant \emph{Floday}.
+Globalement, le seul fichier imposé est le \emph{config.yml} définissant le conteneur.
+Les scripts d'exécutions peuvent être localisé où vous le souhaitez, bien que conserver une structure cohérente (comme celle présente dans \emph{riuk} peut être conseillée.
+De la même façon, les scripts peuvent être écrits dans le langage que vous voulez, la seule contrainte est que ceux-ci aient les droits d'exécutions par l'utilisateur exécutant \emph{Floday}.
 
-Utiliser Perl pour les scripts peut néamoins être un choix à privilégier car le module \path{Floday::Setup} permet de facilement accéder à l'\gls{application} en cours de déploiement, à ses \glspl{param_applicatifs} ainsi qu'à quelques autres outils comme la génération de fichiers.
-La documentation du module étant complète, je vous invite à faire un \path{perldoc Floday::Setup} pour avoir une définition exaustive de ce qu'il propose.
+Utiliser Perl pour les scripts peut néanmoins être un choix à privilégier, car le module \path{Floday::Setup} permet de facilement accéder à l'\gls{application} en cours de déploiement, à ses \glspl{param_applicatifs} ainsi qu'à quelques autres outils comme la génération de fichiers.
+La documentation du module étant complète, je vous invite à faire un \path{perldoc Floday::Setup} pour avoir une définition exhaustive de ce qu'il propose.
 
 Par défaut, le \gls{jeu_conteneur} devra être présent dans le dossier \path{/etc/floday/containers}.
 Une fois vos conteneurs d'écrits, il ne vous restera plus qu'à faire le \gls{runfile} qui se chargera de les transformer en applications~!

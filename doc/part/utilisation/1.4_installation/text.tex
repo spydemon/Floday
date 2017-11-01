@@ -5,27 +5,27 @@
 \emph{Floday} utilise le système de normalisation des numéros de version sémantique%
 \footnote{En savoir plus sur le versionnage sémantique~: \url{http://semver.org/}}.
 Cela signifie que la version du logiciel sera toujours donnée sous la forme de trois entiers~: {\tt{}x.y.z}.
-Voici leurs significations~:
+Voici leurs représentations~:
 
 \begin{description}
 	\item[x] correspond à la version majeure. Deux versions majeures différentes ne sont pas interopérables.
 Il faudra donc s'attendre à ce qu'il y ait de la casse lors d'une mise à jour incrémentant ce numéro.
-	\item[y] correspond à la version mineure, soit à l'ajout de nouvelles fonctionnalités, ou à la réalisation de refactoring mais qui ne casse pas la façon dont le logiciel s'utilise.
-	\item[z] correspond aux correctifs. Il est recommandé de toujours effectuer les mises à jour de correctifs, car ils ne sont utilisés que pour corriger un fonctionnement sensé déjà être opérationnel, les bogues quoi.
+	\item[y] correspond à la version mineure, soit à l'ajout de nouvelles fonctionnalités, ou à la réalisation de refactoring mais qui ne modifie pas la façon dont le logiciel s'emploie.
+	\item[z] correspond aux correctifs. Ils sont toujours recommandés, car ils ne sont utilisés que pour rectifier un fonctionnement sensé déjà être opérationnel, les bogues quoi.
 \end{description}
 
-Avec ces informations en tête, libre à vous de choisir le cycle d'évolution que vous préférez. Une branche existe pour chaque cycle. Nous avons donc actuellement les branches~:
+Avec ces informations en tête, libre à vous de choisir le cycle d'évolution que vous préférez. Une branche \emph{git} existe pour chacun d'entre eux~:
 \begin{description}
-	\item[master] qui correspondra toujours à la dernière version publiée du logiciel, en prenant en compte les évolutions de versions majeures.
-	\item[v1] qui correspondra toujours à la version mineure la plus élevée, mais de la version majeure 1. Votre configuration ne devrait donc pas se voir incompatible après ce genre de mise à jour.
+	\item[master] qui correspondra toujours à la dernière version publiée du logiciel.
+	\item[v1] qui qui représente la version mineure la plus élevée, mais de la version majeure 1. Votre configuration ne devrait donc pas se voir incompatible après ce genre de mise à jour.
 	\item[v1.0] qui ne prendra en compte que les correctifs de sécurité ou de bogues.
 \end{description}
 
 Quand une version 1.1 de \emph{Floday} sera \gls{propulse}, nous aurons une nouvelle branche \emph{v1.1} de publiée, et il en sera de même pour les autres.
-Notez que vous pouvez aussi directement récupérer une version en question (par exemple {\tt git checkout 1.0.1}) car un tag sera aussi associé à chaque version.
+Notez que vous pouvez directement récupérer une version en question (par exemple {\tt git checkout 1.0.1}) car un tag sera aussi associé à chacune d'entre elles.
 
-En tant qu'utilisateur, vous serez probablement intéressé par l'évolution de la version majeure en cours d'utilisation. Si vous choisissez de mettre à jour directement le logiciel via le dépôt Git, vous pouvez puller régulièrement la branche portant le nom de la version (par exemple v1).
-Si par contre vous maintenez ce logiciel pour le compte d'une distribution quelconque, vous pouvez continuer à suivre les corrections d'anomalies après le freeze des évolutions en vérifiant régulièrement les nouveaux commits de la branche ayant le nom de la version majeure présente sur la distribution (par exemple v1.1).
+En tant qu'utilisateur, vous serez probablement intéressé par l'évolution de la version majeure que vous employez. Si vous choisissez de mettre à jour directement le logiciel via le dépôt Git, vous pouvez puller régulièrement la branche portant le nom de la version (par exemple v1).
+Si par contre vous maintenez ce logiciel pour le compte d'une distribution quelconque, vous pouvez continuer à suivre les corrections d'anomalies après le freeze des évolutions en vérifiant régulièrement les nouveaux commits de la branche ayant le nom de la version mineure présente sur la distribution (par exemple v1.1).
 
 \subsubsection{Comment l'installer~?}
 
@@ -48,4 +48,4 @@ Mais là aussi, des efforts seront peut-être (probablement) faits un jour.
 \end{itemize}
 
 À présent, tout devrait être bon. Pour être sûr, vous pouvez configurer votre machine comme une interface de développement (voir le paragraphe en question) et jouer les tests d'intégration.
-Mais c'est probablement un peu lourd et foireux de faire ça sur votre future machine de production\dots
+Mais c'est probablement un peu lourd et foireux de faire ça sur votre future production\dots

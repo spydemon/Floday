@@ -1,27 +1,24 @@
-\subsection{Démarrer une instance de dévelopment}
+\subsection{Démarrer une instance de développement}
 
-La première étape pour contribuer et de réussir à exécuter \emph{Floday} dans un environnement contrôlé sur lequel des tests peuvent être exécutés sans craintes.
+La première étape pour contribuer et de réussir à lancer \emph{Floday} dans un environnement contrôlé sur lequel des tests peuvent être exécutés sans crainte.
 Une façon de faire va être décrite dans cette section.
 
-Pour fonctionner, on utilisera deux images \emph{VirtualBox} dont l'une sera un clone de la première.
-Cette façon de procéder nous permet d'avoir un «\,effet mémoire\,» permettant d'exécuter \emph{Floday} sur une machine virtuelle et de pouvoir encore après-coup s'y connecter pour vérifier avec précision ce qui a été effectué.
-La machine virtuelle de base s'appellera \emph{Floday\_Clean} et la copie de travail courante \emph{Floday\_Work}.
-Toute la configuration sera à faire sur \emph{Floday\_Clean} car cette machine servant de base à \emph{Floday\_Work}, tout son contenu y sera déployé.
-De cette façon, si un déploiement se passe mal, il sera toujours possible de réinitialiser \emph{Floday\_Work} en y reclonant \emph{Floday\_Clean}.
+Pour fonctionner, on utilisera deux images \emph{VirtualBox} dont l'une sera un clone de la première. La machine virtuelle de base s'appellera \emph{Floday\_Clean} et la copie de travail courante \emph{Floday\_Work}.
+Toute la configuration sera à faire sur \emph{Floday\_Clean}, ce qui permettra de réinitiliser \emph{Floday\_Work} si un déploiement se passe mal.
 
-Je présente ici comment installer cette architecture sur une Debian 8.0 (Jessie) avec OpenRC comme système d'init.
-Il n'y a cependant aucune restriction quant à celle-ci, vous pouvez utiliser le socle que vous voulez, tant que \emph{LXC} y soit correctement supporté.
-Notez aussi que \emph{riuk}, le jeu de conteneur de test nécessite \emph{OpenRC} pour fonctionner correctement.
+Je présente ici la procédure d'installation de cette architecture sur une Debian 8.0 (Jessie) avec OpenRC comme système d'init.
+Il n'y a cependant aucune restriction quant à celle-ci, vous pouvez utiliser le socle que vous voulez, tant que \emph{LXC} y est correctement supporté.
+Notez aussi que \emph{riuk}, le jeu de conteneur de test nécessite \emph{OpenRC}.
 
 La création de cette infra reste assez bancale pour le moment, mais elle a le mérite de fonctionner très bien une fois les galères de l'installation passées.
 Le jeu en vaut donc la chandelle !
-Voici les étapes d'installation~:
+Voici les étapes~:
 \begin{itemize}
 	\item Installation de \emph{VirtualBox} sur l'hôte.
 	\item Création d'un dossier partagé appelé \emph{floday} entre \path{/opt/floday/} sur la VM et le dépôt Git sur l'hôte. Attention, ce partage doit être en lecture et écriture pour pouvoir passer tous les tests unitaires.
-	\item Configurer les réseaux \emph{VirtualBox} pour avoir un pond sur \emph{eth0} et un réseau privé hôte sur \emph{eth1}.
+	\item Configurer les réseaux \emph{VirtualBox} pour avoir un pont sur \emph{eth0} et un réseau privé hôte sur \emph{eth1}.
 	\item Virer \emph{systemd} pour utiliser \emph{Open-RC} à la place~: \url{http://linuxmafia.com/kb/Debian/openrc-conversion.html}.
-	\item Installation des additions invités : \url{htps://virtualboxes.org/doc/installing-guest-additions-on-debian/}.
+	\item Installation des additions invitées : \url{htps://virtualboxes.org/doc/installing-guest-additions-on-debian/}.
 	\item Création des dossiers \path{/opt/floday}, \path{/var/lib/floday} et \path{/etc/floday}.
 	\item Variables d'environnement à ajouter dans \path{/root/.bash}~:\\
 {\tt export FLODAY\_CONTAINERS="/opt/floday/src/containers/";\\
@@ -93,6 +90,6 @@ lxc.network.hwaddr = 00:16:3e:xx:xx:xx
 \end{itemize}
 
 Pour valider que la configuration soit correcte, il vous est conseillé de jouer les tests d'intégrations.
-Si ils ne passent pas malgré le fait que vous ayez scrupuleusement suivit ce guide, vous êtes invités à poster un ticket de type \emph{question} afin que nous puissission enrichir la procédure.
+S'ils ne passent pas malgré le fait que vous avez scrupuleusement suivi ce guide, vous êtes invités à poster un ticket de type \emph{question} afin que nous puissions enrichir la procédure.
 
 À terme, un script de déploiement automatique sera peut-être fourni.
