@@ -22,7 +22,7 @@
 	plural=attributs,
 	description={%
 		L'attribut est une entité d'information permettant de définir un \gls{conteneur}.
-		Il peut avoir des formes très variées, et se situent généralement au sein de la configuration d'un conteneur.
+		Il peut avoir des formes très variées, et se situe généralement au sein de la configuration d'un conteneur.
 		Ils ont également des formes hiérarchiques~: un attribut peut en contenir d'autres.
 		De façon générale, les attributs peuplent intégralement les fichiers \emph{config.yml} présents au cœur de chaque conteneur.
 	}
@@ -32,7 +32,7 @@
 	name={chemin d'application},
 	plural={chemins d'applications},
 	description={%
-		Défini le nom concrêt d'une application en fonction de l'\gls{imbrication} de ses \glspl{gestionnaire}.
+		Définis le nom concret d'une application en fonction de l'\gls{imbrication} de ses \glspl{gestionnaire}.
 		Un tiret est utilisé pour séparer les différentes imbrications.
 		Par exemple, on peut avoir~: \emph{spyzone-web-my\_blog} pour une application nommée \emph{my\_blog} contraint par \emph{web} sur l'hôte \emph{spyzone}.
 		Il s'agit ici d'une notion similaire à celle du \gls{chemin_conteneur}, mais avec le nom de l'application à la place du type de conteneur.
@@ -43,7 +43,7 @@
 	name={chemin de conteneur},
 	plural={chemins de conteneurs},
 	description={%
-		Défini le type concrêt d'un conteneur en fonction de l'\gls{imbrication} de ses \glspl{gestionnaire}.
+		Définis le type concret d'un conteneur en fonction de l'\gls{imbrication} de ses \glspl{gestionnaire}.
 		Un tiret est utilisé pour séparer les différentes imbrications.
 		Par exemple, on peut avoir~: \emph{riuk-web-wordress} pour un conteneur \emph{wordpress} contraint par \emph{web} dans le \gls{jeu_conteneur} \emph{riuk}.
 		Il s'agit ici d'une notion similaire à celle du \gls{chemin_application}, mais avec le type de conteneur à la place du nom de l'application.
@@ -55,7 +55,7 @@
 	plural=conteneurs,
 	description={%
 		Le conteneur est une recette à appliquer pour produire une \gls{application}.
-		Un même conteneur peut donc être utiliser pour générer plusieurs applications similères.
+		Un même conteneur peut donc être utilisé pour générer plusieurs applications similaires.
 		Par exemple~: un conteneur \emph{Wordpress} peut être utilisé pour générer plusieurs blogs.
 	}
 }
@@ -87,17 +87,17 @@
 	description={%
 		Une définition de conteneur présente la façon dont le conteneur doit se déployer.
 		Il s'agit d'y définir les scripts à exécuter, dans quel ordre, ainsi que tous autres éléments nécessaires, comme la création des attributs.
-		Cette définition s'effecute dans les fichiers {\tt{}config.yml} du conteneur courant, de ceux de ses parents ainsi que du \gls{runfile} (pour les attributs surchargés).
+		Cette définition s'effectue dans les fichiers {\tt{}config.yml} du conteneur courant, de ceux de ses parents ainsi que du \gls{runfile} (pour les attributs surchargés).
 	}
 }
 
 \newglossaryentry{deploiement}{
-	name=déploiment -- d'applications,
-	text=déploiment,
-	plural=déploiments,
+	name=déploiement -- d'applications,
+	text=déploiement,
+	plural=déploiements,
 	description={%
-		Le déploiment est l'action permettant de transformer la \gls{definition} d'un conteneur en \gls{application}.
-		Il est généralement constitué de deux étapes principales~: l'\gls{initialisation} et l'itération des différents scripts d'installation présent au niveau de la \gls{definition} du conteneur en question.
+		Le déploiement est l'action permettant de transformer la \gls{definition} d'un conteneur en \gls{application}.
+		Il est généralement constitué de deux étapes principales~: l'\gls{initialisation} et l'itération des différents scripts d'installation présents au niveau de la \gls{definition} du conteneur en question.
 	}
 }
 
@@ -106,7 +106,7 @@
 	text=gestionnaire,
 	plural=gestionnaires,
 	description={%
-		Un \gls{conteneur} est gestionnaire s'il manage ou permet à d'autre conteneurs de fonctionner au travers de lui.
+		Un \gls{conteneur} est gestionnaire s'il manage ou permet à d'autres conteneurs de fonctionner au travers de lui.
 		Un gestionnaire s'occupe de ses \glspl{sous-conteneur}.
 	}
 }
@@ -116,8 +116,8 @@
 	plural=hôtes,
 	description={%
 		L'hôte et le niveau zéro de l'\gls{imbrication}.
-		Il s'agit du système physique sur lequels les \glspl{application} sont executées.
-		Les \glspl{action} qui y sont effectues n'ont donc aucun confinement.
+		Il s'agit du système physique sur lequel les \glspl{application} sont exécutées.
+		Les \glspl{action} qui y sont effectuées n'ont donc aucun confinement.
 	}
 }
 
@@ -134,11 +134,11 @@
 \newglossaryentry{initialisation}{
 	name=initialisation,
 	description={%
-		Il s'agit du minimum à effectuer pour permettre le déploiment d'une \gls{application} fonctionnelle, c'est-à-dire généralement, avoir un \emph{OS} minimaliste permettant les fonctionnalités de base.
+		Il s'agit du minimum à effectuer pour permettre le déploiement d'une \gls{application} fonctionnelle, c'est-à-dire généralement, avoir un \emph{OS} minimaliste permettant les fonctionnalités de base.
 		Actuellement, les seules initialisations de supportées le sont via des templates \emph{LXC}.
 		Concrètement, il s'agit donc d'exécuter la commande {\tt{}lxc-deploy} avec le bon template (\emph{flodayalpine} est fourni par défaut).
 		Comme son nom l'indique, il se contente de créer un conteneur \emph{Alpine Linux} minimaliste.
-		Actuellement, l'initialisation à utiliser pour chaque \gls{conteneur} est défini à l'aide du \gls{param_applicatifs} \emph{template}.
+		Actuellement, l'initialisation à utiliser pour chaque \gls{conteneur} est définie à l'aide du \gls{param_applicatifs} \emph{template}.
 	}
 }
 
@@ -147,7 +147,7 @@
 	plural=instanciation,
 	description={%
 		Installation d'une \gls{application}.
-		C'est-à-dire qu'on déroule tous les scripts d'exécution pour mettre en place l'application et la rendre utilsable.
+		C'est-à-dire qu'on déroule tous les scripts d'exécution pour mettre en place l'application et la rendre utilisable.
 	}
 }
 
@@ -157,7 +157,7 @@
 	description={%
 		Le jeu de conteneurs constitue la définition même de ce que \emph{Floday} est capable de déployer.
 		Par défaut, le jeu doit être présent dans le répertoire {\tt/etc/floday/containers}.
-		Il est à la charge de l'utilisateur d'écrire son propre jeu, car seul lui est à-même de savoir comment son architecture devrait fonctionner.
+		Il est à la charge de l'utilisateur d'écrire son propre jeu, car seul lui est à même de savoir comment son architecture devrait fonctionner.
 	}
 }
 
@@ -166,7 +166,7 @@
 	plural=paramètres applicatifs,
 	description={%
 		Un paramètre applicatif est une entité de configuration appliquée à une \gls{application}.
-		Il peut être implicite, si il est défini au niveau de la définition du \gls{conteneur} ou explicite, si il l'est plutôt au niveau du \gls{runfile}.
+		Il peut être implicite, s'il est défini au niveau du \gls{conteneur} ou explicite, s'il l'est plutôt au niveau du \gls{runfile}.
 		Il peut aussi être redéfini à chaque niveau~: dans un conteneur hérité, fils puis dans le runfile.
 		Comme exemple, nous pouvons prendre le cas d'un paramètre \emph{url} présent dans le conteneur \emph{Wordpress} permettant de savoir comment configurer correctement le \emph{CMS}.
 	}
@@ -184,8 +184,8 @@
 		\end{itemize}
 		Le terme peut également être utilisé pour indiquer dans quelles versions se situent un ticket, ou une fonctionnalité précise. Nous pouvons dire~:
 		\begin{itemize}
-			\item Les corrections \#3, \#4 et \#5 seront propulsés dans la \emph{v1.2.4} et la \emph{v1.3.0}.
-			\item La fonctionnalité de parsage dynamique de la configuration sera propulsé dans la \emph{v1.4}.
+			\item Les corrections \#3, \#4 et \#5 seront propulsées dans la \emph{v1.2.4} et la \emph{v1.3.0}.
+			\item La fonctionnalité de parsage dynamique de la configuration sera propulsée dans la \emph{v1.4}.
 		\end{itemize}
 	}
 }
@@ -193,16 +193,16 @@
 \newglossaryentry{runfile}{
 	name=runfile,
 	description={%
-		Par défaut à l'emplacement {\tt/etc/runfile}, sont rôle est de définir explicitement toutes les \glspl{application} a exécuter sur l'ensemble du «\,parc\,» informatique géré.
-		Le même fichier est donc utilisé sur plusieurs hôtes pour permettre là encore de voir les interactions (procédés de backup, ou de répartion de la charge, etc.).
-		Il contient donc une liste exaustive de toutes les applications à déployer, ainsi que la liste de tous les \glspl{param_applicatifs} non implicites.
+		Par défaut à l'emplacement {\tt/etc/runfile}, sont rôle est de définir explicitement toutes les \glspl{application} à exécuter sur l'ensemble du «\,parc\,» informatique géré.
+		Le même fichier est donc utilisé sur plusieurs hôtes pour permettre là encore de voir les interactions (procédés de backup, ou de répartition de la charge, etc.).
+		Il contient donc une liste exhaustive de toutes les applications à déployer, ainsi que la liste de tous les \glspl{param_applicatifs} non implicites.
 	}
 }
 
 \newglossaryentry{runlist}{
 	name=runlist,
 	description={%
-		Il s'agit d'un composant interne à \emph{Floday} utilisé pour représenter de façon la plus simple possible (via un tableau multi-dimentionnel) tout ce qui constitue une application.
+		Il s'agit d'un composant interne à \emph{Floday} utilisé pour représenter de façon la plus simple possible (via un tableau multidimensionnel) tout ce qui constitue une application.
 		C'est à dire l'ensemble de sa définition une fois tous les procédés d'héritages et de réécritures effectués.
 	}
 }

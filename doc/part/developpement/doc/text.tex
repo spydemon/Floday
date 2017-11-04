@@ -1,11 +1,11 @@
-\subsection{Participer à la documentaton}
+\subsection{Participer à la documentation}
 
-La documentation s'écrit de la même façon que la source du logiciel.
-En effet, il s'agit d'un document \LaTeX{} présent au sein même du répertoire \emph{Git} du projet.
-Cette carractéristique permet d'avoir une documentation qui soit toujours en adéquation avec la version en cours d'utilisation.
+La documentation s'écrit de la même façon que le code source.
+En effet, il s'agit d'une suite de fichiers \LaTeX{} présents au sein du dépôt \emph{Git} du projet.
+Cette caractéristique permet d'avoir une documentation qui est toujours en adéquation avec la version du logiciel en cours d'utilisation.
 
-\subsubsection{Comment compiler sois-même la documentation}
-Normalement, cette étape est assez simple si vous avez correstement installé \emph{pdflatex} et la dizaine de giga-octets de dépendances qu'il embarque.
+\subsubsection{Comment compiler soi-même la documentation}
+Normalement, cette étape est assez simple si vous avez correctement installé \emph{pdflatex} et la dizaine de giga-octets de dépendances qu'il embarque.
 Il ne vous restera plus qu'à lancer les commandes suivantes, dans l'ordre donné~:
 \begin{itemize}
 	\item{\tt cd <racine du dépôt>/doc}
@@ -15,16 +15,16 @@ Il ne vous restera plus qu'à lancer les commandes suivantes, dans l'ordre donn�
 	\item{\tt pdflatex main.tex}
 \end{itemize}
 Si vous ne venez pas du monde merveilleusement chiant qu'est \LaTeX, vous seriez probablement étonné de voir trois fois la même commande\dots{}
-L'ordre et la fréquence est importante pour s'assurer une compilation correcte du glossaire, de la table des matières et des numéros de pages.
+L'ordre et la fréquence sont importants pour s'assurer une compilation correcte du glossaire, de la table des matières et des numéros de pages.
 
 \subsubsection{Quoi documenter~?}
 Tout devrait l'être.
-Bien entendu, quand une nouvelle fonctionnalité est ajouté à \emph{Floday}, il faut obligatoirement en parlé ici.
-Après, je conçois aussi que cette documentation n'étant pas (initalement, en tout cas) rédigée par des gens qui savent écrire correctement, elle peut être pleine de fautes, ou à la compréhention douteuse.
-C'est pour cela que l'incrémentation des versions mineures du logiciel peut aussi s'expliqué par un enrichissement de la documentation.
+Bien entendu, quand une nouvelle fonctionnalité est ajoutée à \emph{Floday}, il faut obligatoirement en parler ici.
+Après, je conçois qu'elle n'est actuellement pas rédigée par des gens qui savent écrire correctement, elle peut être pleine de fautes, ou à la compréhension douteuse.
+C'est pour cela que l'incrémentation des versions mineures du logiciel peut aussi s'expliquer par un enrichissement de la documentation.
 N'oubliez pas qu'il est possible de poster sur le bug tracker des tickets indiquant des problèmes au niveau de celle-ci.
 Les correctifs devront donc finir sur des branches \emph{bugfixes} ou \emph{release}.
 
 \subsubsection{Traductions de la documentation}
-Comme je suis français, il ne s'agit actuellement que de l'unique langue dans laquelle cette documentation est dispnnible\dots{}
-Si vous voulez la traduire, n'hésitez pas à me contacter pour que l'on voit comment mettre ça en place~!
+Comme je suis français, il ne s'agit actuellement que de l'unique langue dans laquelle cette documentation est disponible\dots{}
+Si vous voulez la traduire, n'hésitez pas à me contacter pour que l'on voie comment mettre ça en place~!
