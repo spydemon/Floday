@@ -76,6 +76,7 @@
 		{\huge $\sim \bullet \backsim$}
 		\vskip 0.2cm
 		\begin{tabular}{lr}
+			\rowcolors{2}{white}{white}
 			\compilationDateLabel{}          & \@date             \\
 			\ifdefvoid{\@versionReference}{}{% Only display the version reference line if the variable is not empty.
 				\softwareVersionReferenceLabel{} & \@versionReference \\
@@ -101,17 +102,16 @@
 	\setlength{\fboxsep}{0pt}
 	\vspace*{-1cm}
 	\hspace*{\dimexpr-\marginparwidth-\marginparsep\relax}
-	\colorbox{backgroundIntroduction}{%
-		\begin{minipage}{\dimexpr\marginparwidth+\marginparsep+\textwidth\relax}
-			\titlerule[1pt]
-			\vspace{1pt}
-			\titlerule
-			\vspace{10pt}
-			{\Large\filcenter\bfseries#1\\}
-			\vspace{10pt}
-			\titlerule
-		\end{minipage}
-	}
+	\begin{minipage}{\dimexpr\marginparwidth+\marginparsep+\textwidth\relax}
+		\titlerule[1pt]
+		\vspace{1pt}
+		\titlerule
+		\vspace{10pt}
+		{\Large\filcenter\bfseries#1\\}
+		\vspace{10pt}
+		\titlerule
+	\end{minipage}
+	\vspace{10pt}
 }
 
 % Customization of the footer
@@ -143,7 +143,6 @@
 
 %%%% Introduction block after each section.
 \mdfdefinestyle{styleIntroduction}{%
-	backgroundcolor=backgroundIntroduction,
 	leftline=false,
 	rightline=false,
 	skipabove=5pt,
@@ -151,8 +150,8 @@
 }
 
 \newenvironment{intro} {
-	\vspace{-.04cm}
-	\hspace*{\dimexpr-\marginparwidth-\marginparsep-.6cm\relax}
+	\vspace{-9pt}
+	\hspace*{\dimexpr-\marginparwidth-\marginparsep-.53cm\relax}
 	\begin{minipage}{\dimexpr\textwidth+\marginparwidth+\marginparsep}
 	\bfseries
 	\setlength{\parskip}{0pt}
@@ -166,7 +165,7 @@
 %%%% Exists still
 \newcommand\existstill[1]{%
 	{\footnotesize
-		\marginnote{#1}
+		\marginnote{1\up{ère} apparation : v#1}
 	}
 }
 

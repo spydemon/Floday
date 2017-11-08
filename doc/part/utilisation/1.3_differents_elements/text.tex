@@ -134,7 +134,8 @@ Chaque nœud peut avoir ces attributs~:
 Les attributs sont les mêmes que pour le nœud \emph{setup} et \emph{hooks}.
 
 \subsubsection{Écrire les scripts d'exécution}
- 
+
+\existstill{1.0.0}
 Le code~\ref{fig_1.3_setup} est un exemple de script permettant de configurer \emph{lighttpd} de façon à ce qu'il puisse communiquer avec l'extérieur et qu'il puisse faire le proxy entre ses différentes \gls{sous-application}.
 
 \input{part/utilisation/1.3_differents_elements/fig_setup.tex}
@@ -154,6 +155,8 @@ Mais là encore, il est conseillé de se référer à \emph{perldoc} pour avoir 
 La ligne~29 montre comment nous devons procéder pour agir non pas sur l'application en cours de déploiement, mais sur une autre (ici, les \glspl{sous-application} qu'il gère).
 
 \subsubsection{Déboguer un script}
+\existstill{1.0.0}
+
 Chaque script \path{setups}, \path{end-setup} ou autres peuvent facilement être testés sans avoir à redéployer l'ensemble des applications.
 Nous pouvons lancer un script de façon unitaire en lui renseignant un paramètre \emph{application} ayant la valeur du \gls{chemin_application} sur laquelle nous voulons voir le script travailler.
 Par exemple~:
