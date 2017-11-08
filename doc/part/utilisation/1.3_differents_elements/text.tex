@@ -57,7 +57,7 @@ Le code~\ref{fig_1.3_runfile} est un modèle que l'on utilisera comme exemple.
 
 On constate tout d'abord que ce fichier est en \emph{YAML}. 
 On y voit ensuite la définition de deux \glspl{hote}~: \emph{websites} et \emph{backup}.
-Dans le premier, trois \glspl{application}s y sont définies~:\emph{web}, qui est \gls{gestionnaire} des deux autres~: \emph{my\_blog} et \emph{mum\_blog}.
+Dans le premier, trois \glspl{application} y sont définies~:\emph{web}, qui est \gls{gestionnaire} des deux autres~: \emph{my\_blog} et \emph{mum\_blog}.
 Cela signifie que \emph{web} peut se baser sur ses \glspl{sous-conteneur} pour se configurer correctement.
 La figure~\ref{relation_conteneurs} essaye de représenter visuellement ces notions.
 
@@ -79,7 +79,7 @@ Nous pouvons voir que pour chaque hôte ou application deux clefs principales y 
 Dans le paragraphe précédent, on a vu comment indiquer les \glspl{application} que l'on voudrait déployer sur un hôte.
 Il nous reste à présent à définir en quoi elles consistent concrètement.
 
-Pour cela, la première notion à introduire et celle de \gls{chemin_conteneur}.
+Pour cela, la première notion à introduire est celle de \gls{chemin_conteneur}.
 Comme le glossaire nous l'apprend, il ne s'agit ni plus ni moins qu'une agrégation des types de l'\gls{imbrication} courante.
 Ce chemin permet de trouver facilement le fichier {\tt config.yml} du conteneur en question.
 
@@ -119,7 +119,7 @@ Chaque \gls{param_applicatifs} peut avoir ces attributs~:
 		\footnote{Attention, le support du type booléan en \emph{YAML} étant assez hasardeux en Perl~5, nous utilisons dans \emph{Floday} des chaines de caractères égales à «\,true\,» ou «\,false\,». On ne peut donc pas employer les autres formes officielles de valeurs existantes.}%
 		. Si l'attribut est obligatoire, mais non défini lors du déploiement, une erreur sera émise par \emph{Floday}.
 	\item[pattern] Cet attribut peut contenir une expression rationnelle \emph{PCRE} à laquelle la valeur sera soumise. Si le test échoue, le déploiement sera là aussi annulé.
-	\item[value] Définis une valeur par défaut. Si celui-ci ne se retrouve pas surchargé au niveau du \gls{runfile}, c'est cette valeur qui sera utilisée.
+	\item[value] Définit une valeur par défaut. Si celui-ci ne se retrouve pas surchargé au niveau du \gls{runfile}, c'est cette valeur qui sera utilisée.
 \end{description}
 
 \paragraph{Le nœud \emph{setups}}

@@ -13,7 +13,7 @@ $Backticks::autodie = 1;
 #########################
 # Lighttpd installation #
 #########################
-my $lxc = $APP->getLxcInstance();
+my $lxc = $APP->get_lxc_instance();
 $lxc->start() if $lxc->is_stopped();
 $lxc->exec('apk add lighttpd');
 $lxc->exec('rc-update add lighttpd');
@@ -22,24 +22,24 @@ $lxc->exec('/etc/init.d/lighttpd start');
 #####################################
 # Lighttpd configuration management #
 #####################################
-$APP->generateFile(
+$APP->generate_file(
   'jaxe/children/www/setups/lighttpd/lighttpd.conf',
   undef,
   '/etc/lighttpd/lighttpd.conf'
 );
-for ($APP->getApplications()) {
-	$APP->generateFile(
+for ($APP->get_sub_applications()) {
+	$APP->generate_file(
 	  $_->getParameter('lighttpd_config'),
 	  {$_->getParameters()},
-	  '/etc/lighttpd/conf.d/'.$_->getInstancePath().'.conf'
+	  '/etc/lighttpd/conf.d/'.$_->get_application_path().'.conf'
 	);
 }
 
 #################################
 # Lighttpd routing instructions #
 #################################
-my $ipv4 = $APP->getParameter('networking_ipv4');
-my ($ipv6) = $APP->getParameter('networking_ipv6') =~$\sim$~ /^(.*)\//;
+my $ipv4 = $APP->get_parameter('networking_ipv4');
+my ($ipv6) = $APP->get_parameter('networking_ipv6') =~$\sim$~ /^(.*)\//;
 `iptables -t nat -A PREROUTING ! -i lxcbr0 -p tcp --dport 80 -j DNAT --to-dest $ipv4`;
 `iptables -t filter -A FORWARD ! -i lxcbr0 -p tcp --dport 80 -j ACCEPT`;
 `ip6tables -t nat -A PREROUTING ! -i lxcbr0 -p tcp --dport 80 -j DNAT --to-dest $ipv6`;
