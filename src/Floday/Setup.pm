@@ -166,3 +166,173 @@ if (defined $application) {
 }
 
 1;
+
+=head1 NAME
+
+Floday::Setup - Manage a Floday application.
+
+=head1 VERSION
+
+1.0.0
+
+=head1 SYNOPSYS
+
+  #!/usr/bin/env perl
+
+  use strict;
+  use warnings;
+  use v5.20;
+
+  use Backticks;
+  use Floday::Setup;
+
+  $Backticks::autodie = 1;
+
+  my $lxc = $APP->get_lxc_instance();
+  $lxc->start() if $lxc->is_stopped();
+  $lxc->exec('apk add lighttpd');
+  $lxc->exec('rc-update add lighttpd');
+  $lxc->exec('/etc/init.d/lighttpd start');
+
+  $APP->generate_file(
+    'jaxe/children/www/setups/lighttpd/lighttpd.conf',
+    undef,
+    '/etc/lighttpd/lighttpd.conf'
+  );
+  for ($APP->get_sub_applications()) {
+    $APP->generate_file(
+      $_->getParameter('lighttpd_config'),
+      {$_->getParameters()},
+      '/etc/lighttpd/conf.d/'.$_->get_application_path().'.conf'
+    );
+  }
+
+  my $ipv4 = $APP->get_parameter('networking_ipv4');
+  my ($ipv6) = $APP->get_parameter('networking_ipv6') =~ /^(.*)\//;
+  `iptables -t nat -A PREROUTING ! -i lxcbr0 -p tcp --dport 80 -j DNAT --to-dest $ipv4`;
+  `iptables -t filter -A FORWARD ! -i lxcbr0 -p tcp --dport 80 -j ACCEPT`;
+  `ip6tables -t nat -A PREROUTING ! -i lxcbr0 -p tcp --dport 80 -j DNAT --to-dest $ipv6`;
+  `ip6tables -t filter -A FORWARD ! -i lxcbr0 -p tcp --dport 80 -j ACCEPT`;
+
+=head1 DESCRIPTION
+
+Warning: this module is aimed to be used only inside a Floday context.
+If you don't know what Floday is, it is probably a wrong idea to use this module yet.
+
+This module is a helper that can be used for managing Floday application deployment.
+It provides a lot of helpful functions that are listed below:
+
+=head2 The $APP object
+
+When Floday is deploying an application, it pass an "application" parameter to each "setup" or "end_setup" scripts
+presents in the container definition for allowing those scripts to know on who it is working.
+
+This parameter is automatically handled by this module and will create an $APP object that can directly be used in
+your script.
+
+  use Floday::Setup; //Create automaticaly a $APP object.
+  my $lxc = $APP->get_lxc_instance(); //Get a Linux::LXC object depending on the application we are deploying.
+
+If no "application" parameter is provided to the script, the $APP object is simply ignored.
+
+=head2 Use a script as standalone
+
+Of course, you can still use this module without providing any "application" parameter to your script. It can be
+useful for debugging purpose:
+
+  use Floday::Setup;
+  my $my_blog = Floday::Setup->new('application_path' => 'my_server-web-my_blog');
+  my $mum_blog = Floday::Setup->new('application_path' => 'my_server-web-mum_blog');
+
+=head2 Object methods
+
+=head3 get_application_path($self)
+
+Return the application path set to the object.
+
+=head3 get_config($self)
+
+Return a Floday::Helper::Config object initialized for the current application.
+
+=head3 get_lxc_instance($self)
+
+Return a Linux::LXC object initialized for reaching the LXC container that manage the current Floday application.
+
+=head3 get_manager($self)
+
+Return a new Floday::Setup object set on the manager of the current application, if it exists.
+For knowing more about the manager notion, please refer yourself to the Floday documentation.
+
+=head3 get_runlist($self)
+
+Return a Floday::Helper::Runlist object initialized with your runfile.
+For knowing more about what a runfile is, please refer yourself to the Floday documentation.
+
+=head3 get_sub_applications($self)
+
+Return an list of other Floday::Setup objects that represent all sub-applications the current one manage.
+For knowing more about what a sub-application is, please refer yourself to the Floday documentation.
+
+=head3 get_definition($self)
+
+Return a hash with the part of the runlist corresponding to the current Floday application.
+For knowing more about the runlist, please refer yourself to the Floday documentation.
+
+=head3 get_parameter($self, $param_name, $flag)
+
+Get the value of a parameter.
+
+=over 15
+
+=item $param_name
+
+Is a string with the name of the attribute we want to get.
+
+=back
+
+=over 15
+
+=item $flag
+
+Can be "$ALLOW_EMPTY" or "undef". If the flag is not set, the script will crash if an asked parameter doesn't exist in
+the current Floday application. With it, the subroutine will simply return "undef".
+
+Here is an example:
+
+  use Floday::Helper qw/$APP ALLOW_UNDEF/;
+  my $param = $APP->get_parameter('ipv4_external', ALLOW_UNDEF);
+
+=back
+
+=over 15
+
+=item return
+
+The return value is a string with the parameter value, if it exists. Otherwise, and if the ALLOW_EMPTY flag was
+provided, the return value will be undef. Finally, the call will die if the parameter was not existing and that the
+ALLOW_EMPTY flag was not set.
+
+=back
+
+=head1 AUTHOR
+
+Floday Team - http://dev.spyzone.fr/floday
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2017 by Spydemon.
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program. If not, see <http://www.gnu.org/licenses/>.
+
+=cut

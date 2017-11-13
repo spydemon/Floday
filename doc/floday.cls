@@ -165,7 +165,7 @@
 %%%% Exists still
 \newcommand\existstill[1]{%
 	{\footnotesize
-		\marginnote{1\up{ère} apparation : v#1}
+		\marginnote{1\up{ère} apparition : v#1}
 	}
 }
 
