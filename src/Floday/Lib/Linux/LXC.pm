@@ -158,4 +158,39 @@ before stop => sub {
 	$this->log->debugf('%s: stop', $this->get_utsname());
 };
 
-1
+1;
+
+=head1 NAME
+
+Floday::Lib::Linux::LXC - Overload of Linux::LXC for logging purpose.
+
+=head1 VERSION
+
+1.0.0
+
+=head1 DESCRIPTION
+
+This is an internal module used by Floday for logging purpose.
+You should not work directly with this module if you are not currently developing on Floday core.
+
+=head1 AUTHORS
+
+Floday team - http://dev.spyzone.fr/floday
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2017 by the Floday team.
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+
+=cut

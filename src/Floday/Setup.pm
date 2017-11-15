@@ -73,6 +73,7 @@ has runlist => (
 	lazy => 1
 );
 
+#TODO: to remove.
 has runlist_path => (
 	'is' => 'ro',
 	'default' => '/var/lib/floday/runlist.yml',
@@ -246,6 +247,44 @@ useful for debugging purpose:
 
 =head2 Object methods
 
+=head3 generate_file($self, $source, $parameters, $destination)
+
+Will generate a file with the $source Template Toolkit file, the $parameters parameters and write the result on the
+$destination file inside the LXC container representing the current Floday application.
+This function first role is to provide a way for generating configuration files.
+
+=over 15
+
+=item $source
+
+String representing a Template Toolkit file to use as template.
+The root of this string is the folder that contains Floday container set.
+Eg: if $source = 'riuk/children/web/setups/lighttpd.tt' and the container/path configuration value in the
+/etc/floday.cfg file has the "/etc/floday/containers" value, the source file will be /etc/floday/containers/riuk/children/web/setups/lighttpd.tt
+
+=back
+
+=over 15
+
+=item $parameters
+
+A hash that will be used for generating the output.
+Refer to Template Toolkit documentation for knowing more about how that part works.
+
+=back
+
+=over 15
+
+=item $destination
+
+String that represent where to write the file on the LXC container.
+If folders are missing, they will be automaticaly created.
+Eg: if $destinatiion = /etc/lighttpd.conf and the LXC root of the current application is /var/lib/lxc/integration-web/rootfs,
+the file will be write at the /var/lib/lxc/integration-web/rootfs/etc/lighttpd.conf emplacement, and the folder
+/var/lib/lxc/integration-web/rootfs/etc will be created if it wasn't already the case.
+
+=back
+
 =head3 get_application_path($self)
 
 Return the application path set to the object.
@@ -253,6 +292,11 @@ Return the application path set to the object.
 =head3 get_config($self)
 
 Return a Floday::Helper::Config object initialized for the current application.
+
+=head3 get_definition($self)
+
+Return a hash with the part of the runlist corresponding to the current Floday application.
+For knowing more about the runlist, please refer yourself to the Floday documentation.
 
 =head3 get_lxc_instance($self)
 
@@ -262,21 +306,6 @@ Return a Linux::LXC object initialized for reaching the LXC container that manag
 
 Return a new Floday::Setup object set on the manager of the current application, if it exists.
 For knowing more about the manager notion, please refer yourself to the Floday documentation.
-
-=head3 get_runlist($self)
-
-Return a Floday::Helper::Runlist object initialized with your runfile.
-For knowing more about what a runfile is, please refer yourself to the Floday documentation.
-
-=head3 get_sub_applications($self)
-
-Return an list of other Floday::Setup objects that represent all sub-applications the current one manage.
-For knowing more about what a sub-application is, please refer yourself to the Floday documentation.
-
-=head3 get_definition($self)
-
-Return a hash with the part of the runlist corresponding to the current Floday application.
-For knowing more about the runlist, please refer yourself to the Floday documentation.
 
 =head3 get_parameter($self, $param_name, $flag)
 
@@ -314,13 +343,32 @@ ALLOW_EMPTY flag was not set.
 
 =back
 
-=head1 AUTHOR
+=head3 get_parameters($self)
 
-Floday Team - http://dev.spyzone.fr/floday
+Return a hash that contains all parameters that exist for the current Floday application.
+
+=head3 get_root_folder($self)
+
+Get the folder from the host point of view that represents the root of the LXC container for the current Floday
+application.
+
+=head3 get_runlist($self)
+
+Return a Floday::Helper::Runlist object initialized with your runfile.
+For knowing more about what a runfile is, please refer yourself to the Floday documentation.
+
+=head3 get_sub_applications($self)
+
+Return an list of other Floday::Setup objects that represent all sub-applications the current one manage.
+For knowing more about what a sub-application is, please refer yourself to the Floday documentation.
+
+=head1 AUTHORS
+
+Floday team - http://dev.spyzone.fr/floday
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2017 by Spydemon.
+This software is copyright (c) 2017 by the Floday team.
 
 This program is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
