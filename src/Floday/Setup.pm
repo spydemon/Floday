@@ -50,7 +50,6 @@ has lxc_instance => (
 	'lazy' => 1
 );
 
-#TODO: runfile should be used here. Only runlist is needed.
 has runfile_path => (
 	default => sub {
 		Floday::Helper::Config->new()->get_floday_config('floday', 'runfile')
@@ -71,13 +70,6 @@ has runlist => (
 	reader => 'get_runlist',
 	builder => '_initialize_runlist',
 	lazy => 1
-);
-
-#TODO: to remove.
-has runlist_path => (
-	'is' => 'ro',
-	'default' => '/var/lib/floday/runlist.yml',
-	'reader' => 'get_runlist_path'
 );
 
 has log => (

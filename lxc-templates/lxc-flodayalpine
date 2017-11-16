@@ -47,8 +47,6 @@ sub generate_LXC_configuration{
 	  "lxc.mount.auto = proc:mixed",
 	  "lxc.mount.entry = $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache none bind 0.0",
 	  "lxc.mount.entry = $LOGGING_FOLDER $LXC_ROOTFS/$LOGGING_FOLDER none bind 0.0",
-	  "lxc.mount.entry = /dev/urandom $LXC_ROOTFS/dev/urandom none bind",
-	  "lxc.mount.entry = /dev/null $LXC_ROOTFS/dev/null none bind",
 	  "lxc.network.type = veth",
 	  "lxc.network.flags = up",
 	  "lxc.network.link = lxcbr0",
