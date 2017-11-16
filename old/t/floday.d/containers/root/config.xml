@@ -1,8 +1,0 @@
-<config>
-	<setup>
-		<fetch-runlist>
-			<priority>10</priority>
-			<exec>setup/fetch-runlist.pl</exec>
-		</fetch-runlist>
-	</setup>
-</config>

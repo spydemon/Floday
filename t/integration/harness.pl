@@ -8,7 +8,7 @@ use v5.20;
 use TAP::Harness;
 
 my %args = (
-	verbosity => 1,
+	verbosity => 0,
 	lib => [$ENV{FLODAY_T_SRC}],
 	color => 1
 );

@@ -1,0 +1,47 @@
+\begin{lstlisting}[float=t, caption={Exemple de script de setup}, label=fig_1.3_setup]
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use v5.20;
+
+use Backticks;
+use Floday::Setup;
+
+$Backticks::autodie = 1;
+
+#########################
+# Lighttpd installation #
+#########################
+my $lxc = $APP->get_lxc_instance();
+$lxc->start() if $lxc->is_stopped();
+$lxc->exec('apk add lighttpd');
+$lxc->exec('rc-update add lighttpd');
+$lxc->exec('/etc/init.d/lighttpd start');
+
+#####################################
+# Lighttpd configuration management #
+#####################################
+$APP->generate_file(
+  'jaxe/children/www/setups/lighttpd/lighttpd.conf',
+  undef,
+  '/etc/lighttpd/lighttpd.conf'
+);
+for ($APP->get_sub_applications()) {
+	$APP->generate_file(
+	  $_->getParameter('lighttpd_config'),
+	  {$_->getParameters()},
+	  '/etc/lighttpd/conf.d/'.$_->get_application_path().'.conf'
+	);
+}
+
+#################################
+# Lighttpd routing instructions #
+#################################
+my $ipv4 = $APP->get_parameter('networking_ipv4');
+my ($ipv6) = $APP->get_parameter('networking_ipv6') =~$\sim$~ /^(.*)\//;
+`iptables -t nat -A PREROUTING ! -i lxcbr0 -p tcp --dport 80 -j DNAT --to-dest $ipv4`;
+`iptables -t filter -A FORWARD ! -i lxcbr0 -p tcp --dport 80 -j ACCEPT`;
+`ip6tables -t nat -A PREROUTING ! -i lxcbr0 -p tcp --dport 80 -j DNAT --to-dest $ipv6`;
+`ip6tables -t filter -A FORWARD ! -i lxcbr0 -p tcp --dport 80 -j ACCEPT`;
+\end{lstlisting}

@@ -1,0 +1,38 @@
+\begin{lstlisting}[float=t, caption={config.yml}, label=fig_1.3_config]
+inherit:
+	-jaxe-core
+setups:
+	deploy:
+		exec:     riuk/children/web/children/wordpress/setups/deploy.pl
+		priority: 10
+	import:
+		exec:     riuk/children/web/children/wordpress/setups/import.pl
+		priority: 30
+parameters:
+	public:
+		mandatory: false
+		pattern: ^(true|false)$
+	hostname:
+		mandatory: true
+		pattern:   ^[\w.-]$
+	template:
+		mandatory: true
+		value:     flodayalpine -- version 3.4
+hooks:
+	lxc_deploy_before:
+		open_firewall:
+			exec:     riuk/children/[~\dots~]/wordpress/hooks/lxc_deploy_before/of.pl
+			priority: 10
+	lxc_deploy_after:
+		close_firewall:
+			exec:     riuk/children/[~\dots~]/wordpress/hooks/lxc_deploy_after/cf.pl
+			priority: 10
+	lxc_destroy_before:
+		clear_filesystem:
+			exec:     riuk/children/[~\dots~]/wordpress/hooks/lxc_destroy_before/cf.pl
+			priority: 10
+	lxc_destroy_after:
+		update_fstab:
+			exec:     riuk/children/[~\dots~]/wordpress/hooks/lxc_destroy_after/uf.pl
+			priority: 10
+\end{lstlisting}

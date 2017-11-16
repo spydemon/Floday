@@ -1,0 +1,240 @@
+#!/usr/bin/env perl
+
+use v5.010;
+use warnings FATAL => 'all';
+use strict;
+
+#TODO: wired behavior with APKINDEX that doesnt't seems updated in some cases.
+
+use Backticks;
+use Carp;
+use Config::Tiny;
+use File::Slurp qw<read_file>;
+use Floday::Helper::Config;
+use Getopt::Long;
+use List::Util qw<pairs>;
+use Linux::LXC qw(ALLOW_UNDEF);
+
+my $CONFIG = Floday::Helper::Config->instance();
+my $CACHE_FOLDER = get_floday_configuration_value('cache_folder');
+my $LOGGING_FOLDER = $CONFIG->get_floday_config('logging', 'metadata_folder');
+my ($LXC_PATH, $LXC_NAME, $LXC_ROOTFS);
+GetOptions("path=s" => \$LXC_PATH,
+  "name=s" => \$LXC_NAME,
+  "rootfs=s" => \$LXC_ROOTFS
+);
+my $LXC_UG_ID = get_user_id();
+
+my %template_arguments= (@ARGV);
+
+sub deploy_APK_index {
+	if (!-d "$CACHE_FOLDER/apkIndex") {
+		my $APK_archive = get_file('APKINDEX.tar.gz');
+		`mkdir -p $CACHE_FOLDER/apkIndex`;
+		`tar -xf $APK_archive -C $CACHE_FOLDER/apkIndex`;
+	}
+	return "$CACHE_FOLDER/apkIndex/APKINDEX";
+}
+
+sub generate_LXC_configuration{
+	#TODO : Apply restriction by apparmor and seccomp.
+	my $range = get_floday_configuration_value('id_range');
+	open(my $configuration_file, '>', "$LXC_PATH/config");
+	`touch $LXC_ROOTFS/dev/urandom`;
+	say $configuration_file $_ for
+	  "lxc.id_map = u 0 $LXC_UG_ID $range",
+	  "lxc.id_map = g 0 $LXC_UG_ID $range",
+	  "lxc.mount.auto = proc:mixed",
+	  "lxc.mount.entry = $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache none bind 0.0",
+	  "lxc.mount.entry = $LOGGING_FOLDER $LXC_ROOTFS/$LOGGING_FOLDER none bind 0.0",
+	  "lxc.network.type = veth",
+	  "lxc.network.flags = up",
+	  "lxc.network.link = lxcbr0",
+	  "lxc.rootfs = $LXC_ROOTFS",
+	  "lxc.start.auto = 1",
+	  "lxc.utsname = $LXC_NAME"
+}
+
+sub get_alpine_version_to_use {
+	$template_arguments{version} =~ /^[0-9]{1,2}\.[0-9]{1}$/
+	  ? "v$template_arguments{version}"
+	  : die "The version of alpine to use is mandatory";
+}
+
+sub get_architecture_to_use {
+	$template_arguments{architecture} // 'x86_64';
+}
+
+sub get_file {
+	my ($package_name) = @_;
+	my $repository_address = get_main_repository_address() . '/' . get_architecture_to_use();
+	my $path_for_downloaded_file = "$CACHE_FOLDER/files";
+	-f "$path_for_downloaded_file/$package_name"
+	  or `wget -q -P $path_for_downloaded_file $repository_address/$package_name`;
+	return "$path_for_downloaded_file/$package_name";
+}
+
+sub get_floday_configuration_value {
+	my ($attribute) = @_;
+	state $config = Config::Tiny->read('/etc/floday/floday.cfg');
+	my $property = $config->{lxc}->{$attribute};
+	defined $property
+	 or croak("The property lxc/$attribute was asked but is not defined in Floday configuration file");
+	return $property;
+}
+
+sub get_package {
+	my ($target) = @_;
+	my $index = read_file(deploy_APK_index());
+	while (
+	  $index =~ /
+	    ^P:(?P<name>.*)\n        #Get the next software name present in the index.
+	    ^V:(?P<version>.*)\n     #Get the next software version present in the index.
+	  /mgx
+	) {
+		if ($+{name} eq $target) {
+			return get_file("$+{name}-$+{version}.apk");
+		}
+	}
+	die("Package $target was not found in APKIndex");
+}
+
+#TODO: should be unit tested.
+sub get_user_id {
+	my @already_used_ugid =
+	  map {Linux::LXC->new(utsname => $_)->get_config('lxc.id_map', qr/^u \d+ (\d+) (\d+)$/, ALLOW_UNDEF)}
+	  grep {$_ ne $LXC_NAME}
+	  Linux::LXC->get_existing_containers();
+	my $range = get_floday_configuration_value('id_range');
+	my $groups = get_floday_configuration_value('id_groups');
+	REGENERATE_ID: for (1...10) {
+		my @already_used_ugid_copy = @already_used_ugid;
+		my $candidate_id = int(rand($groups)+1) * $range;
+		foreach (pairs @already_used_ugid_copy) {
+			my ($current_start_id, $current_range) = @$_;
+			if ($current_start_id < ($candidate_id + $range) && $candidate_id < ($current_start_id + $current_range)) {
+				next REGENERATE_ID;
+			}
+		}
+		return $candidate_id;
+	}
+	die('10 id collisions occured with already existing LXC containers. Maybe should you increase lxc.id_groups?');
+}
+
+sub get_main_repository_address {
+	'http://'
+	  . $CONFIG->get_floday_config('lxc', 'repo')
+	  . '/alpine/'
+	  . get_alpine_version_to_use()
+	  . '/main'
+	;
+}
+
+sub init_system {
+	my $apkRepoToUse = get_main_repository_address();
+	my $arch = get_architecture_to_use();
+	unless (-d "$CACHE_FOLDER/tmp") {
+		`mkdir -p $CACHE_FOLDER/apk && chmod a+rw $CACHE_FOLDER/apk`
+	}
+	`ln -s $CACHE_FOLDER/apk $LXC_ROOTFS/etc/apk/cache `;
+	`echo $apkRepoToUse > $LXC_ROOTFS/etc/apk/repositories`;
+	#TODO: update of repo only when needed.
+	`$LXC_ROOTFS/sbin/apk.static -U add --initdb --root $LXC_ROOTFS --arch $arch alpine-base`;
+}
+
+sub install_package {
+	my ($packageName) = @_;
+	my $packagePath = get_package($packageName);
+	`tar -xf '$packagePath' -C '$LXC_ROOTFS' 2>/dev/null`;
+	$packageName =~ s/\W//g;
+	if (defined &{"_install_package_$packageName"}) {
+		no strict 'refs';
+		&{"_install_package_$packageName"}();
+	}
+}
+
+sub manage_system_configuration {
+	`rm -r $LXC_ROOTFS/etc/apk/cache && mkdir -p $LXC_ROOTFS/etc/apk/cache`;
+	`mkdir -p $LXC_ROOTFS/$LOGGING_FOLDER`;
+	`chmod 750 $LXC_PATH`;
+	`chown :$LXC_UG_ID $LXC_PATH`;
+	`chown -R $LXC_UG_ID:$LXC_UG_ID $LXC_ROOTFS`;
+	my @init_tab = (
+		'::sysinit:/sbin/openrc sysinit',
+		'::sysinit:/sbin/openrc boot',
+		'::wait:/sbin/openrc default',
+		'::shutdown:/sbin/openrc shutdown'
+	);
+	open (my $inittab, '>', "$LXC_ROOTFS/etc/inittab");
+	map {say $inittab $_} @init_tab;
+}
+
+sub regenerate_subxid {
+	my @ids = split "\n", `find /var/lib/lxc -maxdepth 1 -type d ! -group 0 -exec stat -c %g {} \;`;
+	open my $subuid, '>', '/etc/subuid';
+	open my $subgid, '>', '/etc/subgid';
+	my $id_range = get_floday_configuration_value('id_range');
+	for my $id_start (@ids) {
+		print $subuid "root:$id_start:$id_range\n";
+		print $subgid "root:$id_start:$id_range\n";
+	}
+	close $subuid;
+	close $subgid;
+}
+
+sub _install_package_alpinekeys {
+	my %keys = (
+	  'v3.4' => {
+	    'alpine-devel@lists.alpinelinux.org-4a6a0840.rsa.pub' => '2d4064cbe09ff958493ec86bcb925af9b7517825d1d9d8d00f2986201ad5952f986fea83d1e2c177e92130700bafa8c0bff61411b3cdb59a41e460ed719580a6',
+	    'alpine-devel@lists.alpinelinux.org-4d07755e.rsa.pub' => '85af435d36c3cf0ba783dc70628d0060f7fae8b1543995610afceaeb2183d3fa846203f69825487f1f838d7d1315da015f02a44341eebdd2f45fbcd03620bd0a',
+	    'alpine-devel@lists.alpinelinux.org-5243ef4b.rsa.pub' => 'e18e65ee911eb1f8ea869f758e8f2c94cf2ac254ee7ab90a3de1d47b94a547c2066214abf710da21910ebedc0153d05fd4fe579cc5ce24f46e0cfd29a02b1a68',
+	    'alpine-devel@lists.alpinelinux.org-524d27bb.rsa.pub' => '698fda502f70365a852de3c10636eadfc4f70a7a00f096581119aef665e248b787004ceef63f4c8cb18c6f88d18b8b1bd6b3c5d260e79e6d73a3cc09537b196e',
+	    'alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub' => '721134f289ab1e7dde9158359906017daee40983199fe55f28206c8cdc46b8fcf177a36f270ce374b0eba5dbe01f68cbb3e385ae78a54bb0a2ed1e83a4d820a5',
+	  },
+	  'v3.5' => {
+	    'alpine-devel@lists.alpinelinux.org-4a6a0840.rsa.pub' => '2d4064cbe09ff958493ec86bcb925af9b7517825d1d9d8d00f2986201ad5952f986fea83d1e2c177e92130700bafa8c0bff61411b3cdb59a41e460ed719580a6',
+	    'alpine-devel@lists.alpinelinux.org-4d07755e.rsa.pub' => '85af435d36c3cf0ba783dc70628d0060f7fae8b1543995610afceaeb2183d3fa846203f69825487f1f838d7d1315da015f02a44341eebdd2f45fbcd03620bd0a',
+	    'alpine-devel@lists.alpinelinux.org-5243ef4b.rsa.pub' => 'e18e65ee911eb1f8ea869f758e8f2c94cf2ac254ee7ab90a3de1d47b94a547c2066214abf710da21910ebedc0153d05fd4fe579cc5ce24f46e0cfd29a02b1a68',
+	    'alpine-devel@lists.alpinelinux.org-524d27bb.rsa.pub' => '698fda502f70365a852de3c10636eadfc4f70a7a00f096581119aef665e248b787004ceef63f4c8cb18c6f88d18b8b1bd6b3c5d260e79e6d73a3cc09537b196e',
+	    'alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub' => '721134f289ab1e7dde9158359906017daee40983199fe55f28206c8cdc46b8fcf177a36f270ce374b0eba5dbe01f68cbb3e385ae78a54bb0a2ed1e83a4d820a5',
+	    'alpine-devel@lists.alpinelinux.org-58199dcc.rsa.pub' => 'e4f9e314f8e506fba2cb3e599c6412a036ec37ce3a54990fc7d80a821d8728f40ee3b4aa8a15218d50341fa785d9ddf7c7471f45018c6a2065ab13664a1aa9e9'
+	  },
+	  'v3.6' => {
+	    'alpine-devel@lists.alpinelinux.org-5243ef4b.rsa.pub' => 'e18e65ee911eb1f8ea869f758e8f2c94cf2ac254ee7ab90a3de1d47b94a547c2066214abf710da21910ebedc0153d05fd4fe579cc5ce24f46e0cfd29a02b1a68',
+	    'alpine-devel@lists.alpinelinux.org-4a6a0840.rsa.pub' => '2d4064cbe09ff958493ec86bcb925af9b7517825d1d9d8d00f2986201ad5952f986fea83d1e2c177e92130700bafa8c0bff61411b3cdb59a41e460ed719580a6',
+	    'alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub' => '721134f289ab1e7dde9158359906017daee40983199fe55f28206c8cdc46b8fcf177a36f270ce374b0eba5dbe01f68cbb3e385ae78a54bb0a2ed1e83a4d820a5'
+	  }
+	);
+	my $key_list = `echo $LXC_ROOTFS/etc/apk/keys/*.pub`;
+	my $key_checked = 0;
+	while ($key_list =~ /
+	    (?P<keyPathToUse>.*?                    #keyPathToUse will contain the absolute path of the next key.
+	      (?P<keyNameToUse>alpine-devel.*?)     #keyNameToUse will contain only the name of the next key.
+	    )
+	  \s/gx
+	) {
+		die("Undefined key for $+{keyNameToUse}") unless defined $keys{get_alpine_version_to_use()}->{$+{keyNameToUse}};
+		`cd $LXC_ROOTFS/etc/apk/keys && echo "$keys{get_alpine_version_to_use()}->{$+{keyNameToUse}} $+{keyNameToUse}" | sha512sum -c -`;
+		$key_checked += 1;
+	}
+	die ('Too much key signatures are in this template') if ($key_checked != keys %{$keys{get_alpine_version_to_use()}});
+}
+
+sub _install_package_apktoolsstatic {
+	`echo $LXC_ROOTFS/sbin/apk.static.*.pub`     #Get the path of the file corresponding to apk.static signed hash.
+	  =~ /
+	    (?P<signatureToCheck>^.*                 #Capture the absolute path without the \n at the end of the line.
+	      (?P<keyToUse>alpine-devel[^\/]*)       #The name of the key used for the signature is present in the hash name.
+	    )
+	  \s$/x;
+	my $file_to_check = "$LXC_ROOTFS/sbin/apk.static";
+	my $key_to_use_for_checking = "$LXC_ROOTFS/etc/apk/keys/$+{keyToUse}";
+	`openssl dgst -sha1 -verify $key_to_use_for_checking -signature $+{signatureToCheck} $file_to_check`;
+}
+
+install_package('alpine-keys');
+install_package('apk-tools-static');
+init_system();
+generate_LXC_configuration();
+manage_system_configuration();
+regenerate_subxid();
