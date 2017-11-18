@@ -46,6 +46,8 @@ for ($APP->get_sub_applications()) {
 ok ($APP->is_host() == 0, 'Test is_host on application that is not a host.');
 my $host = Floday::Setup->new('application_path' => 'integration');
 ok ($host->is_host() == 1, 'Test is_host on the host.');
+throws_ok { $host->get_lxc_instance(); }
+	qr/We can not invocate LXC container from host/, 'Test that get_lxc_instance dies when done from a application that represents the host.';
 
 $lxc->destroy;
 done_testing;

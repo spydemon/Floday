@@ -46,7 +46,10 @@ has application_path => (
 has lxc_instance => (
 	'is' => 'ro',
 	'reader' => 'get_lxc_instance',
-	'default' => sub { Floday::Lib::Linux::LXC->new('utsname' => $_[0]->get_application_path) },
+	'default' => sub {
+	  die ('We can not invocate LXC container from host') if ($_[0]->is_host());
+	  Floday::Lib::Linux::LXC->new('utsname' => $_[0]->get_application_path)
+	},
 	'lazy' => 1
 );
 
