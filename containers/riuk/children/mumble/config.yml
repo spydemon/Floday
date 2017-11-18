@@ -1,0 +1,11 @@
+parameters:
+	arbitrary_param:
+		mandatory: false
+	second_arbitrary_param:
+		mandatory: false
+		pattern: ^~\w{4}~$
+	mandatory_param:
+		mandatory: true
+	mandatory_param_two:
+		mandatory: true
+		pattern: ^[A|B]{3,5}

@@ -1,0 +1,50 @@
+\documentclass[fr]{floday}
+\usepackage{multicol}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{tikz-uml}
+
+\lstset{%
+	basicstyle=\footnotesize,
+	numbers=left,
+	numberstyle=\tiny,
+	stepnumber=1,
+	tabsize=2,
+	escapechar=~
+}
+
+\usetikzlibrary{
+  decorations,
+  decorations.fractals,
+  decorations.pathmorphing,
+  decorations.pathreplacing,
+  decorations.shapes,
+  positioning,
+  shapes.arrows,
+}
+
+\title{Floday}
+\subtitle{Documentation française}
+\author{Kevin Hagner}
+\email{jsaipakoimetr@spyzone.fr}
+\versionReference{1.0.0}
+\footer{Floday}
+
+\makeglossaries
+\input{part/glossaries.tex}
+
+\begin{document}
+	\maketitle
+	\input{part/intro/text.tex}
+	\tableofcontents
+	\input{part/ressources/text.tex}
+	\pagebreak
+	\input{part/utilisation/text.tex}
+	\pagebreak
+	\input{part/developpement/text.tex}
+	\pagebreak
+	\appendix
+	\printglossaries
+	\input{part/gpl/text.tex}
+\end{document}

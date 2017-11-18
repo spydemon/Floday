@@ -1,0 +1,37 @@
+---
+hosts:
+    integration:
+        parameters:
+            type: riuk
+            external_ipv4: 192.168.15.151
+        applications:
+            web:
+                parameters:
+                    ipv4: 10.0.3.5
+                    gateway: 10.0.3.1
+                    type: web
+                applications:
+                    test:
+                        parameters:
+                            ipv4: 10.0.3.6
+                            gateway: 10.0.3.1
+                            type: php
+                            data_in: floday.d/integration-web-test/php
+                            hostname: test.keh.keh
+                    secondtest:
+                        parameters:
+                            ipv4: 10.0.3.7
+                            gateway: 10.0.3.1
+                            type: php
+                            data_in: floday.d/integration-web-secondtest/php
+                            hostname: test2.keh.keh
+    backup:
+        parameters:
+            type: riuk
+            external_ipv4: 192.168.15.152
+        applications:
+            web:
+                parameters:
+                    ipv4: 10.0.3.5
+                    gateway: 10.0.3.1
+                    type: web
