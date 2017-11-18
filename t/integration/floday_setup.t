@@ -43,5 +43,9 @@ for ($APP->get_sub_applications()) {
 	ok($_->get_application_path() ~~ ['integration-web-test', 'integration-web-secondtest'], 'Test get_applications seems to work');
 }
 
+ok ($APP->is_host() == 0, 'Test is_host on application that is not a host.');
+my $host = Floday::Setup->new('application_path' => 'integration');
+ok ($host->is_host() == 1, 'Test is_host on the host.');
+
 $lxc->destroy;
 done_testing;
