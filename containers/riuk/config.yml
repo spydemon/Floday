@@ -1,0 +1,7 @@
+parameters:
+	external_ipv4:
+		required: true
+		value: 66.66.66.66
+	useless_param:
+		required: false
+		value: 'we dont care'

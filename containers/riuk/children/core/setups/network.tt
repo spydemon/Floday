@@ -1,0 +1,8 @@
+auto lo
+iface lo inet loopback
+
+auto [% iface %]
+iface [% iface %] inet static
+	address [% ipv4 %]
+	netmask [% netmask %]
+	gateway [% gateway %]

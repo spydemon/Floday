@@ -1,0 +1,10 @@
+inherit:
+	- riuk-core
+end_setups:
+	iptables_save:
+		exec: riuk/children/web/end_setup/iptables_save.pl
+		priority: 10
+setups:
+	lighttpd:
+		exec: riuk/children/web/setups/lighttpd.pl
+		priority: 20
