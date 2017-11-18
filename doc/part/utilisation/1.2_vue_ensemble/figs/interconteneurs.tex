@@ -1,0 +1,142 @@
+\usetikzlibrary{decorations}
+\usetikzlibrary{decorations.text}
+
+\begin{tikzpicture}
+	%%%%%%%%%%%
+	% Runfile %
+	%%%%%%%%%%%
+	\draw[color=gray!70] (-.75, 2.75) rectangle (5.25, -2);
+	\node[text width=4.25cm, right, text centered] at (0, 2.5) {Runfile};
+	\node[text width=4.25cm, right, text justified] at (0, 0) {%
+		\begin{lstlisting}[basicstyle=\scriptsize]
+host:
+  spyzone:
+    parameters:
+      type: riuk
+    applications:
+      web:
+        parameters:
+          type: lighttpd
+        applications:
+          my_blog:
+            parameters:
+              type: wordpress
+		\end{lstlisting}
+	};
+
+	%%%%%%%%%%%%%%%%%%%%
+	% riuk-core config %
+	%%%%%%%%%%%%%%%%%%%%
+	\draw[color=gray!70] (9.5, 4.5) rectangle (15, 2);
+	\node[text width=4cm, right, text centered] at (10.25, 4) {riuk-core config.yml};
+	\node[text width=4cm, right, text justified] at (10.25, 3) {%
+		\begin{lstlisting}[basicstyle=\scriptsize]
+setup:
+  ssh:
+    exec: /.../ssh.pl
+    priority: 1-10
+[...]
+		\end{lstlisting}
+	};
+
+	%%%%%%%%%%%%%%%%%%%%%%%%
+	% riuk-lighttpd config %
+	%%%%%%%%%%%%%%%%%%%%%%%%
+	\draw[color=gray!70] (13.5, 0.45) rectangle (18.5, -2.75);
+	\node[text width=4cm, right, text centered] at (14, 0) {riuk-lighttpd config.yml};
+	\node[text width=4cm, right, text justified] at (14, -1.5) {%
+		\begin{lstlisting}[basicstyle=\scriptsize]
+inherit:
+  - riuk-core
+setup:
+  lighttpd:
+    exec: /.../lighty.pl
+    priority: 2-10
+[...]
+		\end{lstlisting}
+	};
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% riuk-lighttpd-wordpress config %
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\draw[color=gray!70] (6, 0.45) rectangle (10.85, -2.75);
+	\node[text width=4cm, right, text centered] at (6.5, 0) {riuk-lighttpd-wordpress config.yml};
+	\node[text width=4cm, right, text justified] at (6.5, -1.5) {%
+		\begin{lstlisting}[basicstyle=\scriptsize]
+inherit:
+  - riuk-core
+setup:
+  wordpress:
+    exec: /.../wp.pl
+    priority: 2-10
+[...]
+		\end{lstlisting}
+	};
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Relations de soumission %
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\draw [->, >=latex, color=gray!80] (2.80, 0.65) to[out=0, in=360] (4.2, -0.4);
+	\draw [->, >=latex, color=gray!80] (4.2, -0.5)
+	  to[out=0, in=180] (6, 1)
+	  to (12, 1)
+	  to[out=0] (14, 0);
+	\draw[color=gray!80] (8, 1.25) node {Chemin de conteneur};
+	\draw [->, >=latex, color=gray!80] (4.2, -0.55) to[out=0, in=360] (5, -1.55);
+	\draw [->, >=latex, color=gray!80] (5, -1.65) to[out=0, in=180] (7, 0);
+
+	%%%%%%%%%%%%%%%%%%%%%%%
+	% Relation d'héritage %
+	%%%%%%%%%%%%%%%%%%%%%%%
+	\draw [->, >=latex, color=gray!80] (9, -1)
+	  -- (11.5, -1)
+	  .. controls +(.75, 0) and +(0, -.75)
+	  .. (12.25, 0)
+	  -- (12.25, 2);
+	\draw [->, >=latex, color=gray!80] (14.2, -1)
+	  -- (13, -1)
+	  .. controls +(-.75, 0) and +(0, -.75)
+	  .. (12.25, 0)
+	  -- (12.25, 2);
+	  %to[out=-90] (12.25, 2);
+	  %to[out=0, in=-90] (12.25, 2);
+	\draw [color=gray!80] (13.25, 1.5) node {Hérite de};
+
+	%%%%%%%%%%%%%%%%
+	% Applications %
+	%%%%%%%%%%%%%%%%
+	\draw (8.425, -4) node[draw=gray!80] (srw) {spyzone-web-wordpress};
+	\draw (16, -4) node[draw=gray!80] (sr) {spyzone-web};
+	\draw [->, >=latex, color=gray!80] (8.425, -2.75) -- (8.425, -3.75);
+	\draw [->, >=latex, color=gray!80] (16, -2.75) -- (16, -3.75);
+	\draw (12.2125, -3.25) node {Initialisation des applications};
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Chemins d'applications %
+	%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\draw [->, >=latex, color=gray!80] (0.45, 1.2) to[out=-180, in=-180] (1, 0.15);
+	\draw [->, >=latex, color=gray!80] (1, 0.05) to[out=-180, in=-180] (1.8, -0.95);
+	\draw[->, >=latex, color=gray!80,%
+	  postaction={decorate, decoration={%
+		  raise=1pt, text along path, text align=center, text={|\color{gray!80}|Chemin d'application ||}
+	  }}
+	 ] (1.8, -1.05) to[out=-180, in=-180] (srw);
+	\draw [->, >=latex, color=gray!80, rounded corners=5pt] (1, 0.1)
+	  -| (0, -4.75)
+	  -| (sr);
+	\draw[color=gray!80] (2, -4.5) node {Chemin d'application};
+
+	%%%%%%%%%%%%%%%
+	% Contraintes %
+	%%%%%%%%%%%%%%%
+	\draw [->, >=latex, color=gray!80, dashed,
+	  postaction={decorate, decoration={%
+		  raise=1pt, text along path, text align=center, text={|\color{gray!80}|Est contraint par ||}
+	  }}
+	  ] (srw.5) -- (sr.172.30);
+	\draw [<-, >=latex, color=gray!80, dashed,
+	  postaction={decorate, decoration={%
+		  raise=-8pt, text along path, text align=center, text={|\color{gray!80}|Est gestionnaire de  ||}
+	  }}
+	  ] (srw.-5) -- (sr.-172.30);
+\end{tikzpicture}
