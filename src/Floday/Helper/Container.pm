@@ -3,6 +3,7 @@ package Floday::Helper::Container;
 use v5.20;
 
 use Floday::Helper::Config;
+use Floday::Helper::Schema::Container;
 use Hash::Merge;
 use Moo;
 use YAML::Tiny;
@@ -15,11 +16,27 @@ has config => (
 	reader => 'get_config'
 );
 
+has schema => (
+	default => sub {
+		Floday::Helper::Schema::Container->new();
+	},
+	is => 'ro',
+	reader => 'get_schema'
+);
+
 sub get_container_definition {
 	my ($this, $container_path) = @_;
+	my @errors;
 	my $container_definition = YAML::Tiny->read(
 	  $this->get_container_definition_file_path($container_path)
 	)->[0];
+	push @errors, $this->get_schema()->validate($container_definition);
+	if (@errors > 0) {
+		@errors = sort @errors;
+		my $errors_string;
+		map {$errors_string .= $_->path . ': ' . $_->message . "\n"} @errors;
+		die ("Errors in $container_path definition:\n", $errors_string);
+	}
 	for (@{$container_definition->{inherit}}) {
 		$container_definition = Hash::Merge
 		  ->new('LEFT_PRECEDENT')

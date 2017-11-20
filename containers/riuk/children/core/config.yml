@@ -11,7 +11,7 @@ parameters:
 	data_out:
 		mandatory: false
 	bridge:
-		mantatory: true
+		mandatory: true
 		value: lxcbr0
 	gateway:
 		mandatory: true
