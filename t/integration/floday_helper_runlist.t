@@ -6,6 +6,7 @@ use warnings;
 
 use Log::Any::Adapter('File', 'log.txt');
 use Test::Deep;
+use Test::Exception;
 use Test::More;
 
 use Floday::Helper::Runlist;
@@ -284,4 +285,9 @@ my %scripts = $test->get_execution_list_by_priority_for_application('integration
 cmp_deeply([sort keys %scripts], [10, 20, 30], 'get_setups_by_priority_for_application seems to correctly apply priorities.');
 cmp_deeply($test->get_runlist(), $runlist, 'get_runlist return the expected runlist.');
 
+throws_ok {Floday::Helper::Runlist->new(runfile => 'floday_helper_runlist.d/broken-runfile.yml')}
+  qr#Errors in runfile:
+/hosts/integration/applications/web/applications/secondtest: Properties not allowed: something_else.
+/hosts/integration/applications/web/applications/test/parameters/object: Expected string - got object.#,
+  'Check runfile YAML schema validation.';
 done_testing;

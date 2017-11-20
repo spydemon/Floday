@@ -4,6 +4,7 @@ use v5.20;
 
 use Floday::Helper::Config;
 use Floday::Helper::Host;
+use Floday::Helper::Schema::Runfile;
 
 use Log::Any;
 use Moo;
@@ -37,6 +38,14 @@ has runfile => (
 	},
 	reader => 'get_run_file',
 	required => 1,
+);
+
+has schema => (
+	default => sub {
+		Floday::Helper::Schema::Runfile->new()
+	},
+	is => 'ro',
+	reader => 'get_schema'
 );
 
 has runlist_errors => (
@@ -150,7 +159,16 @@ sub _clean_runlist {
 
 sub _initialize_runlist {
 	my ($this) = @_;
-	my $hosts = YAML::Tiny->read($this->get_run_file())->[0]{hosts};
+	my $hosts = YAML::Tiny->read($this->get_run_file())->[0];
+	my @errors;
+	push @errors, $this->get_schema()->validate($hosts);
+	if (@errors > 0) {
+		@errors = sort @errors;
+		my $errors_string;
+		map {$errors_string .= $_->path . ': ' . $_->message . "\n"} @errors;
+		die ("Errors in runfile:\n", $errors_string);
+	}
+	$hosts = $hosts->{hosts};
 	my $hosts_initialized;
 	for (keys %$hosts) {
 		my $attributes = $hosts->{$_};
