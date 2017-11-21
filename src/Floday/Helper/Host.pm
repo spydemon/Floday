@@ -126,9 +126,9 @@ sub _merge_definition {
 	my $drunlist_attributes = $this->_get_application_to_manage_drunlist_attributes();
 	$drunlist_attributes = $drunlist_attributes->{'parameters'};
 	$container_definition->{parameters}{name}{value} = undef;
-	$container_definition->{parameters}{name}{required} = 'true';
+	$container_definition->{parameters}{name}{mandatory} = 'true';
 	$container_definition->{parameters}{type}{value} = undef;
-	$container_definition->{parameters}{type}{required} = 'true';
+	$container_definition->{parameters}{type}{mandatory} = 'true';
 	for (keys %$drunlist_attributes) {
 		croak ("Parameter '$_' present in drunlist but that doesn't exist in container definition")
 		  unless defined $container_definition->{parameters}{$_};

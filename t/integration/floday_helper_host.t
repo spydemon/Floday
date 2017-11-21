@@ -125,8 +125,8 @@ my $complex_host_to_hash_result = {
 					'mandatory' => 'false'
 				},
 				'type'                   => {
-					'value'    => 'sftp',
-					'required' => 'true'
+					'value'     => 'sftp',
+					'mandatory' => 'true'
 				},
 				'gateway'                => {
 					'mandatory' => 'true',
@@ -160,8 +160,8 @@ my $complex_host_to_hash_result = {
 					'mandatory' => 'true'
 				},
 				'name'                   => {
-					'value'    => 'website2',
-					'required' => 'true'
+					'value'     => 'website2',
+					'mandatory' => 'true'
 				},
 				'data_in'                => {
 					'mandatory' => 'false'
@@ -277,8 +277,8 @@ my $complex_host_to_hash_result = {
 					'value'     => 'flodayalpine -- version 3.4'
 				},
 				'name'           => {
-					'value'    => 'website1',
-					'required' => 'true'
+					'value'     => 'website1',
+					'mandatory' => 'true'
 				},
 				'netmask'        => {
 					'value'     => '255.255.255.0',
@@ -295,8 +295,8 @@ my $complex_host_to_hash_result = {
 					'value'     => '10.0.0.1'
 				},
 				'type'           => {
-					'value'    => 'web',
-					'required' => 'true'
+					'value'     => 'web',
+					'mandatory' => 'true'
 				},
 				'ipv4'           => {
 					'mandatory' => 'true',
@@ -314,20 +314,20 @@ my $complex_host_to_hash_result = {
 	'inherit'      => [ ],
 	'parameters'   => {
 		'type'           => {
-			'value'    => 'riuk',
-			'required' => 'true'
+			'value'     => 'riuk',
+			'mandatory' => 'true'
 		},
 		'useless_param'  => {
-			'value'    => 'we dont care',
-			'required' => 'false'
+			'value'     => 'we dont care',
+			'mandatory' => 'false'
 		},
 		'name'           => {
-			'value'    => 'agoodname',
-			'required' => 'true'
+			'value'     => 'agoodname',
+			'mandatory' => 'true'
 		},
 		'external_ipv4'  => {
-			'required' => 'true',
-			'value'    => '10.11.22.35'
+			'mandatory' => 'true',
+			'value'     => '10.11.22.35'
 		},
 		'container_path' => {
 			'value' => 'riuk'
