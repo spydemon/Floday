@@ -155,7 +155,7 @@ sub _initialize_runlist {
 	for (keys %$hosts) {
 		my $attributes = $hosts->{$_};
 		$attributes->{parameters}{name} = $_;
-		my $host = Floday::Helper::Host->new('runfile' => $attributes);
+		my $host = Floday::Helper::Host->new('drunlist' => $attributes);
 		$hosts_initialized->{'hosts'}{$_} = $host->to_hash();
 		push @{$this->get_runlist_errors()}, @{$host->get_all_errors()};
 	}
