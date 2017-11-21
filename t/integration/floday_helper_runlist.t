@@ -290,4 +290,10 @@ throws_ok {Floday::Helper::Runlist->new(runfile => 'floday_helper_runlist.d/brok
 /hosts/integration/applications/web/applications/secondtest: Properties not allowed: something_else.
 /hosts/integration/applications/web/applications/test/parameters/object: Expected string - got object.#,
   'Check runfile YAML schema validation.';
+
+throws_ok {Floday::Helper::Runlist->new(runfile => 'floday_helper_runlist.d/runfile-broken.yml')}
+  qr#Errors in runfile:
+/hosts/integration/applications/web/parameters/type: Missing property.#,
+  'Check that "type" property is mandatory in "parameters" node.';
+
 done_testing;

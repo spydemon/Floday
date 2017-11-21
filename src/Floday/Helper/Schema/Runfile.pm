@@ -26,6 +26,7 @@ $validator->schema({
                     'properties' => {
                         'parameters' => {
                             'type' => 'object',
+                            'required' => ['type'],
                             'patternProperties' => {
                                 '^.*$' => {
                                     'type' => 'string'
