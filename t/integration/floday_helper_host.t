@@ -319,14 +319,14 @@ my $complex_host_to_hash_result = {
 		},
 		'useless_param'  => {
 			'value'    => 'we dont care',
-			'required' => 'false'
+			'mandatory' => 'false'
 		},
 		'name'           => {
 			'value'    => 'agoodname',
 			'required' => 'true'
 		},
 		'external_ipv4'  => {
-			'required' => 'true',
+			'mandatory' => 'true',
 			'value'    => '10.11.22.35'
 		},
 		'container_path' => {
