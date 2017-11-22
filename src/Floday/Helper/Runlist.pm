@@ -117,6 +117,16 @@ sub get_execution_list_by_priority_for_application {
   return %sorted_scripts;
 }
 
+sub is_application_existing {
+	my ($this, $application_name) = @_;
+	my @container_path = split /-/, $application_name;
+	my $host = shift @container_path;
+	my $step = $this->get_runlist()->{'hosts'}{$host};
+	map {$step = $step->{applications}{$_}} @container_path;
+	return 1 if defined($step);
+	return 0;
+}
+
 sub _clean_runlist {
 	my ($this, $raw_data) = @_;
 	my $first = 0;
@@ -155,7 +165,7 @@ sub _initialize_runlist {
 	for (keys %$hosts) {
 		my $attributes = $hosts->{$_};
 		$attributes->{parameters}{name} = $_;
-		my $host = Floday::Helper::Host->new('runfile' => $attributes);
+		my $host = Floday::Helper::Host->new('drunlist' => $attributes);
 		$hosts_initialized->{'hosts'}{$_} = $host->to_hash();
 		push @{$this->get_runlist_errors()}, @{$host->get_all_errors()};
 	}
@@ -170,7 +180,7 @@ Floday::Helper::Runlist - Manage the Floday runlist.
 
 =head1 VERSION
 
-1.0.0
+1.0.1
 
 =head1 DESCRIPTION
 
