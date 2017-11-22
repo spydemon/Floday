@@ -8,6 +8,7 @@ BEGIN {
 	push @ARGV, qw/--application integration-web/;
 }
 
+use Backticks;
 use Cwd;
 use Floday::Setup ('$APP', 'ALLOW_UNDEF');
 use Test::More;
@@ -44,4 +45,10 @@ for ($APP->get_sub_applications()) {
 }
 
 $lxc->destroy;
+
+my $setup = Backticks->new('/etc/floday/containers/riuk/children/web/setups/lighttpd.pl --application integration-nonexistent');
+eval {$setup->run()};
+like ($setup->stderr(), qr/Floday "integration-nonexistent" application was not found in the runfile./, 'Test that the application existance is checked.');
+cmp_ok($setup->exitcode(), '!=', 0);
+
 done_testing;
