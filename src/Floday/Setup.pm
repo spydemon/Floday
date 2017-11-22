@@ -46,7 +46,10 @@ has application_path => (
 has lxc_instance => (
 	'is' => 'ro',
 	'reader' => 'get_lxc_instance',
-	'default' => sub { Floday::Lib::Linux::LXC->new('utsname' => $_[0]->get_application_path) },
+	'default' => sub {
+	  die ('We can not invocate LXC container from host') if ($_[0]->is_host());
+	  Floday::Lib::Linux::LXC->new('utsname' => $_[0]->get_application_path)
+	},
 	'lazy' => 1
 );
 
@@ -140,6 +143,12 @@ sub generate_file {
 		#lxc instance doesn't exist when the file should be put on the host.
 		rename $i, $location;
 	}
+}
+
+sub is_host {
+	my ($this) = @_;
+	return 1 if $this->get_application_path() =~ /^[^-]*$/;
+	return 0;
 }
 
 sub _fetch_manager {
@@ -300,6 +309,7 @@ For knowing more about the runlist, please refer yourself to the Floday document
 =head3 get_lxc_instance($self)
 
 Return a Linux::LXC object initialized for reaching the LXC container that manage the current Floday application.
+If called from an application that represents the host, the script will die.
 
 =head3 get_manager($self)
 
@@ -360,6 +370,11 @@ For knowing more about what a runfile is, please refer yourself to the Floday do
 
 Return an list of other Floday::Setup objects that represent all sub-applications the current one manage.
 For knowing more about what a sub-application is, please refer yourself to the Floday documentation.
+
+=head3 is_host($self)
+
+Returns 1 if the current application is actually the host that is deploying Floday.
+It returns 0 otherwise.
 
 =head1 AUTHORS
 
