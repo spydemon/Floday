@@ -148,7 +148,7 @@ my $complex_host_to_hash_result = {
 					'value'     => 'eth0'
 				},
 				'bridge'                 => {
-					'mantatory' => 'true',
+					'mandatory' => 'true',
 					'value'     => 'lxcbr0'
 				},
 				'template'               => {
@@ -269,7 +269,7 @@ my $complex_host_to_hash_result = {
 					'mandatory' => 'true'
 				},
 				'bridge'         => {
-					'mantatory' => 'true',
+					'mandatory' => 'true',
 					'value'     => 'lxcbr0'
 				},
 				'template'       => {
