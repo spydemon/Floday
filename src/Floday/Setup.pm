@@ -77,6 +77,13 @@ has log => (
 	'default' => sub { Log::Any->get_logger }
 );
 
+sub BUILD {
+	my ($this) = @_;
+	if (!$this->get_runlist()->is_application_existing($this->get_application_path())) {
+		die ('Floday "' . $this->get_application_path() . "\" application was not found in the runfile.\n");
+	}
+};
+
 sub get_sub_applications {
 	my ($this, $application_path) = @_;
 	$application_path //= $this->get_application_path();
