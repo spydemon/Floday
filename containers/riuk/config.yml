@@ -1,7 +1,7 @@
 parameters:
 	external_ipv4:
-		required: true
+		mandatory: true
 		value: 66.66.66.66
 	useless_param:
-		required: false
+		mandatory: false
 		value: 'we dont care'
