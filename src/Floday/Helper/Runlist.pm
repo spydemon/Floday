@@ -117,6 +117,16 @@ sub get_execution_list_by_priority_for_application {
   return %sorted_scripts;
 }
 
+sub is_application_existing {
+	my ($this, $application_name) = @_;
+	my @container_path = split /-/, $application_name;
+	my $host = shift @container_path;
+	my $step = $this->get_runlist()->{'hosts'}{$host};
+	map {$step = $step->{applications}{$_}} @container_path;
+	return 1 if defined($step);
+	return 0;
+}
+
 sub _clean_runlist {
 	my ($this, $raw_data) = @_;
 	my $first = 0;
