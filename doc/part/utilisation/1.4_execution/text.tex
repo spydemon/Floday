@@ -64,11 +64,11 @@ Il ne reste plus qu'à amorcer le tout et permettre à \emph{Floday} d'effectuer
 Pour cela, nous n'avons qu'à lancer la commande \path{floday} avec l'option \path{--host}, définissant quel \gls{hote} du runfile nous voulons déployer.
 Des logs d'exécution seront ensuite affichés sur \emph{STDOUT} ainsi que via \emph{syslog}.
 
-\paragraph{Gestion du niveau des logs}
-Il n'est malheureusement pas possible actuellement de définir soi-même le niveau de verbosité à avoir sans toucher au code de l'application, mais ce problème sera peut-être résolu un jour%
-\footnote{Un ticket a été créé sur le bug tracker pour rendre la gestion du niveau de log plus pratique~: \url{https://dev.spyzone.fr/floday/ticket/29}}.
+\lastupdated{1.1.0}
+Pour modifier le niveau des logs lors d'un déploiement, l'option \path{--loglevel} peut être renseignée.
+Par défaut, c'est le niveau \emph{info} qui sera utilisé.
 
-Actuellement, pour le modifier, il faudra donc changer la valeur de la ligne 18 du fichier \emph{floday.pl}.
+\lastupdated{1.0.0}
 Les niveaux disponibles sont ceux habituellement en vigueur sur n'importe quel système \emph{UNIX}.
 Pour plus de détails, voir le hash \emph{\%SYSLOG\_PRIORITY\_MAPPER} dans le fichier \emph{Floday/Helper/Logging.pm}.
 

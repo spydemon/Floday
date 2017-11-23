@@ -171,7 +171,7 @@
 
 \newcommand\lastupdated[1]{%
 	{\footnotesize
-		\marginnote{#1}[13pt]
+		\marginnote{Dernière MàJ : v#1}
 	}
 }
 

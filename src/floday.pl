@@ -14,14 +14,15 @@ use Getopt::Long;
 use Log::Any;
 use Log::Any::Adapter('+Floday::Helper::Logging');
 
-Log::Any->get_logger()->{adapter}->reset();
-Log::Any->get_logger()->{adapter}->loglevel_set('info');
-
 my $host;
-my $runfile;
+my $loglevel;
 
-GetOptions('host=s', \$host, 'runfile=s', \$runfile);
+GetOptions('host=s', \$host, 'loglevel=s', \$loglevel);
 $host // die('Host to launch is missing');
+$loglevel //= 'info';
+
+Log::Any->get_logger()->{adapter}->reset();
+Log::Any->get_logger()->{adapter}->loglevel_set($loglevel);
 
 $0 = "floday --host $host";
 my $floday = Floday::Deploy->new(hostname => $host);
