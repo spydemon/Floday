@@ -43,3 +43,10 @@ hooks:
 		update_fstab:
 			exec: riuk/children/core/hooks/lxc_destroy_after/update_fstab.pl
 			priority: 10
+avoidance:
+	parameters:
+		exec: riuk/children/core/bypasser/parameters.pl
+		priority: 1-10
+	importer:
+		exec: riuk/children/core/bypasser/importer.pl
+		priority: 1-20

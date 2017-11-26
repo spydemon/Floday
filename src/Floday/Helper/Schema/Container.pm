@@ -16,27 +16,30 @@ $validator->schema({
             'type' => 'array'
         },
         'setups' => {
-            '$ref' => '#/definitions/scripts'
+            '$ref' => '#/definitions/script_avoidable'
         },
         'end_setups' => {
-            '$ref' => '#/definitions/scripts'
+            '$ref' => '#/definitions/script_avoidable'
         },
         'parameters' => {
             '$ref' => '#/definitions/parameters'
         },
+        'avoidance' => {
+            '$ref' => '#/definitions/script_no_avoidable'
+        },
         'hooks' => {
             'properties' => {
                 'lxc_deploy_before' => {
-                    '$ref' => '#/definitions/scripts'
+                    '$ref' => '#/definitions/script_no_avoidable'
                 },
                 'lxc_deploy_after' => {
-                    '$ref' => '#/definitions/scripts'
+                    '$ref' => '#/definitions/script_no_avoidable'
                 },
                 'lxc_destroy_before' => {
-                    '$ref' => '#/definitions/scripts'
+                    '$ref' => '#/definitions/script_no_avoidable'
                 },
                 'lxc_destroy_after' => {
-                    '$ref' => '#/definitions/scripts'
+                    '$ref' => '#/definitions/script_no_avoidable'
                 }
             },
         },
@@ -55,19 +58,32 @@ $validator->schema({
                 }
             }
         },
-        'scripts' => {
+        'script_avoidable' => {
             'patternProperties' => {
                 '^.*$' => {
                     'additionalProperties' => 0,
                     'properties' => {
-                        'exec'     => { 'type' => 'string'},
-                        'priority' => { 'type' => 'string'}
+                        'exec'     => {'type' => 'string'},
+                        'priority' => {'type' => 'string'},
+                        'avoidable' => {'enum' => ['true', 'false']}
                     },
                     'required' => ['exec', 'priority'],
                     'type' => 'object'
                 }
             }
-        }
+        },
+        'script_no_avoidable' => {
+            'patterProperties' => {
+                '.*$' => {
+                    'additionalProperties' => 0,
+                    'type' => 'object',
+                    'properties' => {
+                        'exec'     => { 'type' => 'string'},
+                        'priority' => { 'type' => 'string'}
+                    }
+                }
+            }
+        },
     }
 });
 
