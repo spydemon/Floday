@@ -143,6 +143,9 @@ sub _clean_runlist {
 		if (defined $raw_data->{$a}{'applications'}) {
 			$clean_runlist->{$a}{'applications'} = $this->_clean_runlist($raw_data->{$a}{'applications'});
 		}
+		if (defined $raw_data->{$a}{'avoidance'}) {
+			$clean_runlist->{$a}{'avoidance'} = $raw_data->{$a}{'avoidance'};
+		}
 		if (defined $raw_data->{$a}{'end_setups'}) {
 			$clean_runlist->{$a}{'end_setups'} = $raw_data->{$a}{'end_setups'};
 		}

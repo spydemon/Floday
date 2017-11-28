@@ -38,6 +38,7 @@ my $runlist = {
 					},
 					'setups' => {
 						'network' => {
+							'avoidable' => 'false',
 							'exec' => 'riuk/children/core/setups/network.pl',
 							'priority' => 10
 						},
@@ -46,6 +47,7 @@ my $runlist = {
 							'priority' => 20
 						},
 						'data' => {
+							'avoidable' => 'true',
 							'exec' => 'riuk/children/core/setups/data.pl',
 							'priority' => 30
 						}
@@ -81,9 +83,19 @@ my $runlist = {
 								'priority' => 10
 							}
 						}
-					}
-				}
-			}
+					},
+					'avoidance' => {
+						'importer' => {
+							'exec' => 'riuk/children/core/avoidance/importer.pl',
+							'priority' => '1-20'
+						},
+						'parameters' => {
+							'priority' => '1-10',
+							'exec' => 'riuk/children/core/avoidance/parameters.pl'
+						}
+					},
+				},
+			},
 		},
 		'integration' => {
 			'parameters' => {
@@ -110,6 +122,7 @@ my $runlist = {
 					},
 					'setups' => {
 						'network' => {
+							'avoidable' => 'false',
 							'exec' => 'riuk/children/core/setups/network.pl',
 							'priority' => 10
 						},
@@ -118,6 +131,7 @@ my $runlist = {
 							'priority' => 20
 						},
 						'data' => {
+							'avoidable' => 'true',
 							'exec' => 'riuk/children/core/setups/data.pl',
 							'priority' => 30
 						}
@@ -154,6 +168,16 @@ my $runlist = {
 							}
 						}
 					},
+					'avoidance' => {
+						'importer' => {
+							'exec' => 'riuk/children/core/avoidance/importer.pl',
+							'priority' => '1-20'
+						},
+						'parameters' => {
+							'priority' => '1-10',
+							'exec' => 'riuk/children/core/avoidance/parameters.pl'
+						}
+					},
 					'applications' => {
 						'test' => {
 							'parameters' => {
@@ -173,6 +197,7 @@ my $runlist = {
 							},
 							'setups' => {
 								'network' => {
+									'avoidable' => 'false',
 									'exec' => 'riuk/children/core/setups/network.pl',
 									'priority' => 10
 								},
@@ -181,6 +206,7 @@ my $runlist = {
 									'priority' => 20
 								},
 								'data' => {
+									'avoidable' => 'true',
 									'exec' => 'riuk/children/core/setups/data.pl',
 									'priority' => 30
 								}
@@ -210,7 +236,17 @@ my $runlist = {
 										'priority' => 10
 									}
 								}
-							}
+							},
+							'avoidance' => {
+								'importer' => {
+									'exec' => 'riuk/children/core/avoidance/importer.pl',
+									'priority' => '1-20'
+								},
+								'parameters' => {
+									'priority' => '1-10',
+									'exec' => 'riuk/children/web/children/php/avoidance/parameters.pl'
+								}
+							},
 						},
 						'secondtest' => {
 							'parameters' => {
@@ -230,6 +266,7 @@ my $runlist = {
 							},
 							'setups' => {
 								'network' => {
+									'avoidable' => 'false',
 									'exec' => 'riuk/children/core/setups/network.pl',
 									'priority' => 10
 								},
@@ -238,6 +275,7 @@ my $runlist = {
 									'priority' => 20
 								},
 								'data' => {
+									'avoidable' => 'true',
 									'exec' => 'riuk/children/core/setups/data.pl',
 									'priority' => 30
 								}
@@ -267,7 +305,17 @@ my $runlist = {
 										'priority' => 10
 									}
 								}
-							}
+							},
+							'avoidance' => {
+								'importer' => {
+									'exec' => 'riuk/children/core/avoidance/importer.pl',
+									'priority' => '1-20'
+								},
+								'parameters' => {
+									'priority' => '1-10',
+									'exec' => 'riuk/children/web/children/php/avoidance/parameters.pl'
+								}
+							},
 						}
 					}
 				}

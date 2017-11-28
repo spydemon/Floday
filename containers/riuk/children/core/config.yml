@@ -1,8 +1,10 @@
 setups:
 	network:
+		avoidable: false
 		exec: riuk/children/core/setups/network.pl
 		priority: 10
 	data:
+		avoidable: true
 		exec: riuk/children/core/setups/data.pl
 		priority: 30
 parameters:
@@ -45,8 +47,8 @@ hooks:
 			priority: 10
 avoidance:
 	parameters:
-		exec: riuk/children/core/bypasser/parameters.pl
+		exec: riuk/children/core/avoidance/parameters.pl
 		priority: 1-10
 	importer:
-		exec: riuk/children/core/bypasser/importer.pl
+		exec: riuk/children/core/avoidance/importer.pl
 		priority: 1-20
