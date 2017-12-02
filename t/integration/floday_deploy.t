@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use threads;
 
+use Linux::LXC;
 use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
 use Test::Exception;
 use Test::More;
@@ -45,5 +46,20 @@ chomp $containers_after_last_destruction;
 cmp_ok (($containers_before_last_destruction - $containers_after_last_destruction), '==' , 1, 'Hooks on lxc destroy action seems broken.');
 `rm /tmp/floday/lxc_destroy_before`;
 `rm /tmp/floday/lxc_destroy_after`;
+
+#Test of the avoidance
+
+my @containers = ('avoidance-completely_failed', '', 'avoidance-partially_failed', 'avoidance-successful');
+for (@containers) {
+	my $c = Linux::LXC->new('utsname' => $_);
+	$c->is_existing and $c->stop && $c->destroy;
+}
+`rm -rf /tmp/floday/avoidance` if -d '/tmp/floday/avoidance';
+
+my $avoidance_test = Floday::Deploy->new(hostname => 'avoidance');
+eval{$avoidance_test->start_deployment};
+
+my $c = Linux::LXC->new('utsname' => 'avoidance-successful');
+ok (!$c->is_existing, 'If an application is flagged as avoidable, it\'s not deployed anymore.');
 
 done_testing;

@@ -61,12 +61,14 @@ sub launch {
 	$log->warningf('Launching %s application.', $parameters{application_path});
 	$this->log->{adapter}->indent_inc();
 	my $container = Floday::Lib::Linux::LXC->new('utsname' => $parameters{application_path});
-	if ($container->is_existing) {
+	if (!$this->_is_application_avoided($parameters{application_path}) && $container->is_existing) {
 		$container->destroy;
 	}
 	$container->set_template($parameters{template});
-	my ($state, $stdout, $stderr) = $container->deploy;
-	die $stderr unless $state;
+	if (!$this->_is_application_avoided($parameters{application_path})) {
+		my ($state, $stdout, $stderr) = $container->deploy;
+		die $stderr unless $state;
+	}
 	$this->_run_scripts($parameters{application_path}, 'setups');
 	$container->stop if $container->is_running;
 	$container->start;
@@ -101,20 +103,74 @@ sub start_deployment {
 	$this->log->warningf('%s deployed.', $this->get_hostname);
 }
 
+#TODO: test des cas suivants:
+# application sans avoidance.
+# application avec avoidance qui échouent.
+# application avec avoidance à réussite mixe.
+# application avec avoidance à réussite totale.
+
+sub _is_application_avoided {
+	my ($this, $application_path) = @_;
+	state %cache;
+	return $cache{$application_path} if defined $cache{$application_path};
+	my $containers_folder = $this->get_config()->get_floday_config('containers', 'path');
+	my %scripts = $this->get_runlist()->get_execution_list_by_priority_for_application($application_path, 'avoidance');
+	$this->log->infof('Start avoidance checks.');
+	$this->log->{adapter}->indent_inc();
+	# If no avoidance scripts exist for the given application, it mean that the application will never be avoided.
+	my $avoided = (keys %scripts == 0) ? 0 : 1;
+	if ($avoided == 0) {
+		$this->log->infof('No avoidance checks was found. This application will thus be tagged as non-avoidable.');
+		goto assignation;
+	}
+	for(sort {$a cmp $b} keys %scripts) {
+		my $script_path = "$containers_folder/" . $scripts{$_}->{exec};
+		$this->log->infof('Running avoidance check: %s', $scripts{$_}->{exec});
+		$this->log->{adapter}->indent_inc();
+		`$script_path --application $application_path`;
+		my $result = $?;
+		$this->log->{adapter}->indent_dec();
+		if ($result ne '0') {
+			$avoided = 0;
+			$this->log->infof('This script flag application as non-avoidable.');
+			last;
+		}
+	}
+	if ($avoided == 1) {
+		$this->log->infof('Application was flagged as avoidable.');
+	}
+	assignation:
+	$cache{$application_path} = $avoided;
+	$this->log->{adapter}->indent_dec();
+	$this->log->infof('End avoidance checks.');
+	return $avoided;
+}
+
+#TODO: to implement.
+sub _is_script_avoided {
+	my ($this, $script_data, $application_path) = @_;
+	my $avoidable = %{$script_data}{avoidable} // 'false';
+	return $this->_is_application_avoided($application_path);
+}
+
 sub _run_scripts {
 	my ($this, $application_path, $family) = @_;
 	$this->log->warningf('Start running %s scripts.', $family);
+	$this->log->{adapter}->indent_inc();
 	my %scripts = $this->get_runlist()->get_execution_list_by_priority_for_application($application_path, $family);
 	my $containers_folder = $this->get_config()->get_floday_config('containers', 'path');
 	for(sort {$a cmp $b} keys %scripts) {
-		my $scriptPath = "$containers_folder/" . $scripts{$_}->{exec};
-		$this->log->{adapter}->indent_inc();
-		$this->log->infof('Running script: %s', $scriptPath);
-		$this->log->{adapter}->indent_inc();
-		print `$scriptPath --application $application_path`;
-		$this->log->{adapter}->indent_dec();
-		$this->log->{adapter}->indent_dec();
+		my $script_path = "$containers_folder/" . $scripts{$_}->{exec};
+		if ($this->_is_script_avoided($scripts{$_}, $application_path)) {
+			$this->log->infof('Avoided script: %s', $script_path);
+		} else {
+			$this->log->infof('Running script: %s', $script_path);
+			$this->log->{adapter}->indent_inc();
+			print `$script_path --application $application_path`;
+			$this->log->{adapter}->indent_dec();
+		}
 	}
+	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('End running %s scripts.', $family);
 }
 
