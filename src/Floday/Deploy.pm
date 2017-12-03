@@ -105,9 +105,6 @@ sub start_deployment {
 
 #TODO: test des cas suivants:
 # application sans avoidance.
-# application avec avoidance qui échouent.
-# application avec avoidance à réussite mixe.
-# application avec avoidance à réussite totale.
 
 sub _is_application_avoided {
 	my ($this, $application_path) = @_;
@@ -146,11 +143,10 @@ sub _is_application_avoided {
 	return $avoided;
 }
 
-#TODO: to implement.
 sub _is_script_avoided {
 	my ($this, $script_data, $application_path) = @_;
-	my $avoidable = %{$script_data}{avoidable} // 'false';
-	return $this->_is_application_avoided($application_path);
+	return 1 if ($this->_is_application_avoided($application_path) && %{$script_data}{avoidable} eq 'true');
+	return 0;
 }
 
 sub _run_scripts {

@@ -34,7 +34,7 @@ hosts:
                     type: avoidance
                     check_one: false
                     check_two: false
-            partially_failded:
+            partially_failed:
                 parameters:
                     type: avoidance
                     check_one: true

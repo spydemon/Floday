@@ -61,5 +61,10 @@ eval{$avoidance_test->start_deployment};
 
 my $c = Linux::LXC->new('utsname' => 'avoidance-successful');
 ok (!$c->is_existing, 'If an application is flagged as avoidable, it\'s not deployed anymore.');
-
+ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as non-avoidable');
+ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as non-avoidable');
+ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as partially non-avoidable');
+ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as partially non-avoidable');
+ok (!-r '/tmp/floday/avoidance/avoidance-successful/avoidable', 'Check that avoidable scripts are not launched if application is considered as partially avoidable');
+ok (-f '/tmp/floday/avoidance/avoidance-successful/mandatory', 'Check that mandatory scripts are launched if application is considered as partially avoidable');
 done_testing;

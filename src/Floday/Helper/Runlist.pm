@@ -119,6 +119,7 @@ sub get_execution_list_by_priority_for_application {
 	my %sorted_scripts;
 	while (my($key, $value) = each %setups) {
 		$sorted_scripts{$value->{priority}} = {
+		  'avoidable' => $value->{avoidable} // 'false',
 		  'exec' => $value->{exec},
 		  'name' => $key
 	  };
