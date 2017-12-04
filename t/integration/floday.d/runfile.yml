@@ -44,3 +44,6 @@ hosts:
                     type: avoidance
                     check_one: true
                     check_two: true
+            default:
+                parameters:
+                    type: avoidance_default

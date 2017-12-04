@@ -49,7 +49,7 @@ cmp_ok (($containers_before_last_destruction - $containers_after_last_destructio
 
 #Test of the avoidance
 
-my @containers = ('avoidance-completely_failed', '', 'avoidance-partially_failed', 'avoidance-successful');
+my @containers = ('avoidance-completely_failed', 'avoidance-default', 'avoidance-partially_failed', 'avoidance-successful');
 for (@containers) {
 	my $c = Linux::LXC->new('utsname' => $_);
 	$c->is_existing and $c->stop && $c->destroy;
@@ -61,10 +61,11 @@ eval{$avoidance_test->start_deployment};
 
 my $c = Linux::LXC->new('utsname' => 'avoidance-successful');
 ok (!$c->is_existing, 'If an application is flagged as avoidable, it\'s not deployed anymore.');
-ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as non-avoidable');
-ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as non-avoidable');
-ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as partially non-avoidable');
-ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as partially non-avoidable');
-ok (!-r '/tmp/floday/avoidance/avoidance-successful/avoidable', 'Check that avoidable scripts are not launched if application is considered as partially avoidable');
-ok (-f '/tmp/floday/avoidance/avoidance-successful/mandatory', 'Check that mandatory scripts are launched if application is considered as partially avoidable');
+ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as non-avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as non-avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as partially avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as partially avoidable.');
+ok (!-r '/tmp/floday/avoidance/avoidance-successful/avoidable', 'Check that avoidable scripts are NOT launched if application is considered as fully avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-successful/mandatory',  'Check that mandatory scripts are launched if application is considered as fully avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-default/default', 'Check that a container without avoidance scripts are always considered as non-avoidable.');
 done_testing;

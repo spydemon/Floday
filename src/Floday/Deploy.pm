@@ -103,9 +103,6 @@ sub start_deployment {
 	$this->log->warningf('%s deployed.', $this->get_hostname);
 }
 
-#TODO: test des cas suivants:
-# application sans avoidance.
-
 sub _is_application_avoided {
 	my ($this, $application_path) = @_;
 	state %cache;
@@ -145,7 +142,11 @@ sub _is_application_avoided {
 
 sub _is_script_avoided {
 	my ($this, $script_data, $application_path) = @_;
-	return 1 if ($this->_is_application_avoided($application_path) && %{$script_data}{avoidable} eq 'true');
+	if ($this->_is_application_avoided($application_path)
+	  && $script_data->{avoidable} eq 'true'
+	) {
+		return 1 ;
+	}
 	return 0;
 }
 
