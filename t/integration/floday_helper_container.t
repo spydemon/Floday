@@ -11,10 +11,12 @@ use Floday::Helper::Container;
 my $expected_result_1 = {
 	'setups'     => {
 		'network' => {
+			'avoidable' => 'false',
 			'priority' => '10',
 			'exec'     => 'riuk/children/core/setups/network.pl'
 		},
 		'data'    => {
+			'avoidable' => 'true',
 			'priority' => '30',
 			'exec'     => 'riuk/children/core/setups/data.pl'
 		}
@@ -82,6 +84,16 @@ my $expected_result_1 = {
 		},
 		'gateway'                => {
 			'mandatory' => 'true'
+		}
+	},
+	'avoidance' => {
+		'importer' => {
+			'exec' => 'riuk/children/core/avoidance/importer.pl',
+			'priority' => '1-20'
+		},
+		'parameters' => {
+			'priority' => '1-10',
+			'exec' => 'riuk/children/core/avoidance/parameters.pl'
 		}
 	}
 };

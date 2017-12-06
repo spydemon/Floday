@@ -111,6 +111,7 @@ Cette liste comprend les \glspl{chemin_conteneur} de l'ensemble des parents du c
 Attention, l'ordre dans lequel ils sont écrits est ignoré.
 Deux parents ne doivent donc pas réécrire un même \gls{attribut} !
 
+\lastupdated{1.1.0}
 \paragraph{Le nœud \emph{parameters}}
 Nous y définissons les différents paramètres accessibles dans les scripts d'installation. Leurs valeurs peuvent être surchargées au niveau du \gls{runfile}.
 Chaque \gls{param_applicatifs} peut avoir ces attributs~:
@@ -120,8 +121,10 @@ Chaque \gls{param_applicatifs} peut avoir ces attributs~:
 		. Si l'attribut est obligatoire, mais non défini lors du déploiement, une erreur sera émise par \emph{Floday}.
 	\item[pattern] Cet attribut peut contenir une expression rationnelle \emph{PCRE} à laquelle la valeur sera soumise. Si le test échoue, le déploiement sera là aussi annulé.
 	\item[value] Définit une valeur par défaut. Si celui-ci ne se retrouve pas surchargé au niveau du \gls{runfile}, c'est cette valeur qui sera utilisée.
+	\item[avoidable] Indique si le script peut-être contourné, ou si son execution se révèle indispensable dans tous les cas. Comme les autres pseudo-booléen, la valeur de ce champ peut être de \emph{true} ou \emph{false}. Cette notion de contournement est expliquée en détail dans un autre paragraphe.
 \end{description}
 
+\lastupdated{1.0.0}
 \paragraph{Le nœud \emph{setups}}
 Une fois l'\gls{initialisation} complète, les scripts présents dans cette partie sont exécutés les uns après les autres pour finir le \gls{deploiement}.
 Chaque nœud peut avoir ces attributs~:
@@ -132,6 +135,20 @@ Chaque nœud peut avoir ces attributs~:
 
 \paragraph{Le nœud \emph{end\_setup}}. Ils sont similaires en tout point avec les scripts \emph{setup}. La différence est qu'ils sont exécutés une fois l'ensemble des sous-applications de déployées et non avant.
 Les attributs sont les mêmes que pour le nœud \emph{setup} et \emph{hooks}.
+
+%% Ajouter avoidance dans le glossaire ?
+\existstill{1.1.0}
+\paragraph{Le nœud \emph{avoidance}}
+Il contient un ensemble de scripts a exécuter pour savoir si l'application en cours de déploiement doit être marquée comme pouvant être évitée (\gls{evitement}).
+Cette notion permet d'accélérer le déploiment de l'hôte en ne traitant effectivement que les applications qui ont besoin de l'être.
+Chaque script présent dans ce nœud devra retourner quelque chose. Si la valeur de retour est différente de~\emph{0}, le test d'évitement sera considéré comme échoué, rendant l'application non-évitable.
+Il suffit d'un unique échec pour que l'application soit redéployée, même si d'autres scripts d'évitement sont considérés comme réussi.
+
+Malgré tout, certains scripts (principalement de \emph{setups} et de \emph{end\_setups}) peuvent nécessiter une exécution à tous les coups (par exemple la reconfiguration d'\emph{iptables} qui serait réinitialisé à chaque déploiement).
+Il est donc possible de forcer l'exécution d'un script en renseignant le paramètre \emph{avoidable} à {false} au niveau du script en question, dans la définition du conteneur.
+À noté que ça sera le comportement par défaut pour tous scripts n'ayant pas le paramètre de renseigné.
+
+Si ce nœud n'est pas présent, l'application sera toujours considérée comme non-évitable. Chaque nœud peut avoir les attributs \emph{exec} et \emph{priority} qui ont les mêmes rôles que ceux présents au sein du nœud \emph{setups}.
 
 \subsubsection{Écrire les scripts d'exécution}
 

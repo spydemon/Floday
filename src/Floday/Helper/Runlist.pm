@@ -119,6 +119,7 @@ sub get_execution_list_by_priority_for_application {
 	my %sorted_scripts;
 	while (my($key, $value) = each %setups) {
 		$sorted_scripts{$value->{priority}} = {
+		  'avoidable' => $value->{avoidable} // 'false',
 		  'exec' => $value->{exec},
 		  'name' => $key
 	  };
@@ -152,6 +153,9 @@ sub _clean_runlist {
 		}
 		if (defined $raw_data->{$a}{'applications'}) {
 			$clean_runlist->{$a}{'applications'} = $this->_clean_runlist($raw_data->{$a}{'applications'});
+		}
+		if (defined $raw_data->{$a}{'avoidance'}) {
+			$clean_runlist->{$a}{'avoidance'} = $raw_data->{$a}{'avoidance'};
 		}
 		if (defined $raw_data->{$a}{'end_setups'}) {
 			$clean_runlist->{$a}{'end_setups'} = $raw_data->{$a}{'end_setups'};

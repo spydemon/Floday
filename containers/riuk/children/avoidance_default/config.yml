@@ -1,0 +1,9 @@
+setups:
+	avoidance_default_checker:
+		exec: riuk/children/avoidance_default/setups/avoidance_default_checker.pl
+		priority: 1
+		avoidable: true
+parameters:
+	template:
+		mandatory: true
+		value: flodayalpine -- version 3.4

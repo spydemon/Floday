@@ -11,3 +11,6 @@ parameters:
 		value: /var/www
 	hostname:
 		mandatory: true
+avoidance:
+	parameters:
+		exec: riuk/children/web/children/php/avoidance/parameters.pl
