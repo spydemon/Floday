@@ -60,6 +60,16 @@
 	}
 }
 
+\newglossaryentry{evitement}{
+	name=évitement -- de déploiment,
+	text=évitement,
+	description={%
+		Une application peut voir son \gls{deploiement} évité si la version actuelle de l'application en cours de fonctionnement répond favorablement à une série de critères établis au niveau de la définition du conteneur.
+		Si une application est considérée comme \emph{évitable}, elle ne sera plus initialisée (\gls{initialisation}) et les scripts de \emph{setups} et \emph{end\_setup} marqués comme évitables ne seront pas non plus exécutés.
+		Cette notion permet de fortement optimiser le redéploiement d'un hôte ayant que des modifications mineures dans son runfile.
+	}
+}
+
 \newglossaryentry{sous-conteneur}{
 	name=sous-conteneur,
 	plural=sous-conteneurs,
