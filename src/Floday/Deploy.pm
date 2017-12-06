@@ -179,7 +179,7 @@ Floday::Deploy - Manage a Floday host deployment.
 
 =head1 VERSION
 
-1.0.0
+1.0.1
 
 =head1 DESCRIPTION
 
