@@ -1,8 +1,10 @@
 setups:
 	network:
+		avoidable: false
 		exec: riuk/children/core/setups/network.pl
 		priority: 10
 	data:
+		avoidable: true
 		exec: riuk/children/core/setups/data.pl
 		priority: 30
 parameters:
@@ -11,7 +13,7 @@ parameters:
 	data_out:
 		mandatory: false
 	bridge:
-		mantatory: true
+		mandatory: true
 		value: lxcbr0
 	gateway:
 		mandatory: true
@@ -43,3 +45,10 @@ hooks:
 		update_fstab:
 			exec: riuk/children/core/hooks/lxc_destroy_after/update_fstab.pl
 			priority: 10
+avoidance:
+	parameters:
+		exec: riuk/children/core/avoidance/parameters.pl
+		priority: 1-10
+	importer:
+		exec: riuk/children/core/avoidance/importer.pl
+		priority: 1-20

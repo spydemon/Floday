@@ -1,0 +1,24 @@
+setups:
+	setup_avoidable:
+		exec: riuk/children/avoidance/setups/avoidable.pl
+		priority: 1
+		avoidable: true
+	setup_mandatory:
+		exec: riuk/children/avoidance/setups/mandatory.pl
+		priority: 2
+		avoidable: false
+avoidance:
+	avoidance_checker_one:
+		exec: riuk/children/avoidance/avoidance/checker_one.pl
+		priority: 1
+	avoidance_checker_two:
+		exec: riuk/children/avoidance/avoidance/checker_two.pl
+		priority: 2
+parameters:
+	check_one:
+		mandatory: true
+	check_two:
+		mandatory: true
+	template:
+		mandatory: true
+		value: flodayalpine -- version 3.4

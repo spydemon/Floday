@@ -5,10 +5,14 @@ use warnings;
 
 use v5.20;
 
+use Getopt::Long;
 use TAP::Harness;
 
+my $debug = 0;
+GetOptions('debug', \$debug);
+
 my %args = (
-	verbosity => 0,
+	verbosity => $debug ? 1 : 0,
 	lib => [$ENV{FLODAY_T_SRC}],
 	color => 1
 );

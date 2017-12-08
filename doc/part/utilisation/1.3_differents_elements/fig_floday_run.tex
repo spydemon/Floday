@@ -1,71 +1,66 @@
 \begin{lstlisting}[float=t, caption={Sortie d'une exécution de \emph{Floday}}, label=fig_1.4_floday, basicstyle=\tiny, xleftmargin=-3cm]
-# ./floday.pl --host websites
-[WARN]                 Floday::Deploy:   Deploying websites host
+# ./floday.pl --host integration
+[WARN]                 Floday::Deploy:   Deploying integration host
 [WARN]                 Floday::Deploy:    Start running setups scripts.
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/setups/iptables_flush.pl
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/setups/dns.pl
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/setups/ssh.pl
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/setups/network.pl
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/children/perl/setups/cpan.pl
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/children/perl/setups/updater.pl
- [ERR]        Floday::Lib::Linux::LXC:      lxc-attach: failed to get the init pid
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/setups/updater.pl
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/setups/alpine_preparation.pl
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/setups/debian_preparation.pl
 [WARN]                 Floday::Deploy:    End running setups scripts.
-[WARN]                 Floday::Deploy:    Start deployment of websites applications.
-[WARN]                 Floday::Deploy:     Launching website-web_application application.
+[WARN]                 Floday::Deploy:    Start deployment of integration applications.
+[WARN]                 Floday::Deploy:     Launching integration-web application.
+[INFO]                 Floday::Deploy:      Start avoidance checks.
+[INFO]                 Floday::Deploy:       Running avoidance check: riuk/children/core/avoidance/parameters.pl
+[INFO]                 Floday::Deploy:       This script flag application as non-avoidable.
+[INFO]                 Floday::Deploy:      End avoidance checks.
 [WARN]        Floday::Lib::Linux::LXC:      Start pre destruction hooks.
-[INFO]        Floday::Lib::Linux::LXC:       Running script: jaxe/children/core/hooks/lxc_destroy_before/btrfs_management.pl
+[INFO]        Floday::Lib::Linux::LXC:       Running script: riuk/children/core/hooks/lxc_destroy_before/clear_filesystem.pl
 [WARN]        Floday::Lib::Linux::LXC:      End pre destruction hooks.
-[WARN]        Floday::Lib::Linux::LXC:      Start LXC container website-web_application destruction.
+[WARN]        Floday::Lib::Linux::LXC:      Start LXC container integration-web destruction.
 [WARN]        Floday::Lib::Linux::LXC:      End LXC container destruction.
 [WARN]        Floday::Lib::Linux::LXC:      Start post destroy hook.
+[INFO]        Floday::Lib::Linux::LXC:       Running script: riuk/children/core/hooks/lxc_destroy_after/update_fstab.pl
 [WARN]        Floday::Lib::Linux::LXC:      End post destroy hook.
 [WARN]        Floday::Lib::Linux::LXC:      Start pre deployment hooks.
-[INFO]        Floday::Lib::Linux::LXC:       Running script: jaxe/children/core/hooks/lxc_deploy_before/btrfs_management.pl
+[INFO]        Floday::Lib::Linux::LXC:       Running script: riuk/children/core/hooks/lxc_deploy_before/open_firewall.pl
 [WARN]        Floday::Lib::Linux::LXC:      End pre deployment hook.
-[WARN]        Floday::Lib::Linux::LXC:      Start deploying LXC website-web_application  container.
+[WARN]        Floday::Lib::Linux::LXC:      Start deploying LXC integration-web container.
 [WARN]        Floday::Lib::Linux::LXC:       End deploying LXC container.
 [WARN]        Floday::Lib::Linux::LXC:      Start post deployment hook.
+[INFO]        Floday::Lib::Linux::LXC:       Running script: riuk/children/core/hooks/lxc_deploy_after/close_firewall.pl
 [WARN]        Floday::Lib::Linux::LXC:      End post deployment hook.
 [WARN]                 Floday::Deploy:      Start running setups scripts.
-[INFO]                 Floday::Deploy:       Running script: /etc/floday/containers/jaxe/children/core/setups/networking.pl
-[INFO]                 Floday::Deploy:       Running script: /etc/floday/containers/jaxe/children/core/setups/cleaning.pl
-[INFO]                 Floday::Deploy:       Running script: /etc/floday/containers/jaxe/children/core/setups/updater.pl
-[INFO]                 Floday::Deploy:       Running script: /etc/floday/containers/jaxe/children/www/setups/lighttpd.pl
+[INFO]                 Floday::Deploy:       Running script: /etc/floday/containers/riuk/children/core/setups/network.pl
+[INFO]                 Floday::Deploy:       Running script: /etc/floday/containers/riuk/children/web/setups/lighttpd.pl
+[INFO]                 Floday::Deploy:       Running script: /etc/floday/containers/riuk/children/core/setups/data.pl
 [WARN]                 Floday::Deploy:      End running setups scripts.
-[WARN]                 Floday::Deploy:      Launching website-web_application-galek application.
-[WARN]        Floday::Lib::Linux::LXC:       Start pre destruction hooks.
-[INFO]        Floday::Lib::Linux::LXC:        Running script: jaxe/children/core/hooks/lxc_destroy_before/btrfs_management.pl
-[WARN]        Floday::Lib::Linux::LXC:       End pre destruction hooks.
-[WARN]        Floday::Lib::Linux::LXC:       Start LXC container spyzone-web-galek destruction.
-[WARN]        Floday::Lib::Linux::LXC:       End LXC container destruction.
-[WARN]        Floday::Lib::Linux::LXC:       Start post destroy hook.
-[WARN]        Floday::Lib::Linux::LXC:       End post destroy hook.
-[WARN]        Floday::Lib::Linux::LXC:       Start pre deployment hooks.
-[INFO]        Floday::Lib::Linux::LXC:        Running script: jaxe/children/core/hooks/lxc_deploy_before/btrfs_management.pl
-[WARN]        Floday::Lib::Linux::LXC:       End pre deployment hook.
-[WARN]        Floday::Lib::Linux::LXC:       Start deploying LXC spyzone-web-galek container.
-[WARN]        Floday::Lib::Linux::LXC:        End deploying LXC container.
-[WARN]        Floday::Lib::Linux::LXC:       Start post deployment hook.
-[WARN]        Floday::Lib::Linux::LXC:       End post deployment hook.
+[WARN]                 Floday::Deploy:      Launching integration-web-secondtest application.
+[INFO]                 Floday::Deploy:       Start avoidance checks.
+[INFO]                 Floday::Deploy:        Running avoidance check: riuk/children/web/children/php/avoidance/parameters.pl
+[INFO]                 Floday::Deploy:        Running avoidance check: riuk/children/core/avoidance/importer.pl
+[INFO]                 Floday::Deploy:        Application was flagged as avoidable.
+[INFO]                 Floday::Deploy:       End avoidance checks.
 [WARN]                 Floday::Deploy:       Start running setups scripts.
-[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/jaxe/children/core/setups/networking.pl
-[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/jaxe/children/core/setups/cleaning.pl
-[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/jaxe/children/perl/setups/cpan.pl
-[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/jaxe/children/core/setups/updater.pl
-[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/jaxe/children/perl/setups/updater.pl
-[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/jaxe/children/www/children/galek/setups/galek_install.pl
+[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/riuk/children/core/setups/network.pl
+[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/riuk/children/web/children/php/setups/php.pl
+[INFO]                 Floday::Deploy:        Avoided script: /etc/floday/containers/riuk/children/core/setups/data.pl
+[WARN]                 Floday::Deploy:       End running setups scripts.
+[WARN]                 Floday::Deploy:       Start running end_setups scripts.
+[WARN]                 Floday::Deploy:       End running end_setups scripts.
+[WARN]                 Floday::Deploy:      Launching integration-web-test application.
+[INFO]                 Floday::Deploy:       Start avoidance checks.
+[INFO]                 Floday::Deploy:        Running avoidance check: riuk/children/web/children/php/avoidance/parameters.pl
+[INFO]                 Floday::Deploy:        Running avoidance check: riuk/children/core/avoidance/importer.pl
+[INFO]                 Floday::Deploy:        Application was flagged as avoidable.
+[INFO]                 Floday::Deploy:       End avoidance checks.
+[WARN]                 Floday::Deploy:       Start running setups scripts.
+[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/riuk/children/core/setups/network.pl
+[INFO]                 Floday::Deploy:        Running script: /etc/floday/containers/riuk/children/web/children/php/setups/php.pl
+[INFO]                 Floday::Deploy:        Avoided script: /etc/floday/containers/riuk/children/core/setups/data.pl
 [WARN]                 Floday::Deploy:       End running setups scripts.
 [WARN]                 Floday::Deploy:       Start running end_setups scripts.
 [WARN]                 Floday::Deploy:       End running end_setups scripts.
 [WARN]                 Floday::Deploy:      Start running end_setups scripts.
+[INFO]                 Floday::Deploy:       Running script: /etc/floday/containers/riuk/children/web/end_setup/iptables_save.pl
 [WARN]                 Floday::Deploy:      End running end_setups scripts.
-[WARN]                 Floday::Deploy:    End deployment of spyzone applications.
+[WARN]                 Floday::Deploy:    End deployment of integration applications.
 [WARN]                 Floday::Deploy:    Start running end_setups scripts.
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/end_setups/alpine_endpreparation.pl
-[INFO]                 Floday::Deploy:     Running script: /etc/floday/containers/jaxe/end_setups/iptables_save.pl
 [WARN]                 Floday::Deploy:    End running end_setups scripts.
-[WARN]                 Floday::Deploy:   websites deployed.
+[WARN]                 Floday::Deploy:   integration deployed.
 \end{lstlisting}

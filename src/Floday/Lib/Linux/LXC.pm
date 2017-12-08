@@ -3,6 +3,7 @@ package Floday::Lib::Linux::LXC;
 use v5.20;
 
 use Floday::Helper::Runlist;
+use Carp;
 use Moo;
 
 extends 'Linux::LXC';
@@ -166,7 +167,7 @@ Floday::Lib::Linux::LXC - Overload of Linux::LXC for logging purpose.
 
 =head1 VERSION
 
-1.0.1
+1.1.0
 
 =head1 DESCRIPTION
 

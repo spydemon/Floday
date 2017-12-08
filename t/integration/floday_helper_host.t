@@ -148,7 +148,7 @@ my $complex_host_to_hash_result = {
 					'value'     => 'eth0'
 				},
 				'bridge'                 => {
-					'mantatory' => 'true',
+					'mandatory' => 'true',
 					'value'     => 'lxcbr0'
 				},
 				'template'               => {
@@ -175,10 +175,12 @@ my $complex_host_to_hash_result = {
 			},
 			'setups'     => {
 				'data'    => {
+					'avoidable' => 'true',
 					'priority' => '30',
 					'exec'     => 'riuk/children/core/setups/data.pl'
 				},
 				'network' => {
+					'avoidable' => 'false',
 					'exec'     => 'riuk/children/core/setups/network.pl',
 					'priority' => '10'
 				}
@@ -209,6 +211,16 @@ my $complex_host_to_hash_result = {
 					}
 				}
 			},
+			'avoidance' => {
+				'importer' => {
+					'exec' => 'riuk/children/core/avoidance/importer.pl',
+					'priority' => '1-20'
+				},
+				'parameters' => {
+					'priority' => '1-10',
+					'exec' => 'riuk/children/core/avoidance/parameters.pl'
+				}
+			},
 			'inherit'    => [
 				'riuk-core'
 			]
@@ -216,6 +228,7 @@ my $complex_host_to_hash_result = {
 		'website1' => {
 			'setups'     => {
 				'network'  => {
+					'avoidable' => 'false',
 					'exec'     => 'riuk/children/core/setups/network.pl',
 					'priority' => '10'
 				},
@@ -224,6 +237,7 @@ my $complex_host_to_hash_result = {
 					'exec'     => 'riuk/children/web/setups/lighttpd.pl'
 				},
 				'data'     => {
+					'avoidable' => 'true',
 					'priority' => '30',
 					'exec'     => 'riuk/children/core/setups/data.pl'
 				}
@@ -269,7 +283,7 @@ my $complex_host_to_hash_result = {
 					'mandatory' => 'true'
 				},
 				'bridge'         => {
-					'mantatory' => 'true',
+					'mandatory' => 'true',
 					'value'     => 'lxcbr0'
 				},
 				'template'       => {
@@ -307,6 +321,16 @@ my $complex_host_to_hash_result = {
 				},
 				'application_path'  => {
 					'value' => 'agoodname-website1'
+				}
+			},
+			'avoidance' => {
+				'importer' => {
+					'exec' => 'riuk/children/core/avoidance/importer.pl',
+					'priority' => '1-20'
+				},
+				'parameters' => {
+					'priority' => '1-10',
+					'exec' => 'riuk/children/core/avoidance/parameters.pl'
 				}
 			}
 		}

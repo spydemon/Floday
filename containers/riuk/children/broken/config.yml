@@ -1,0 +1,7 @@
+inherit: core
+setups:
+	fake:
+		exec:
+parameters:
+	fake:
+		mandatory: 1

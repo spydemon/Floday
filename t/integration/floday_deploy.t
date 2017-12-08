@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use threads;
 
+use Linux::LXC;
 use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
 use Test::Exception;
 use Test::More;
@@ -46,4 +47,25 @@ cmp_ok (($containers_before_last_destruction - $containers_after_last_destructio
 `rm /tmp/floday/lxc_destroy_before`;
 `rm /tmp/floday/lxc_destroy_after`;
 
+#Test of the avoidance
+
+my @containers = ('avoidance-completely_failed', 'avoidance-default', 'avoidance-partially_failed', 'avoidance-successful');
+for (@containers) {
+	my $c = Linux::LXC->new('utsname' => $_);
+	$c->is_existing and $c->stop && $c->destroy;
+}
+`rm -rf /tmp/floday/avoidance` if -d '/tmp/floday/avoidance';
+
+my $avoidance_test = Floday::Deploy->new(hostname => 'avoidance');
+eval{$avoidance_test->start_deployment};
+
+my $c = Linux::LXC->new('utsname' => 'avoidance-successful');
+ok (!$c->is_existing, 'If an application is flagged as avoidable, it\'s not deployed anymore.');
+ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as non-avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as non-avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as partially avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as partially avoidable.');
+ok (!-r '/tmp/floday/avoidance/avoidance-successful/avoidable', 'Check that avoidable scripts are NOT launched if application is considered as fully avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-successful/mandatory',  'Check that mandatory scripts are launched if application is considered as fully avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-default/default', 'Check that a container without avoidance scripts are always considered as non-avoidable.');
 done_testing;
