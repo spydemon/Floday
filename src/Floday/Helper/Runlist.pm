@@ -4,6 +4,7 @@ use v5.20;
 
 use Floday::Helper::Config;
 use Floday::Helper::Host;
+use Floday::Helper::Schema::Runfile;
 
 use Log::Any;
 use Moo;
@@ -37,6 +38,14 @@ has runfile => (
 	},
 	reader => 'get_run_file',
 	required => 1,
+);
+
+has schema => (
+	default => sub {
+		Floday::Helper::Schema::Runfile->new()
+	},
+	is => 'ro',
+	reader => 'get_schema'
 );
 
 has runlist_errors => (
@@ -110,6 +119,7 @@ sub get_execution_list_by_priority_for_application {
 	my %sorted_scripts;
 	while (my($key, $value) = each %setups) {
 		$sorted_scripts{$value->{priority}} = {
+		  'avoidable' => $value->{avoidable} // 'false',
 		  'exec' => $value->{exec},
 		  'name' => $key
 	  };
@@ -144,6 +154,9 @@ sub _clean_runlist {
 		if (defined $raw_data->{$a}{'applications'}) {
 			$clean_runlist->{$a}{'applications'} = $this->_clean_runlist($raw_data->{$a}{'applications'});
 		}
+		if (defined $raw_data->{$a}{'avoidance'}) {
+			$clean_runlist->{$a}{'avoidance'} = $raw_data->{$a}{'avoidance'};
+		}
 		if (defined $raw_data->{$a}{'end_setups'}) {
 			$clean_runlist->{$a}{'end_setups'} = $raw_data->{$a}{'end_setups'};
 		}
@@ -160,7 +173,16 @@ sub _clean_runlist {
 
 sub _initialize_runlist {
 	my ($this) = @_;
-	my $hosts = YAML::Tiny->read($this->get_run_file())->[0]{hosts};
+	my $hosts = YAML::Tiny->read($this->get_run_file())->[0];
+	my @errors;
+	push @errors, $this->get_schema()->validate($hosts);
+	if (@errors > 0) {
+		@errors = sort @errors;
+		my $errors_string;
+		map {$errors_string .= $_->path . ': ' . $_->message . "\n"} @errors;
+		die ("Errors in runfile:\n", $errors_string);
+	}
+	$hosts = $hosts->{hosts};
 	my $hosts_initialized;
 	for (keys %$hosts) {
 		my $attributes = $hosts->{$_};
@@ -180,7 +202,7 @@ Floday::Helper::Runlist - Manage the Floday runlist.
 
 =head1 VERSION
 
-1.0.1
+1.1.0
 
 =head1 DESCRIPTION
 

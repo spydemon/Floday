@@ -16,34 +16,26 @@ hosts:
                             ipv4: 10.0.3.6
                             gateway: 10.0.3.1
                             type: php
-                            data_in: /opt/floday/t/integration/floday.d/integration-web-test/php
+                            data_in: floday.d/integration-web-test/php
                             hostname: test.keh.keh
+                            object:
+                                stuff: stuff
                     secondtest:
                         parameters:
                             ipv4: 10.0.3.7
                             gateway: 10.0.3.1
                             type: php
-                            data_in: /opt/floday/t/integration/floday.d/integration-web-secondtest/php
+                            data_in: floday.d/integration-web-secondtest/php
                             hostname: test2.keh.keh
-    avoidance:
+                        something_else:
+                            hello: goodbye
+    backup:
         parameters:
             type: riuk
+            external_ipv4: 192.168.15.152
         applications:
-            completely_failed:
+            web:
                 parameters:
-                    type: avoidance
-                    check_one: false
-                    check_two: false
-            partially_failed:
-                parameters:
-                    type: avoidance
-                    check_one: true
-                    check_two: false
-            successful:
-                parameters:
-                    type: avoidance
-                    check_one: true
-                    check_two: true
-            default:
-                parameters:
-                    type: avoidance_default
+                    ipv4: 10.0.3.5
+                    gateway: 10.0.3.1
+                    type: web

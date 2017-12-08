@@ -3,11 +3,13 @@ inherit:
 	-jaxe-core
 setups:
 	deploy:
-		exec:     riuk/children/web/children/wordpress/setups/deploy.pl
-		priority: 10
+		avoidable: true
+		exec:      riuk/children/web/children/wordpress/setups/deploy.pl
+		priority:  10
 	import:
-		exec:     riuk/children/web/children/wordpress/setups/import.pl
-		priority: 30
+		avoidable: false
+		exec:      riuk/children/web/children/wordpress/setups/import.pl
+		priority:  30
 parameters:
 	public:
 		mandatory: false
@@ -35,4 +37,8 @@ hooks:
 		update_fstab:
 			exec:     riuk/children/[~\dots~]/wordpress/hooks/lxc_destroy_after/uf.pl
 			priority: 10
+avoidance:
+	new_data:
+		exec: riuk/children/[~\dots~]/wordpress/avoidance/new_data.pl
+		priority: 10
 \end{lstlisting}

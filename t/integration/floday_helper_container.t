@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use Test::Deep;
+use Test::Exception;
 use Test::More;
 
 use Floday::Helper::Container;
@@ -10,10 +11,12 @@ use Floday::Helper::Container;
 my $expected_result_1 = {
 	'setups'     => {
 		'network' => {
+			'avoidable' => 'false',
 			'priority' => '10',
 			'exec'     => 'riuk/children/core/setups/network.pl'
 		},
 		'data'    => {
+			'avoidable' => 'true',
 			'priority' => '30',
 			'exec'     => 'riuk/children/core/setups/data.pl'
 		}
@@ -76,11 +79,21 @@ my $expected_result_1 = {
 			'mandatory' => 'false'
 		},
 		'bridge'                 => {
-			'mantatory' => 'true',
+			'mandatory' => 'true',
 			'value'     => 'lxcbr0'
 		},
 		'gateway'                => {
 			'mandatory' => 'true'
+		}
+	},
+	'avoidance' => {
+		'importer' => {
+			'exec' => 'riuk/children/core/avoidance/importer.pl',
+			'priority' => '1-20'
+		},
+		'parameters' => {
+			'priority' => '1-10',
+			'exec' => 'riuk/children/core/avoidance/parameters.pl'
 		}
 	}
 };
@@ -95,5 +108,13 @@ cmp_deeply (Floday::Helper::Container->new()->get_container_definition('riuk-sft
   $expected_result_1,
   'Definition of container correctly fetched.'
 );
+
+throws_ok {Floday::Helper::Container->new()->get_container_definition('riuk-broken')}
+  qr#Errors in riuk-broken definition:
+/inherit: Expected array - got string.
+/parameters/fake/mandatory: Not in enum list: true, false.
+/setups/fake/exec: Expected string - got null.
+/setups/fake/priority: Missing property.#,
+  'Check container YAML schema validation.';
 
 done_testing;

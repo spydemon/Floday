@@ -6,6 +6,7 @@ use warnings;
 
 use Log::Any::Adapter('File', 'log.txt');
 use Test::Deep;
+use Test::Exception;
 use Test::More;
 
 use Floday::Helper::Runlist;
@@ -37,6 +38,7 @@ my $runlist = {
 					},
 					'setups' => {
 						'network' => {
+							'avoidable' => 'false',
 							'exec' => 'riuk/children/core/setups/network.pl',
 							'priority' => 10
 						},
@@ -45,6 +47,7 @@ my $runlist = {
 							'priority' => 20
 						},
 						'data' => {
+							'avoidable' => 'true',
 							'exec' => 'riuk/children/core/setups/data.pl',
 							'priority' => 30
 						}
@@ -80,9 +83,19 @@ my $runlist = {
 								'priority' => 10
 							}
 						}
-					}
-				}
-			}
+					},
+					'avoidance' => {
+						'importer' => {
+							'exec' => 'riuk/children/core/avoidance/importer.pl',
+							'priority' => '1-20'
+						},
+						'parameters' => {
+							'priority' => '1-10',
+							'exec' => 'riuk/children/core/avoidance/parameters.pl'
+						}
+					},
+				},
+			},
 		},
 		'integration' => {
 			'parameters' => {
@@ -109,6 +122,7 @@ my $runlist = {
 					},
 					'setups' => {
 						'network' => {
+							'avoidable' => 'false',
 							'exec' => 'riuk/children/core/setups/network.pl',
 							'priority' => 10
 						},
@@ -117,6 +131,7 @@ my $runlist = {
 							'priority' => 20
 						},
 						'data' => {
+							'avoidable' => 'true',
 							'exec' => 'riuk/children/core/setups/data.pl',
 							'priority' => 30
 						}
@@ -153,6 +168,16 @@ my $runlist = {
 							}
 						}
 					},
+					'avoidance' => {
+						'importer' => {
+							'exec' => 'riuk/children/core/avoidance/importer.pl',
+							'priority' => '1-20'
+						},
+						'parameters' => {
+							'priority' => '1-10',
+							'exec' => 'riuk/children/core/avoidance/parameters.pl'
+						}
+					},
 					'applications' => {
 						'test' => {
 							'parameters' => {
@@ -172,6 +197,7 @@ my $runlist = {
 							},
 							'setups' => {
 								'network' => {
+									'avoidable' => 'false',
 									'exec' => 'riuk/children/core/setups/network.pl',
 									'priority' => 10
 								},
@@ -180,6 +206,7 @@ my $runlist = {
 									'priority' => 20
 								},
 								'data' => {
+									'avoidable' => 'true',
 									'exec' => 'riuk/children/core/setups/data.pl',
 									'priority' => 30
 								}
@@ -209,7 +236,17 @@ my $runlist = {
 										'priority' => 10
 									}
 								}
-							}
+							},
+							'avoidance' => {
+								'importer' => {
+									'exec' => 'riuk/children/core/avoidance/importer.pl',
+									'priority' => '1-20'
+								},
+								'parameters' => {
+									'priority' => '1-10',
+									'exec' => 'riuk/children/web/children/php/avoidance/parameters.pl'
+								}
+							},
 						},
 						'secondtest' => {
 							'parameters' => {
@@ -229,6 +266,7 @@ my $runlist = {
 							},
 							'setups' => {
 								'network' => {
+									'avoidable' => 'false',
 									'exec' => 'riuk/children/core/setups/network.pl',
 									'priority' => 10
 								},
@@ -237,6 +275,7 @@ my $runlist = {
 									'priority' => 20
 								},
 								'data' => {
+									'avoidable' => 'true',
 									'exec' => 'riuk/children/core/setups/data.pl',
 									'priority' => 30
 								}
@@ -266,7 +305,17 @@ my $runlist = {
 										'priority' => 10
 									}
 								}
-							}
+							},
+							'avoidance' => {
+								'importer' => {
+									'exec' => 'riuk/children/core/avoidance/importer.pl',
+									'priority' => '1-20'
+								},
+								'parameters' => {
+									'priority' => '1-10',
+									'exec' => 'riuk/children/web/children/php/avoidance/parameters.pl'
+								}
+							},
 						}
 					}
 				}
@@ -286,6 +335,17 @@ is $parameters{bridge}, 'lxcbr0', 'Test of get_parameters_for_application seems 
 my %scripts = $test->get_execution_list_by_priority_for_application('integration-web-test', 'setups');
 cmp_deeply([sort keys %scripts], [10, 20, 30], 'get_setups_by_priority_for_application seems to correctly apply priorities.');
 cmp_deeply($test->get_runlist(), $runlist, 'get_runlist return the expected runlist.');
+
+throws_ok {Floday::Helper::Runlist->new(runfile => 'floday_helper_runlist.d/broken-runfile.yml')}
+  qr#Errors in runfile:
+/hosts/integration/applications/web/applications/secondtest: Properties not allowed: something_else.
+/hosts/integration/applications/web/applications/test/parameters/object: Expected string - got object.#,
+  'Check runfile YAML schema validation.';
+
+throws_ok {Floday::Helper::Runlist->new(runfile => 'floday_helper_runlist.d/runfile-broken.yml')}
+  qr#Errors in runfile:
+/hosts/integration/applications/web/parameters/type: Missing property.#,
+  'Check that "type" property is mandatory in "parameters" node.';
 
 cmp_ok($test->is_application_existing('integration-stuff-retest-no-problem'), '==', 0, 'Check an is_application_existing with a false return');
 cmp_ok($test->is_application_existing('integration-web-test'), '==', 1, 'Check an is_application_existing with a true return');
