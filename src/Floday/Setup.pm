@@ -1,4 +1,4 @@
-package Floday::Setup;
+ package Floday::Setup;
 
 use lib '/opt/floday/src/';
 use v5.20;
@@ -173,7 +173,7 @@ Floday::Setup - Manage a Floday application.
 
 =head1 VERSION
 
-1.0.1
+1.0.2
 
 =head1 SYNOPSYS
 
