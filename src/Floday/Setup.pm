@@ -137,11 +137,11 @@ sub generate_file {
 		ABSOLUTE => 1,
 	);
 	$t->process($template, $data, $i) or die $t->error . "\n";
-	if ($this->get_lxc_instance()->is_existing()) {
-		$this->get_lxc_instance->put($i, $location);
-	} else {
-		#lxc instance doesn't exist when the file should be put on the host.
+	if ($this->is_host()) {
+		`mkdir -p \`dirname $location\``;
 		rename $i, $location;
+	} else {
+		$this->get_lxc_instance->put($i, $location);
 	}
 }
 
