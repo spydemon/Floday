@@ -57,4 +57,9 @@ eval {$setup->run()};
 like ($setup->stderr(), qr/Floday "integration-nonexistent" application was not found in the runfile./, 'Test that the application existance is checked.');
 cmp_ok($setup->exitcode(), '!=', 0);
 
+
+`rm -rf /tmp/a`;
+`/etc/floday/containers/riuk/setups/folder_creation_on_host.pl --application integration`;
+ok (-f '/tmp/a/creation/test/on/host.txt', 'Test generate_file subroutine on the host.');
+
 done_testing;
