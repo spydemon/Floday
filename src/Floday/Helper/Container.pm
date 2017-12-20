@@ -83,10 +83,50 @@ Floday::Helper::Container - Manage the Floday containers.
 
 1.1.1
 
+=head1 SYNOPSYS
+
+  use Floday::Helper::Container;
+
+  my $container = Floday::Helper::Container->new(
+    'container_path' => 'riuk-web-integration'
+  );
+  say $container->get_container_definition();
+  say $container->get_container_definition_file_path();
+  say $container->get_container_definition_folder();
+
 =head1 DESCRIPTION
 
-This is an internal module used by Floday for managing the containers.
-You should not work directly with this module if you are not currently developing on Floday core.
+This module is used for managing a Floday container.
+It is mainly used internally but could also by used for "meta" tasks on an application depending of its containers implementation.
+
+=head2 Object instantiation
+
+=head3 new('container_path' => $container_path)
+
+=over 17
+
+=item $container_path
+
+A string representing the container path that the object will manage.
+
+=back
+
+=head2 Object methods
+
+=head3 get_container_definition()
+
+Will iterate through the configuration file that define the current container and will merge it with all its parents.
+The resulting hash is given back and represent all attributes (setups, end_setup, parameters, etc.) available for the given container.
+
+=head3 get_container_definition_file_path()
+
+Will return a string that represents the path to the definition file of the given container.
+
+=head3 get_container_definition_folder()
+
+Will return a string that reprents the path to the root folder of the container definition.
+This folder contains the "config.yml" file with all the container definition, but it should also contains all external scripts like setups and end_setups ones that are "owned" by this container.
+It's not mandatory for the moment that those external scripts are in this folder (or in its sub-folder) but it's strongly recommended for avoiding mess.
 
 =head1 AUTHORS
 
