@@ -147,7 +147,7 @@ Floday::Helper::Host - Manage the Floday host.
 
 =head1 VERSION
 
-1.1.0
+1.1.1
 
 =head1 DESCRIPTION
 

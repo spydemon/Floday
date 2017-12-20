@@ -5,3 +5,8 @@ parameters:
 	useless_param:
 		mandatory: false
 		value: 'we dont care'
+### This node is commented because the script is only used directly in floday_setup.t !
+#setups:
+#	folder_creation_on_host:
+#		exec: riuk/setups/folder_creation_on_host.pl
+#		priority: 10
