@@ -8,6 +8,8 @@ use Hash::Merge;
 use Moo;
 use YAML::Tiny;
 
+# TODO: add a "get_parents" subroutine that give back an Floday::Helper::Container instance relative to parents.
+
 has config => (
 	default => sub {
 		Floday::Helper::Config->instance();
@@ -24,9 +26,16 @@ has schema => (
 	reader => 'get_schema'
 );
 
+has container_path => (
+	is => 'ro',
+	reader => 'get_container_path',
+	required => 1
+);
+
 sub get_container_definition {
-	my ($this, $container_path) = @_;
+	my ($this) = @_;
 	my @errors;
+	my $container_path = $this->get_container_path();
 	my $container_definition = YAML::Tiny->read(
 	  $this->get_container_definition_file_path($container_path)
 	)->[0];
@@ -40,20 +49,23 @@ sub get_container_definition {
 	for (@{$container_definition->{inherit}}) {
 		$container_definition = Hash::Merge
 		  ->new('LEFT_PRECEDENT')
-		  ->merge($container_definition, $this->get_container_definition($_))
+		  ->merge($container_definition, Floday::Helper::Container
+		    ->new('container_path' => $_)
+		    ->get_container_definition()
+		  )
 		;
 	}
 	return $container_definition;
 }
 
 sub get_container_definition_file_path {
-	my ($this, $container_path) = @_;
-	$this->get_container_definition_folder($container_path) . '/config.yml';
+	my ($this) = @_;
+	$this->get_container_definition_folder() . '/config.yml';
 }
 
 sub get_container_definition_folder {
-	my ($this, $container_path) = @_;
-	my @containers_type = split '-', $container_path;
+	my ($this) = @_;
+	my @containers_type = split '-', $this->get_container_path();
 	join('/',
 	  $this->get_config()->get_floday_config('containers', 'path'),
 	  shift @containers_type,

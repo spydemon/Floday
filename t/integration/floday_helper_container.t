@@ -98,18 +98,18 @@ my $expected_result_1 = {
 	}
 };
 
-cmp_ok (Floday::Helper::Container->new()->get_container_definition_file_path('riuk-web-php'),
+cmp_ok (Floday::Helper::Container->new('container_path' => 'riuk-web-php')->get_container_definition_file_path(),
   'eq',
   '/etc/floday/containers/riuk/children/web/children/php/config.yml',
   'Definition file path corectly fetched.'
 );
 
-cmp_deeply (Floday::Helper::Container->new()->get_container_definition('riuk-sftp'),
+cmp_deeply (Floday::Helper::Container->new('container_path' => 'riuk-sftp')->get_container_definition(),
   $expected_result_1,
   'Definition of container correctly fetched.'
 );
 
-throws_ok {Floday::Helper::Container->new()->get_container_definition('riuk-broken')}
+throws_ok {Floday::Helper::Container->new('container_path' => 'riuk-broken')->get_container_definition()}
   qr#Errors in riuk-broken definition:
 /inherit: Expected array - got string.
 /parameters/fake/mandatory: Not in enum list: true, false.

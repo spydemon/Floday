@@ -86,7 +86,7 @@ sub _check_drunlist_integrity {
 
 sub _get_application_definition {
 	my ($this) = @_;
-	my $container_definition = Floday::Helper::Container->new()->get_container_definition($this->_get_container_path());
+	my $container_definition = Floday::Helper::Container->new('container_path' => $this->_get_container_path())->get_container_definition();
 	$this->_merge_definition($container_definition);
 }
 
