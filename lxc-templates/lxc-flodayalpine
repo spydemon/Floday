@@ -15,17 +15,17 @@ use Getopt::Long;
 use List::Util qw<pairs>;
 use Linux::LXC qw(ALLOW_UNDEF);
 
-my $CONFIG = Floday::Helper::Config->instance();
-my $CACHE_FOLDER = get_floday_configuration_value('cache_folder');
-my $LOGGING_FOLDER = $CONFIG->get_floday_config('logging', 'metadata_folder');
 my ($LXC_PATH, $LXC_NAME, $LXC_ROOTFS);
 GetOptions("path=s" => \$LXC_PATH,
-  "name=s" => \$LXC_NAME,
-  "rootfs=s" => \$LXC_ROOTFS
+	"name=s" => \$LXC_NAME,
+	"rootfs=s" => \$LXC_ROOTFS
 );
-my $LXC_UG_ID = get_user_id();
-
 my %template_arguments= (@ARGV);
+
+my $CONFIG = Floday::Helper::Config->instance();
+my $CACHE_FOLDER = get_floday_configuration_value('cache_folder') . '/' . get_alpine_version_to_use();
+my $LOGGING_FOLDER = $CONFIG->get_floday_config('logging', 'metadata_folder');
+my $LXC_UG_ID = get_user_id();
 
 sub deploy_APK_index {
 	if (!-d "$CACHE_FOLDER/apkIndex") {
