@@ -117,4 +117,11 @@ throws_ok {Floday::Helper::Container->new('container_path' => 'riuk-broken')->ge
 /setups/fake/priority: Missing property.#,
   'Check container YAML schema validation.';
 
+my @parents;
+for (Floday::Helper::Container->new('container_path' => 'riuk-inheritance_test')->get_container_parents()) {
+	push @parents, $_->get_container_path();
+}
+@parents = sort @parents;
+cmp_deeply (\@parents, ['riuk-core', 'riuk-mumble', 'riuk-sftp'], 'Test get_container_parents.');
+
 done_testing;
