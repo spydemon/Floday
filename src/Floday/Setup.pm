@@ -6,6 +6,8 @@ use v5.20;
 use Backticks;
 use Carp;
 use Exporter qw(import);
+use File::Basename;
+use File::Path qw(make_path);
 use File::Temp;
 use Floday::Helper::Config;
 use Floday::Helper::Container;
@@ -144,7 +146,7 @@ sub generate_file {
 	);
 	$t->process($template, $data, $i) or die $t->error . "\n";
 	if ($this->is_host()) {
-		`mkdir -p \`dirname $location\``;
+		make_path(dirname($location));
 		rename $i, $location;
 	} else {
 		$this->get_lxc_instance->put($i, $location);
