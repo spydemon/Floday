@@ -21,6 +21,12 @@ cmp_ok (
   '/tmp/floday/lxc-flodayalpine',
   'Check configuration rewriting.'
 );
+cmp_ok (
+  $config->get_floday_config('containers', 'retro-compatibility'),
+  'eq',
+  'ok',
+  'Check that the floday.cfg container is still used.'
+);
 throws_ok {$config->get_floday_config('containers', 'nonexisting')}
   qr/Undefined 'nonexisting' key in Floday configuration 'containers' section/,
   'Check Floday configuration fetch with non existing key';

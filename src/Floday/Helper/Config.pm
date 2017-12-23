@@ -33,7 +33,7 @@ sub _build_floday_config_file {
 	my ($this) = @_;
 	my $unified_file = new File::Temp();
 	my $config_folder = $this->_get_floday_config_root_folder() . '/config.d';
-	my $config_old_file = $this->_get_floday_config_root_folder() . '/config.cfg';
+	my $config_old_file = $this->_get_floday_config_root_folder() . '/floday.cfg';
 	my @config_files;
 	if (-d $config_folder) {
 		opendir(my $config_folder_fh, $config_folder);
