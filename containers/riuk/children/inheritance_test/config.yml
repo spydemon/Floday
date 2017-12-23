@@ -1,0 +1,4 @@
+inherit:
+  - riuk-core
+  - riuk-sftp
+  - riuk-mumble
