@@ -8,7 +8,7 @@ use Test::More;
 
 use Floday::Helper::Config;
 
-my $config = Floday::Helper::Config->new();
+my $config = Floday::Helper::Config->new('floday_config_root_folder' => 'floday_helper_config.d/multifolders');
 cmp_ok (
   $config->get_floday_config('containers', 'path'),
   'eq',

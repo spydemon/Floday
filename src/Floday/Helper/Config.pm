@@ -13,6 +13,13 @@ has floday_config_file => (
   reader => '_get_floday_config_file'
 );
 
+has floday_config_root_folder => (
+  default => '/etc/floday',
+  is => 'ro',
+  reader => '_get_floday_config_root_folder',
+  required => 1
+);
+
 sub get_floday_config {
 	my ($this, $section, $key) = @_;
 	die ("Undefined key") unless defined $key;
@@ -23,8 +30,10 @@ sub get_floday_config {
 }
 
 sub _build_floday_config_file {
+	my ($this) = @_;
 	my $unified_file = new File::Temp();
-	my $config_folder = '/etc/floday/config.d';
+	my $config_folder = $this->_get_floday_config_root_folder() . '/config.d';
+	my $config_old_file = $this->_get_floday_config_root_folder() . '/config.cfg';
 	my @config_files;
 	if (-d $config_folder) {
 		opendir(my $config_folder_fh, $config_folder);
@@ -34,8 +43,8 @@ sub _build_floday_config_file {
 		  readdir($config_folder_fh);
 		@config_files = sort @config_files;
 	}
-	if (-f '/etc/floday/floday.cfg') {
-		unshift @config_files, '/etc/floday/floday.cfg';
+	if (-f $config_old_file) {
+		unshift @config_files, $config_old_file;
 	}
 	`cat $_ >> $unified_file && echo "\n" >> $unified_file`
 	  for (@config_files);
