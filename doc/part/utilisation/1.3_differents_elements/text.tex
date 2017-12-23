@@ -1,14 +1,21 @@
 \subsection{Les éléments centraux}
 
-\subsubsection{Le fichier de configuration}
+\subsubsection{Les fichiers de configuration}
 \existstill{1.0.0}
-Un petit fichier de configuration existe à l'emplacement {\tt/etc/floday/config.cfg}.
-Celui-ci est au format \emph{INI}%
+\lastupdated{1.2.0}
+Historiquement, un fichier de configuration existait à l'emplacement {\tt/etc/floday/config.cfg}.
+Il reste utilisable, mais il est aujourd'hui conseillé de créer à la place des fichiers \path{.cfg} au sein du répertoire \path{/etc/floday/config.d}.
+De cette façon, il sera plus simple pour tout le monde d'avoir plusieurs sources générant cette configuration, qui devra être écrite au format \emph{INI}%
 \footnote{Courte définition du format \emph{INI} sur le site de \emph{Wikipedia}~:
 	\url{https://fr.wikipedia.org/wiki/Fichier_INI}
 }.
-Il s'agit du seul fichier dont l'emplacement soit imposé.
-Voici un descriptif de ce qu'il contient~:
+
+Dans ce dossier, les fichiers sont traités par ordre alphabétique inversé.
+Cela veut dire que si une même clef \path{container/path} est définie à la fois dans \path{10-floday.cfg} et dans \path{90-custom.cfg}, c'est cette dernière valeur qui sera utilisée.
+Si il existe, le fichier \path{/etc/floday/config.cfg} aura toujours la priorité la plus faible.
+Attention, n'oubliez pas que seul les fichiers se terminant par \path{.cfg} sont prit en compte~!
+
+Voici un descriptif des champs de configuration existants dans le fichier \path{10-floday.cfg}~:
 \newline
 
 \begin{tabular}{|l|l|p{4cm}|p{4.1cm}|}
@@ -22,10 +29,8 @@ Voici un descriptif de ce qu'il contient~:
 \end{tabular}
 \newline
 
-Pour le moment, il est aussi possible d'avoir des valeurs de configuration utilisées par le \gls{jeu_conteneur}, voir par l'\gls{initialisation}.
-Je ne suis pas certain qu'il s'agisse de la meilleure façon de faire, du coup il faut s'attendre à ce que cela change peut-être un jour.
-
-Voici les paramètres de configuration existants actuellement pour  \emph{flodayalpine}, l'initialisation livrée par défaut avec \emph{floday}~:
+Il est aussi possible d'avoir des valeurs de configuration utilisées par le \gls{jeu_conteneur}, voir par l'\gls{initialisation}.
+Voici les paramètres de configuration existants actuellement pour \path{flodayalpine}, l'initialisation livrée par défaut avec \emph{floday}. Ces valeurs sont présentes dans le fichier \path{10-flodayalpine.cfg}~:
 \newline
 
 \begin{tabular}{|l|l|p{4cm}|p{5.25cm}|}
@@ -39,6 +44,9 @@ Voici les paramètres de configuration existants actuellement pour  \emph{floday
 	\hline
 \end{tabular}
 \newline
+
+Pour éviter tout problème lors de mises à jour, il vous est conseillé de faire vos modifications dans d'autres fichiers ayant une priorité plus haute, par exemple \path{90-custom.cfg}.
+De la même façon, les éventuels champs de comfiguration à créer pour votre jeu de conteneur devraient avoir leur propre fichier.
 
 \subsubsection{Le \emph{runfile}}
 \existstill{1.0.0}
