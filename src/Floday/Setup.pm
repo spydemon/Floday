@@ -8,6 +8,7 @@ use Carp;
 use Exporter qw(import);
 use File::Temp;
 use Floday::Helper::Config;
+use Floday::Helper::Container;
 use Floday::Helper::Runlist;
 use Floday::Lib::Linux::LXC;
 use Getopt::Long;
@@ -29,6 +30,11 @@ has config => (
 	'is' => 'ro',
 	'default' => sub {Floday::Helper::Config->new()},
 	'reader' => 'get_config'
+);
+
+has container => (
+	'is' => 'lazy',
+	'reader' => 'get_container'
 );
 
 has application_path => (
@@ -149,6 +155,13 @@ sub is_host {
 	my ($this) = @_;
 	return 1 if $this->get_application_path() =~ /^[^-]*$/;
 	return 0;
+}
+
+sub _build_container {
+	my ($this) = @_;
+	Floday::Helper::Container->new(
+	  'container_path' => $this->get_definition()->{'parameters'}{'container_path'}
+	)
 }
 
 sub _fetch_manager {
@@ -300,6 +313,10 @@ Return the application path set to the object.
 =head3 get_config($self)
 
 Return a Floday::Helper::Config object initialized for the current application.
+
+=head3 get_container($self)
+
+Return a Floday::Helper::Container object instantiated with the container of the current application.
 
 =head3 get_definition($self)
 
