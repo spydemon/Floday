@@ -3,17 +3,13 @@ package Floday::Helper::Config;
 use v5.20;
 
 use Config::Tiny;
+use File::Temp;
 use Moo;
 
 with 'MooX::Singleton';
 
 has floday_config_file => (
-  builder => sub {
-    my $cfg = Config::Tiny->read('/etc/floday/floday.cfg');
-    die ("Unable to load Floday configuration file ($Config::Tiny::errstr)") unless defined $cfg;
-    return $cfg;
-  },
-  is => 'ro',
+  is => 'lazy',
   reader => '_get_floday_config_file'
 );
 
@@ -21,8 +17,33 @@ sub get_floday_config {
 	my ($this, $section, $key) = @_;
 	die ("Undefined key") unless defined $key;
 	my $value = $this->_get_floday_config_file()->{$section}{$key};
-	die ("Undefined '$key' key in Floday configuration '$section' section") unless defined $value;
+	die ("Undefined '$key' key in Floday configuration '$section' section")
+	  unless defined $value;
 	return $value;
+}
+
+sub _build_floday_config_file {
+	my $unified_file = new File::Temp();
+	my $config_folder = '/etc/floday/config.d';
+	my @config_files;
+	if (-d $config_folder) {
+		opendir(my $config_folder_fh, $config_folder);
+		push @config_files,
+		  map {"$config_folder/$_"}
+		  grep {/\.cfg$/}
+		  readdir($config_folder_fh);
+		@config_files = sort @config_files;
+	}
+	if (-f '/etc/floday/floday.cfg') {
+		unshift @config_files, '/etc/floday/floday.cfg';
+	}
+	`cat $_ >> $unified_file && echo "\n" >> $unified_file`
+	  for (@config_files);
+	my $cfg = Config::Tiny->read($unified_file);
+	close $unified_file;
+	die ("Unable to load Floday configuration file ($Config::Tiny::errstr)")
+	  unless defined $cfg;
+	return $cfg;
 }
 
 1;
