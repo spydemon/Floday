@@ -28,9 +28,9 @@ my $LOGGING_FOLDER = $CONFIG->get_floday_config('logging', 'metadata_folder');
 my $LXC_UG_ID = get_user_id();
 
 sub deploy_APK_index {
-	if (!-d "$CACHE_FOLDER/apkIndex") {
+	if (!-f "$CACHE_FOLDER/apkIndex/APKINDEX") {
+		`mkdir -p $CACHE_FOLDER/apkIndex` unless -d "$CACHE_FOLDER/apkIndex";
 		my $APK_archive = get_file('APKINDEX.tar.gz');
-		`mkdir -p $CACHE_FOLDER/apkIndex`;
 		`tar -xf $APK_archive -C $CACHE_FOLDER/apkIndex`;
 	}
 	return "$CACHE_FOLDER/apkIndex/APKINDEX";
@@ -232,6 +232,7 @@ sub _install_package_apktoolsstatic {
 	`openssl dgst -sha1 -verify $key_to_use_for_checking -signature $+{signatureToCheck} $file_to_check`;
 }
 
+`mkdir -p $CACHE_FOLDER` unless -d $CACHE_FOLDER;
 install_package('alpine-keys');
 install_package('apk-tools-static');
 init_system();
