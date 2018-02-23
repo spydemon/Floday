@@ -173,7 +173,7 @@ Floday::Setup - Manage a Floday application.
 
 =head1 VERSION
 
-1.0.2
+1.0.3
 
 =head1 SYNOPSYS
 
