@@ -21,6 +21,18 @@ die('Invalid $version_to') unless $version_to =~ $format_version;
 
 find(\&update_perldoc_version, '.', "$FindBin::Bin/../src");
 update_latex_version();
+update_cli_version();
+
+sub update_cli_version {
+	open(my $file_out, '<:encoding(UTF-8)', "$FindBin::Bin/../src/floday.pl") or die ($!);
+	local $/;
+	while (<$file_out>) {
+		chomp;
+		s/my \$message_version\s*=\s*'\Q$version_from\E';/my \$message_version = \'$version_to\';/g;
+		open(my $file_in, '>:encoding(UTF-8)', "$FindBin::Bin/../src/floday.pl") or die ($!);
+		print $file_in $_;
+	}
+}
 
 sub update_latex_version {
 	open(my $file_out, '<:encoding(UTF-8)', "$FindBin::Bin/../doc/main.tex") or die ($!);
