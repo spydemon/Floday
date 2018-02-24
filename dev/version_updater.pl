@@ -19,42 +19,45 @@ GetOptions('from=s', \$version_from, 'to=s', \$version_to);
 die('Invalid $version_from') unless $version_from =~ $format_version;
 die('Invalid $version_to') unless $version_to =~ $format_version;
 
-find(\&update_perldoc_version, '.', "$FindBin::Bin/../src");
-update_latex_version();
-update_cli_version();
+find(\&update_perldoc_version, '.', '../src');
 
-sub update_cli_version {
-	open(my $file_out, '<:encoding(UTF-8)', "$FindBin::Bin/../src/floday.pl") or die ($!);
+update_file (
+  '../src/floday.pl',
+  qr/my \$message_version\s*=\s*'\Q$version_from\E';/,
+  "my \$message_version = '$version_to';"
+);
+
+update_file (
+  '../doc/main.tex',
+  qr/versionReference\{\Q$version_from\E\}/,
+  "versionReference\{$version_to\}"
+);
+
+update_file (
+  '../t/integration/floday.t',
+  qr/\Qcmp_ok(`..\/..\/src\/floday.pl --version`->stdout(), 'eq', "$version_from\n"/,
+  "cmp_ok(`../../src/floday.pl --version`->stdout(), 'eq', \"$version_to\\n\""
+);
+
+sub update_file {
+	my ($file, $pattern_in, $pattern_out) = @_;
+	open(my $file_out, '<:encoding(UTF-8)', $file) or die ("$file: $!");
 	local $/;
 	while (<$file_out>) {
 		chomp;
-		s/my \$message_version\s*=\s*'\Q$version_from\E';/my \$message_version = \'$version_to\';/g;
-		open(my $file_in, '>:encoding(UTF-8)', "$FindBin::Bin/../src/floday.pl") or die ($!);
-		print $file_in $_;
-	}
-}
-
-sub update_latex_version {
-	open(my $file_out, '<:encoding(UTF-8)', "$FindBin::Bin/../doc/main.tex") or die ($!);
-	local $/;
-	while (<$file_out>) {
-		chomp;
-		s/versionReference\{\Q$version_from\E\}/versionReference\{$version_to\}/g;
-		open(my $file_in, '>:encoding(UTF-8)', "$FindBin::Bin/../doc/main.tex") or die ($!);
+		s/$pattern_in/$pattern_out/g;
+		open(my $file_in, '>:encoding(UTF-8)', $file) or die ($!);
 		print $file_in $_;
 	}
 }
 
 sub update_perldoc_version {
-	return unless -f $File::Find::name;
-	open(my $file_out, '<:encoding(UTF-8)', $File::Find::name) or die ($!);
-	local $/;
-	while (<$file_out>) {
-		chomp;
-		s/=head1 VERSION\s\s\Q$version_from\E/=head1 VERSION\r\n\r\n$version_to/g;
-		open(my $file_in, '>:encoding(UTF-8)', $File::Find::name) or die ($!);
-		print $file_in $_;
-	}
+	return unless -f;
+	update_file (
+	  $_,
+	  qr/=head1 VERSION\s\s\Q$version_from\E/,
+	  "=head1 VERSION\r\n\r\n$version_to"
+	);
 }
 
 =head1 NAME
