@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use threads;
 
+use File::stat;
 use Linux::LXC;
 use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
 use Test::Exception;
@@ -49,7 +50,7 @@ cmp_ok (($containers_before_last_destruction - $containers_after_last_destructio
 
 #Test of the avoidance
 
-my @containers = ('avoidance-completely_failed', 'avoidance-default', 'avoidance-partially_failed', 'avoidance-successful');
+my @containers = ('avoidance-skipped_nonexisting');
 for (@containers) {
 	my $c = Linux::LXC->new('utsname' => $_);
 	$c->is_existing and $c->stop && $c->destroy;
@@ -57,10 +58,13 @@ for (@containers) {
 `rm -rf /tmp/floday/avoidance` if -d '/tmp/floday/avoidance';
 
 my $avoidance_test = Floday::Deploy->new(hostname => 'avoidance');
+my $as_container_config_path = '/var/lib/lxc/avoidance-successful/config';
+my $was_as_container_redeployed = stat($as_container_config_path)->mtime;
 eval{$avoidance_test->start_deployment};
 
-my $c = Linux::LXC->new('utsname' => 'avoidance-successful');
-ok (!$c->is_existing, 'If an application is flagged as avoidable, it\'s not deployed anymore.');
+$was_as_container_redeployed = $was_as_container_redeployed - stat($as_container_config_path)->mtime;
+ok (!-r '/tmp/floday/avoidance/avoidance-skipped_nonexisting/avoidance_script_lanched', 'Check that avoidable scripts are not executed when and application is not existing');
+ok ($was_as_container_redeployed == 0, 'If an application is flagged as avoidable, it\'s not deployed anymore.');
 ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as non-avoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as non-avoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as partially avoidable.');
