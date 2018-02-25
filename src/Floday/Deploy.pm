@@ -114,7 +114,7 @@ sub _is_application_avoided {
 	# If no avoidance scripts exist for the given application, it mean that the application will never be avoided.
 	my $avoided = (keys %scripts == 0) ? 0 : 1;
 	if ($avoided == 0) {
-		$this->log->infof('No avoidance checks was found. This application will thus be tagged as non-avoidable.');
+		$this->log->infof('No avoidance checks was found. This application will thus be tagged as unavoidable.');
 		goto assignation;
 	}
 	unless (Floday::Lib::Linux::LXC->new('utsname' => $application_path)->is_existing()) {
@@ -131,7 +131,7 @@ sub _is_application_avoided {
 		$this->log->{adapter}->indent_dec();
 		if ($result ne '0') {
 			$avoided = 0;
-			$this->log->infof('This script flag application as non-avoidable.');
+			$this->log->infof('This script flag application as unavoidable.');
 			last;
 		}
 	}
