@@ -47,3 +47,8 @@ hosts:
             default:
                 parameters:
                     type: avoidance_default
+            skipped_nonexisting:
+                parameters:
+                    type: avoidance
+                    check_one: false
+                    check_two: false
