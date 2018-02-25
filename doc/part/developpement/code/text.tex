@@ -131,3 +131,16 @@ Voici des indications plus précises concernant les branches en fonction de leur
 	\caption{Workflow git}
 	\label{fig_3.2_git}
 \end{figure}
+
+\subsubsection{Publier une nouvelle release}
+
+\existstill{1.0.3}
+Quand un ticket est considéré comme implémenté, il peut être mergé sur la branche \path{preparation-vx.x.x}, permettant ainsi sa propulsion dans une version future.
+Si tous les tickets prévus pour la release sont implémentés et fonctionnels, voici la procédure à établir pour la livrason d'une nouvelle version~:
+
+\begin{itemize}
+	\item Jouer les tests d'intégration sur la branche de préparation et valider que tout se passe bien.
+	\item Utiliser le script \path{dev/version_updater.pl} pour mettre à jour tous les numéros de version présents un peu partout dans le code source. Commitez le résultat directement sur la branche de préparation.
+	\item Mettre en place le tag correspondant à la version publiée sur le commit de mise à jour du numéro de version.
+	\item Si necessaire, mergez cette branche dans la branche suivant les évolutions de la version majeure et/ou mineur dont la version publiée appartient.
+\end{itemize}

@@ -8,7 +8,7 @@ use FindBin;
 use lib ($FindBin::Bin);
 chdir $FindBin::Bin;
 
-my $message_version = '1.0.0';
+my $message_version = '1.1.2';
 my $message_help = <<EOF
 Usage: Floday --host <hostname> [--loglevel <loglevel>] [--help] [--version]
 
@@ -57,7 +57,7 @@ Floday - Server manager.
 
 =head1 VERSION
 
-1.0.0
+1.1.2
 
 =head1 DESCRIPTION
 
