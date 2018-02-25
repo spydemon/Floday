@@ -117,6 +117,11 @@ sub _is_application_avoided {
 		$this->log->infof('No avoidance checks was found. This application will thus be tagged as non-avoidable.');
 		goto assignation;
 	}
+	unless (Floday::Lib::Linux::LXC->new('utsname' => $application_path)->is_existing()) {
+		$this->log->infof('Application is not existing for the moment. It thus can not be avoided.');
+		$avoided = 0;
+		goto assignation;
+	}
 	for(sort {$a cmp $b} keys %scripts) {
 		my $script_path = "$containers_folder/" . $scripts{$_}->{exec};
 		$this->log->infof('Running avoidance check: %s', $scripts{$_}->{exec});
@@ -179,7 +184,7 @@ Floday::Deploy - Manage a Floday host deployment.
 
 =head1 VERSION
 
-1.1.1
+1.1.2
 
 =head1 DESCRIPTION
 
