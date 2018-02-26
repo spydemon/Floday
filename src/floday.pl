@@ -10,15 +10,16 @@ chdir $FindBin::Bin;
 
 my $message_version = '1.1.2';
 my $message_help = <<EOF
-Usage: Floday --host <hostname> [--loglevel <loglevel>] [--help] [--version]
+Usage: Floday --host <hostname> [--loglevel <loglevel>] [--unavoidable] [--help] [--version]
 
 Version: $message_version
 
 Options:
-  --help     : print this help.
-  --host     : provide the host to deploy.
-  --loglevel : logging level to display, default: info.
-  --version  : print only the actual version number.
+  --help        : print this help.
+  --host        : provide the host to deploy.
+  --loglevel    : logging level to display, default: info.
+  --unavoidable : all applications will always be considered as unavoidable.
+  --version     : print only the actual version number.
 
 Read the doc for knowing more about Floday!
 EOF
@@ -34,19 +35,21 @@ my $host;
 my $loglevel;
 my $help;
 my $version;
-GetOptions('host=s', \$host, 'loglevel=s', \$loglevel, 'help', \$help, 'version', \$version);
+my $unavoidable;
+GetOptions('host=s', \$host, 'loglevel=s', \$loglevel, 'help', \$help, 'version', \$version, 'unavoidable', \$unavoidable);
 
 say $message_help and exit 1 if $help;
 say $message_version and exit 1 if $version;
 
 $host // die('Host to launch is missing');
 $loglevel //= 'info';
+$unavoidable = $unavoidable ? 1 : 0;
 
 Log::Any->get_logger()->{adapter}->reset();
 Log::Any->get_logger()->{adapter}->loglevel_set($loglevel);
 
 $0 = "floday --host $host";
-my $floday = Floday::Deploy->new(hostname => $host);
+my $floday = Floday::Deploy->new(hostname => $host, force_unavoidable => $unavoidable);
 $floday->start_deployment;
 
 =pod

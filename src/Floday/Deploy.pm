@@ -17,6 +17,15 @@ has config => (
 	reader => 'get_config'
 );
 
+has force_unavoidable => (
+	default => 0,
+	is => 'ro',
+	isa => sub {
+		die 'invalid value for force_unavoidable' unless $_[0] =~ /^[0|1]$/;
+	},
+	reader => 'get_force_unavoidable'
+);
+
 has runfile => (
 	default => sub {
 		my ($this) = @_;
@@ -105,6 +114,7 @@ sub start_deployment {
 
 sub _is_application_avoided {
 	my ($this, $application_path) = @_;
+	return 0 if $this->get_force_unavoidable;
 	state %cache;
 	return $cache{$application_path} if defined $cache{$application_path};
 	my $containers_folder = $this->get_config()->get_floday_config('containers', 'path');

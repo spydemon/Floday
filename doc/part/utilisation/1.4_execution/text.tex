@@ -1,5 +1,28 @@
 \subsection{L'exécution}
 
+\subsubsection{Les options du logiciel}
+
+\existstill{1.2.0}
+Plusieurs options permettent d'altérer le comportement de l'application à son lancement.
+Elles sont décrites ci-dessous.
+
+\paragraph{\tt-\,-help}
+Affiche un menu permettant de savoir depuis l'application quelles sont les options existantes.
+
+\paragraph{\tt-\,-version}
+Affiche la version de \emph{Floday} en cours d'exécution.
+
+\paragraph{\tt-\,-loglevel <niveau>}
+Défini le niveau de verbosité des logs lors du déploiement.
+Par défaut, la valeur est à \emph{info}. Les valeurs possibles sont~: \emph{debug}, \emph{info}, \emph{warning}, \emph{error}, \emph{critical}, \emph{emergency}.
+Bien-sûr, les messages de logs ayants une importance plus élevée que celle choisie seront également affichés.
+
+\paragraph{\tt-\,-host <nom>}
+Lance le déploiement de l'hôte {\tt<nom>} sur l'ordinateur.
+
+\paragraph{\tt-\,-unavoidable}
+Si ce drapeau est présent, toutes les applications en cours de déploiement seront considérées comme non-évitables (\gls{evitement}).
+
 \subsubsection{Les différentes étapes}
 \existstill{1.0.0}
 
