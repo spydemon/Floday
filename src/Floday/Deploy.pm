@@ -17,6 +17,15 @@ has config => (
 	reader => 'get_config'
 );
 
+has force_unavoidable => (
+	default => 0,
+	is => 'ro',
+	isa => sub {
+		die 'invalid value for force_unavoidable' unless $_[0] =~ /^[0|1]$/;
+	},
+	reader => 'get_force_unavoidable'
+);
+
 has runfile => (
 	default => sub {
 		my ($this) = @_;
@@ -105,6 +114,7 @@ sub start_deployment {
 
 sub _is_application_avoided {
 	my ($this, $application_path) = @_;
+	return 0 if $this->get_force_unavoidable;
 	state %cache;
 	return $cache{$application_path} if defined $cache{$application_path};
 	my $containers_folder = $this->get_config()->get_floday_config('containers', 'path');
@@ -114,7 +124,7 @@ sub _is_application_avoided {
 	# If no avoidance scripts exist for the given application, it mean that the application will never be avoided.
 	my $avoided = (keys %scripts == 0) ? 0 : 1;
 	if ($avoided == 0) {
-		$this->log->infof('No avoidance checks was found. This application will thus be tagged as non-avoidable.');
+		$this->log->infof('No avoidance checks was found. This application will thus be tagged as unavoidable.');
 		goto assignation;
 	}
 	unless (Floday::Lib::Linux::LXC->new('utsname' => $application_path)->is_existing()) {
@@ -131,7 +141,7 @@ sub _is_application_avoided {
 		$this->log->{adapter}->indent_dec();
 		if ($result ne '0') {
 			$avoided = 0;
-			$this->log->infof('This script flag application as non-avoidable.');
+			$this->log->infof('This script flag application as unavoidable.');
 			last;
 		}
 	}
