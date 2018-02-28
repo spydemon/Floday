@@ -50,6 +50,7 @@ my %PREFFIX_PRIORITY_MAPPER = (
 my $PATH = $CONFIG->get_floday_config('logging', 'metadata_folder');
 my $INDENT_FILE = 'indent';
 my $LOGLEVEL_FILE = 'loglevel';
+my $FATAL_FLAG_LEVEL = numeric_level('error');
 
 sub indent_dec {
 	my $indent = indent_get();
@@ -104,6 +105,9 @@ foreach my $method (logging_methods()) {
 		my $self = shift @_;
 		my $text = join(' ', @_);
 		my $bold = ($text =~ s/^(BOLD)//) ? 1 : 0;
+		if (numeric_level($method) <= $FATAL_FLAG_LEVEL) {
+			$bold = 1;
+		}
 		my @text_lines = split "\n", $text;
 		my ($mod) = caller(2) // '';
 		if (@text_lines == 1) {
@@ -208,6 +212,11 @@ Here is an example:
 
 We can directly conclude that the "failed to get the init pid" error occurs in the setup script "dns.pl" that was running
 for the "websites" host.
+
+=head2 Write bold messages
+
+If the first word present in the log message is "BOLD", the entire line will be write in bold on stdout.
+By default, all messages with a log level higher or equal than "error" will also be display in bold.
 
 =head2 Object methods
 
