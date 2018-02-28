@@ -1,0 +1,8 @@
+setups:
+	throw_error:
+		avoidable: false
+		exec: riuk/children/fatal_log/setups/throw_error.pl
+		priority: 10
+parameters:
+	template:
+		value: flodayalpine -- version 3.4

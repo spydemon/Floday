@@ -50,7 +50,13 @@ Log::Any->get_logger()->{adapter}->loglevel_set($loglevel);
 
 $0 = "floday --host $host";
 my $floday = Floday::Deploy->new(hostname => $host, force_unavoidable => $unavoidable);
-$floday->start_deployment;
+my $result = $floday->start_deployment;
+
+if ($result == 2) {
+	say "ERRORS OCCURRED DURING DEPLOYMENT!";
+	say "Please, read carefully the deployment log.";
+	die 2;
+}
 
 =pod
 

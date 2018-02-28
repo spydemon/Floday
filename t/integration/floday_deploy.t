@@ -81,4 +81,8 @@ $was_as_container_redeployed = $as_container_initial_timestamp - stat($as_contai
 ok ($was_as_container_redeployed < 0, 'Check that the force_unavoidable flag works.');
 say "$was_as_container_redeployed";
 
+my $test_log_fatal_flag = Floday::Deploy->new('hostname' => 'fatal_log');
+my $result = $test_log_fatal_flag->start_deployment;
+cmp_ok ($result, '==', 2, 'Check that if we log something with the "error" level or higher, Floday will return 2.');
+
 done_testing;

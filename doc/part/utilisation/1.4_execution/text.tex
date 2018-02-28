@@ -107,5 +107,12 @@ Les messages sont découpés en plusieurs colonnes dont voici les descriptions~:
 
 Pour le moment, cette sortie est également disponible via syslog, bien que le format sera peut-être amené à évoluer sur celle-ci.
 
-Attention, notez qu'il y a actuellement un bug générant une erreur dans le fichier de log lors du déploiement de l'hôte (présente à la ligne~10 sur le listing~\ref{fig_1.4_floday}) celui-ci devrait être résolu un jour%
-\footnote{Lien vers le ticket présentant l'anomalie~: \url{https://dev.spyzone.fr/floday/ticket/31}}.
+\subsubsection{Les valeurs de retour}
+\existstill{1.2.0}
+
+Cette section illustre les différentes valeurs de retour que peut avoir une exécution de \emph{Floday}.
+
+\begin{itemize}
+	\item Si aucun problème n'a lieu lors de l'exécution, le logiciel retourne la valeur {\tt0}.
+	\item Si au moins un message de log est émit avec un niveau de criticité supérieur à \emph{erreur}, la valeur de retour sera de {\tt2}.
+\end{itemize}
