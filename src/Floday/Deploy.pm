@@ -101,6 +101,8 @@ sub start_deployment {
 	$this->_run_scripts($this->get_hostname, 'end_setups');
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('%s deployed.', $this->get_hostname);
+	return 2 if ($this->log->{adapter}->flag_fatal_get());
+	return 1;
 }
 
 sub _is_application_avoided {

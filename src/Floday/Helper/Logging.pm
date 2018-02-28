@@ -50,6 +50,7 @@ my %PREFFIX_PRIORITY_MAPPER = (
 my $PATH = $CONFIG->get_floday_config('logging', 'metadata_folder');
 my $INDENT_FILE = 'indent';
 my $LOGLEVEL_FILE = 'loglevel';
+my $FATAL_FLAG_FILE = 'fatal';
 my $FATAL_FLAG_LEVEL = numeric_level('error');
 
 sub indent_dec {
@@ -71,6 +72,14 @@ sub indent_inc {
 	my $indent = indent_get();
 	$indent += 1;
 	`echo $indent > $PATH/$INDENT_FILE`;
+}
+
+sub flag_fatal_set {
+	`echo 1 > $PATH/$FATAL_FLAG_FILE`;
+}
+
+sub flag_fatal_get {
+	-f "$PATH/$FATAL_FLAG_FILE";
 }
 
 sub init {
@@ -106,6 +115,7 @@ foreach my $method (logging_methods()) {
 		my $text = join(' ', @_);
 		my $bold = ($text =~ s/^(BOLD)//) ? 1 : 0;
 		if (numeric_level($method) <= $FATAL_FLAG_LEVEL) {
+			flag_fatal_set();
 			$bold = 1;
 		}
 		my @text_lines = split "\n", $text;
