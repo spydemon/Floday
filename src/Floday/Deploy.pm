@@ -58,7 +58,7 @@ has log => (
 sub launch {
 	my ($this, $application_path) = @_;
 	my %parameters = $this->get_runlist->get_parameters_for_application($application_path);
-	$log->warningf('Launching %s application.', $parameters{application_path});
+	$log->warningf('BOLD Launching %s application.', $parameters{application_path});
 	$this->log->{adapter}->indent_inc();
 	my $container = Floday::Lib::Linux::LXC->new('utsname' => $parameters{application_path});
 	if (!$this->_is_application_avoided($parameters{application_path}) && $container->is_existing) {
@@ -88,7 +88,7 @@ sub start_deployment {
 	unless ($this->get_runlist->get_clean_runlist->{hosts}{$this->get_hostname}) {
 		die $this->log->errorf('Host %s is unknown.', $this->get_hostname);
 	}
-	$this->log->warningf('Deploying %s host', $this->get_hostname);
+	$this->log->warningf('BOLD Deploying %s host', $this->get_hostname);
 	$this->log->{adapter}->indent_inc();
 	$this->_run_scripts($this->get_hostname(), 'setups');
 	$this->log->warningf('Start deployment of %s applications.', $this->get_hostname);

@@ -103,6 +103,7 @@ foreach my $method (logging_methods()) {
 	*{$method} = sub {
 		my $self = shift @_;
 		my $text = join(' ', @_);
+		my $bold = ($text =~ s/^(BOLD)//) ? 1 : 0;
 		my @text_lines = split "\n", $text;
 		my ($mod) = caller(2) // '';
 		if (@text_lines == 1) {
@@ -112,8 +113,9 @@ foreach my $method (logging_methods()) {
 			  ' ' x indent_get($self),
 			  $text
 			);
-			say STDOUT $text if numeric_level($method) <= loglevel_get();
 			syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
+			$text = `tput bold` . $text . `tput sgr0` if ($bold);
+			say STDOUT $text if numeric_level($method) <= loglevel_get();
 		} else {
 			my $first_line = 1;
 			for (@text_lines) {
