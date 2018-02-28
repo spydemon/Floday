@@ -1,0 +1,4 @@
+setups:
+	a_first_script:
+		exec: riuk/children/collision_parent/setups/a_first_script.pl
+		priority: 50

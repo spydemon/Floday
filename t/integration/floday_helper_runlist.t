@@ -4,7 +4,7 @@ use v5.20;
 use strict;
 use warnings;
 
-use Log::Any::Adapter('File', 'log.txt');
+use Log::Any::Adapter('File', 'floday_helper_runlist.log');
 use Test::Deep;
 use Test::Exception;
 use Test::More;
@@ -349,5 +349,15 @@ throws_ok {Floday::Helper::Runlist->new(runfile => 'floday_helper_runlist.d/runf
 
 cmp_ok($test->is_application_existing('integration-stuff-retest-no-problem'), '==', 0, 'Check an is_application_existing with a false return');
 cmp_ok($test->is_application_existing('integration-web-test'), '==', 1, 'Check an is_application_existing with a true return');
+
+
+`echo > floday_helper_runlist.log`;
+Floday::Helper::Runlist
+  ->new(runfile => 'floday_helper_runlist.d/runfile-collision.yml')
+  ->get_execution_list_by_priority_for_application('integration-collision', 'setups');
+ok(
+  `cat floday_helper_runlist.log | grep -F "A collision occurred for the setups script with the priority 50."`,
+  'Check that we log correctly collisions with scripts with the same priority.'
+);
 
 done_testing;
