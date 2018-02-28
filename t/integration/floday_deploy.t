@@ -72,4 +72,9 @@ ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/mandatory', 'Check that
 ok (!-r '/tmp/floday/avoidance/avoidance-successful/avoidable', 'Check that avoidable scripts are NOT launched if application is considered as fully avoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-successful/mandatory',  'Check that mandatory scripts are launched if application is considered as fully avoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-default/default', 'Check that a container without avoidance scripts are always considered as non-avoidable.');
+
+my $test_log_fatal_flag = Floday::Deploy->new('hostname' => 'fatal_log');
+my $result = $test_log_fatal_flag->start_deployment;
+cmp_ok ($result, '==', 2, 'Check that if we log something with the "error" level or higher, Floday will return 2.');
+
 done_testing;
