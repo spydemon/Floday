@@ -1,4 +1,5 @@
-\subsection{Démarrer une instance de développement}
+\subsection{Développer l'application}
+\subsubsection{Démarrer une instance de développement}
 \existstill{1.0.0}
 
 La première étape pour contribuer est de réussir à lancer \emph{Floday} dans un environnement contrôlé sur lequel des tests peuvent être exécutés sans crainte.
@@ -94,3 +95,60 @@ Pour valider que la configuration soit correcte, il vous est conseillé de jouer
 S'ils ne passent pas malgré le fait que vous avez scrupuleusement suivi ce guide, vous êtes invités à poster un ticket de type \emph{question} afin que nous puissions enrichir la procédure.
 
 À terme, un script de déploiement automatique sera peut-être fourni.
+
+\subsubsection{Utilisation d'un débogueur}
+\existstill{1.2.0}
+
+Nous allons à présent configurer notre espace de travail pour que nous soyons en mesure de déboguer l'exécution de l'application.
+
+\paragraph{Avec \emph{Inteliji IDEA}}
+
+\begin{itemize}
+	\item La première étape est bien entendu, d'installer le plugin \emph{Perl} d'\emph{IDEA}.
+	\item Il faut ensuite installer le module \emph{CPAN} \path{Devel::Camelcadedb} sur la machine virtuelle précédemment crée.
+	\item Dans le \path{.bashrc} de l'utilisateur root de la machine virtuelle, ajouter les variables d'environnement suivantes~:
+		\begin{lstlisting}
+export PERL5_DEBUG_ROLE='server';
+export PERL5_DEBUG_HOST='192.168.56.101';
+export PERL5_DEBUG_PORT='8000';
+		\end{lstlisting}
+	\item Configurer le débogueur \emph{IDEA} comme présenté dans la figure~\ref{dev_dev_dbg_idea}.
+		Voici un récapitulatif des valeurs auxquelles il faut penser~:
+		\begin{description}
+			\item[Remote project root] Il faut renseigner le chemin correspondant à la localité du projet sur la machine virtuelle. Si vous avez suivi à la lettre le paragraphe précédent, la valeur à renseigner devrait être \path{/opt/floday}. Attention, si cette valeur n'est pas la bonne, vous ne pourrez pas utiliser les breakpoints~!
+			\item[Connection mode] La valeur conseillée est \path{IDE connects to the perl process}, mais l'inverse fonctionne aussi. Il faudra juste penser à faire les changements adéquats un peu partout.
+			\item[Server host] Il s'agit de l'endroit où se situera le processus à débogué. Il faudra renseigner ici l'adresse \emph{IP} de la machine virtuelle. Attention, cette valeur doit être la même que celle présente au niveau de la variable d'environnement \emph{PERL5\_DEBUG\_HOST} que nous avons configuré au point précédent. Normalement, l'ip sera \path{192.168.56.101}.
+			\item[Server port] Là aussi, il faut simplement en choisir un d'inoccupé et qu'il soit le même que celui configuré dans la variable \path{PERL5\_DEBUG\_PORT} de la machine virtuelle. Il est conseiller de renseigner la valeur \path{8000}.
+		\end{description}
+\end{itemize}
+
+Il vous faudra ensuite lancer vos scripts \emph{Perl} avec l'option \path{-d:Camelcadedb}.
+Comme par exemple~: \path{perl -d:Camelcadedb floday.pl --host integration}.
+L'exécution de l'application sera bloquée jusqu'à ce que vous lancez le débogueur depuis \emph{IDEA} et que celui-ci puisse se connecter au processus.
+
+\begin{figure}
+	\centering
+	\caption{Configuration du débogueur sur \emph{IDEA}.}
+	\label{dev_dev_dbg_idea}
+	\includegraphics[width=\textwidth]{part/developpement/dev/figs/fig_dbg_idea.png}
+\end{figure}
+
+\paragraph{Avec \emph{Vim}}
+Il faudra rajouter manuellement la définition des variables d'environnement ci-dessous, dans le ~/.bashrc :
+
+\begin{lstlisting}
+export PERL5LIB=/opt/komodo
+export PERL5DB="BEGIN {require q(\$PERL5LIB/perl5db.pl)}"
+export PERLDB_OPTS="RemotePort=172.17.0.1:9000"
+\end{lstlisting}
+
+Actuellement, le débogueur Vim \href{https://github.com/joonty/vdebug}{VDebug} a été testé et fonctionne bien.
+
+Pour installer VDebug, on peut simplement passer via Vundle. Niveau configuration, je vous invite à lire excellente documentation fournie avec le module via la commande Vim d'aide~: \path{:help VDebug}.
+
+Comme le dit la section \emph{VdebugRemoteFilePaths}, il ne faudra pas oublier de faire la correspondance entre le path des fichiers sur votre poste de travail et sur le conteneur. Pour ce faire, rajoutez ceci dans votre \emph{.vimrc}~:
+
+\begin{lstlisting}
+let g:vdebug_options = {}
+let g:vdebug_options['path_maps'] = {"/opt/floday/":"/path/to/your/floday/repo/"
+\end{lstlisting}
