@@ -62,4 +62,11 @@ cmp_ok($setup->exitcode(), '!=', 0);
 `/etc/floday/containers/riuk/setups/folder_creation_on_host.pl --application integration`;
 ok (-f '/tmp/a/creation/test/on/host.txt', 'Test generate_file subroutine on the host.');
 
+cmp_ok (
+  $APP->get_container()->get_container_path(),
+  'eq',
+  'riuk-web',
+  'Test access to Floday::Helper::Container through $APP.'
+);
+
 done_testing;

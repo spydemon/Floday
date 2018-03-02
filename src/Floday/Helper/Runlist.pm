@@ -118,6 +118,15 @@ sub get_execution_list_by_priority_for_application {
 	}
 	my %sorted_scripts;
 	while (my($key, $value) = each %setups) {
+		if (exists($sorted_scripts{$value->{priority}})) {
+			my $script_identifier = $execution_type_first_level;
+			$script_identifier .= "/$execution_type_second_level" if $execution_type_second_level;
+			$this->log->errorf(
+			  'A collision occurred for the %s script with the priority %s.',
+			  $script_identifier,
+			  $value->{priority}
+			);
+		}
 		$sorted_scripts{$value->{priority}} = {
 		  'avoidable' => $value->{avoidable} // 'false',
 		  'exec' => $value->{exec},
@@ -202,7 +211,7 @@ Floday::Helper::Runlist - Manage the Floday runlist.
 
 =head1 VERSION
 
-1.1.3
+1.2.0
 
 =head1 DESCRIPTION
 

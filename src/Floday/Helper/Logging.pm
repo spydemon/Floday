@@ -50,6 +50,8 @@ my %PREFFIX_PRIORITY_MAPPER = (
 my $PATH = $CONFIG->get_floday_config('logging', 'metadata_folder');
 my $INDENT_FILE = 'indent';
 my $LOGLEVEL_FILE = 'loglevel';
+my $FATAL_FLAG_FILE = 'fatal';
+my $FATAL_FLAG_LEVEL = numeric_level('error');
 
 sub indent_dec {
 	my $indent = indent_get();
@@ -70,6 +72,14 @@ sub indent_inc {
 	my $indent = indent_get();
 	$indent += 1;
 	`echo $indent > $PATH/$INDENT_FILE`;
+}
+
+sub flag_fatal_set {
+	`echo 1 > $PATH/$FATAL_FLAG_FILE`;
+}
+
+sub flag_fatal_get {
+	-f "$PATH/$FATAL_FLAG_FILE";
 }
 
 sub init {
@@ -103,6 +113,11 @@ foreach my $method (logging_methods()) {
 	*{$method} = sub {
 		my $self = shift @_;
 		my $text = join(' ', @_);
+		my $bold = ($text =~ s/^(BOLD)//) ? 1 : 0;
+		if (numeric_level($method) <= $FATAL_FLAG_LEVEL) {
+			flag_fatal_set();
+			$bold = 1;
+		}
 		my @text_lines = split "\n", $text;
 		my ($mod) = caller(2) // '';
 		if (@text_lines == 1) {
@@ -112,8 +127,9 @@ foreach my $method (logging_methods()) {
 			  ' ' x indent_get($self),
 			  $text
 			);
-			say STDOUT $text if numeric_level($method) <= loglevel_get();
 			syslog($SYSLOG_PRIORITY_MAPPER{$method}, '%s', $text);
+			$text = `tput bold` . $text . `tput sgr0` if ($bold);
+			say STDOUT $text if numeric_level($method) <= loglevel_get();
 		} else {
 			my $first_line = 1;
 			for (@text_lines) {
@@ -158,7 +174,7 @@ Floday::Helper::Logging - Log::Any Floday adapter.
 
 =head1 VERSION
 
-1.1.3
+1.2.0
 
 =head1 SYNOPSIS
 
@@ -206,6 +222,11 @@ Here is an example:
 
 We can directly conclude that the "failed to get the init pid" error occurs in the setup script "dns.pl" that was running
 for the "websites" host.
+
+=head2 Write bold messages
+
+If the first word present in the log message is "BOLD", the entire line will be write in bold on stdout.
+By default, all messages with a log level higher or equal than "error" will also be display in bold.
 
 =head2 Object methods
 

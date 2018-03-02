@@ -1,0 +1,6 @@
+inherit:
+	- riuk-collision_parent
+setups:
+	a_second_script:
+		exec: riuk/children/collision-children/setups/my_script.pl
+		priority: 50

@@ -23,7 +23,7 @@ GetOptions("path=s" => \$LXC_PATH,
 my %template_arguments= (@ARGV);
 
 my $CONFIG = Floday::Helper::Config->instance();
-my $CACHE_FOLDER = get_floday_configuration_value('cache_folder') . '/' . get_alpine_version_to_use();
+my $CACHE_FOLDER = $CONFIG->get_floday_config('lxc', 'cache_folder') . '/' . get_alpine_version_to_use();
 my $LOGGING_FOLDER = $CONFIG->get_floday_config('logging', 'metadata_folder');
 my $LXC_UG_ID = get_user_id();
 
@@ -38,7 +38,7 @@ sub deploy_APK_index {
 
 sub generate_LXC_configuration{
 	#TODO : Apply restriction by apparmor and seccomp.
-	my $range = get_floday_configuration_value('id_range');
+	my $range = $CONFIG->get_floday_config('lxc', 'id_range');
 	open(my $configuration_file, '>', "$LXC_PATH/config");
 	`touch $LXC_ROOTFS/dev/urandom`;
 	say $configuration_file $_ for
@@ -74,15 +74,6 @@ sub get_file {
 	return "$path_for_downloaded_file/$package_name";
 }
 
-sub get_floday_configuration_value {
-	my ($attribute) = @_;
-	state $config = Config::Tiny->read('/etc/floday/floday.cfg');
-	my $property = $config->{lxc}->{$attribute};
-	defined $property
-	 or croak("The property lxc/$attribute was asked but is not defined in Floday configuration file");
-	return $property;
-}
-
 sub get_package {
 	my ($target) = @_;
 	my $index = read_file(deploy_APK_index());
@@ -105,8 +96,8 @@ sub get_user_id {
 	  map {Linux::LXC->new(utsname => $_)->get_config('lxc.id_map', qr/^u \d+ (\d+) (\d+)$/, ALLOW_UNDEF)}
 	  grep {$_ ne $LXC_NAME}
 	  Linux::LXC->get_existing_containers();
-	my $range = get_floday_configuration_value('id_range');
-	my $groups = get_floday_configuration_value('id_groups');
+	my $range = $CONFIG->get_floday_config('lxc', 'id_range');
+	my $groups = $CONFIG->get_floday_config('lxc', 'id_groups');
 	REGENERATE_ID: for (1...10) {
 		my @already_used_ugid_copy = @already_used_ugid;
 		my $candidate_id = int(rand($groups)+1) * $range;
@@ -173,7 +164,7 @@ sub regenerate_subxid {
 	my @ids = split "\n", `find /var/lib/lxc -maxdepth 1 -type d ! -group 0 -exec stat -c %g {} \;`;
 	open my $subuid, '>', '/etc/subuid';
 	open my $subgid, '>', '/etc/subgid';
-	my $id_range = get_floday_configuration_value('id_range');
+	my $id_range = $CONFIG->get_floday_config('lxc', 'id_range');
 	for my $id_start (@ids) {
 		print $subuid "root:$id_start:$id_range\n";
 		print $subgid "root:$id_start:$id_range\n";
