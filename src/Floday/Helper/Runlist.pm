@@ -202,7 +202,7 @@ Floday::Helper::Runlist - Manage the Floday runlist.
 
 =head1 VERSION
 
-1.1.2
+1.1.3
 
 =head1 DESCRIPTION
 

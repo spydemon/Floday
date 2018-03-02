@@ -69,7 +69,7 @@ Floday::Helper::Container - Manage the Floday containers.
 
 =head1 VERSION
 
-1.1.2
+1.1.3
 
 =head1 DESCRIPTION
 
