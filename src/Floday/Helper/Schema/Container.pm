@@ -100,7 +100,7 @@ Floday::Helper::Schema::Container - Define the YAML schema for container configu
 
 =head1 VERSION
 
-1.1.2
+1.1.3
 
 =head1 DESCRIPTION
 

@@ -54,7 +54,7 @@ Floday::Helper::Schema::Runfile - Define the YAML schema for runfile configurati
 
 =head1 VERSION
 
-1.1.2
+1.1.3
 
 =head1 DESCRIPTION
 

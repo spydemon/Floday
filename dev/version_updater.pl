@@ -55,7 +55,7 @@ sub update_perldoc_version {
 	return unless -f;
 	update_file (
 	  $_,
-	  qr/=head1 VERSION\s\s\Q$version_from\E/,
+	  qr/=head1 VERSION\s*\Q$version_from\E/,
 	  "=head1 VERSION\r\n\r\n$version_to"
 	);
 }
@@ -66,7 +66,7 @@ version_updater.pl - Will update the version number in all Floday files that con
 
 =head1 VERSION
 
-1.0.2
+1.1.3
 
 =head1 SYNOPSYS
 
