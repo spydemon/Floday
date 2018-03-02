@@ -138,7 +138,7 @@ sub generate_file {
 	);
 	$t->process($template, $data, $i) or die $t->error . "\n";
 	if ($this->is_host()) {
-		`mkdir -p \`dirname $location\``;
+		qx/mkdir -p `dirname $location`/;
 		rename $i, $location;
 	} else {
 		$this->get_lxc_instance->put($i, $location);
@@ -182,7 +182,7 @@ Floday::Setup - Manage a Floday application.
 
 =head1 VERSION
 
-1.1.2
+1.1.3
 
 =head1 SYNOPSYS
 
