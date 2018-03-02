@@ -17,6 +17,15 @@ has config => (
 	reader => 'get_config'
 );
 
+has force_unavoidable => (
+	default => 0,
+	is => 'ro',
+	isa => sub {
+		die 'invalid value for force_unavoidable' unless $_[0] =~ /^[0|1]$/;
+	},
+	reader => 'get_force_unavoidable'
+);
+
 has runfile => (
 	default => sub {
 		my ($this) = @_;
@@ -58,7 +67,7 @@ has log => (
 sub launch {
 	my ($this, $application_path) = @_;
 	my %parameters = $this->get_runlist->get_parameters_for_application($application_path);
-	$log->warningf('Launching %s application.', $parameters{application_path});
+	$log->warningf('BOLD Launching %s application.', $parameters{application_path});
 	$this->log->{adapter}->indent_inc();
 	my $container = Floday::Lib::Linux::LXC->new('utsname' => $parameters{application_path});
 	if (!$this->_is_application_avoided($parameters{application_path}) && $container->is_existing) {
@@ -88,7 +97,7 @@ sub start_deployment {
 	unless ($this->get_runlist->get_clean_runlist->{hosts}{$this->get_hostname}) {
 		die $this->log->errorf('Host %s is unknown.', $this->get_hostname);
 	}
-	$this->log->warningf('Deploying %s host', $this->get_hostname);
+	$this->log->warningf('BOLD Deploying %s host', $this->get_hostname);
 	$this->log->{adapter}->indent_inc();
 	$this->_run_scripts($this->get_hostname(), 'setups');
 	$this->log->warningf('Start deployment of %s applications.', $this->get_hostname);
@@ -101,10 +110,13 @@ sub start_deployment {
 	$this->_run_scripts($this->get_hostname, 'end_setups');
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('%s deployed.', $this->get_hostname);
+	return 2 if ($this->log->{adapter}->flag_fatal_get());
+	return 1;
 }
 
 sub _is_application_avoided {
 	my ($this, $application_path) = @_;
+	return 0 if $this->get_force_unavoidable;
 	state %cache;
 	return $cache{$application_path} if defined $cache{$application_path};
 	my $containers_folder = $this->get_config()->get_floday_config('containers', 'path');
@@ -114,7 +126,7 @@ sub _is_application_avoided {
 	# If no avoidance scripts exist for the given application, it mean that the application will never be avoided.
 	my $avoided = (keys %scripts == 0) ? 0 : 1;
 	if ($avoided == 0) {
-		$this->log->infof('No avoidance checks was found. This application will thus be tagged as non-avoidable.');
+		$this->log->infof('No avoidance checks was found. This application will thus be tagged as unavoidable.');
 		goto assignation;
 	}
 	unless (Floday::Lib::Linux::LXC->new('utsname' => $application_path)->is_existing()) {
@@ -131,7 +143,7 @@ sub _is_application_avoided {
 		$this->log->{adapter}->indent_dec();
 		if ($result ne '0') {
 			$avoided = 0;
-			$this->log->infof('This script flag application as non-avoidable.');
+			$this->log->infof('This script flag application as unavoidable.');
 			last;
 		}
 	}
@@ -184,7 +196,7 @@ Floday::Deploy - Manage a Floday host deployment.
 
 =head1 VERSION
 
-1.1.3
+1.2.0
 
 =head1 DESCRIPTION
 

@@ -1,0 +1,11 @@
+---
+hosts:
+    integration:
+        parameters:
+            type: riuk
+            external_ipv4: 192.168.15.151
+        applications:
+            collision:
+                parameters:
+                    type: collision_children
+

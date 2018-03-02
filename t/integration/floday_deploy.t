@@ -59,17 +59,30 @@ for (@containers) {
 
 my $avoidance_test = Floday::Deploy->new(hostname => 'avoidance');
 my $as_container_config_path = '/var/lib/lxc/avoidance-successful/config';
-my $was_as_container_redeployed = stat($as_container_config_path)->mtime;
+my $as_container_initial_timestamp = stat($as_container_config_path)->mtime;
 eval{$avoidance_test->start_deployment};
 
-$was_as_container_redeployed = $was_as_container_redeployed - stat($as_container_config_path)->mtime;
+my $was_as_container_redeployed = $as_container_initial_timestamp - stat($as_container_config_path)->mtime;
 ok (!-r '/tmp/floday/avoidance/avoidance-skipped_nonexisting/avoidance_script_lanched', 'Check that avoidable scripts are not executed when and application is not existing');
 ok ($was_as_container_redeployed == 0, 'If an application is flagged as avoidable, it\'s not deployed anymore.');
-ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as non-avoidable.');
-ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as non-avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as unavoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as unavoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as partially avoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as partially avoidable.');
 ok (!-r '/tmp/floday/avoidance/avoidance-successful/avoidable', 'Check that avoidable scripts are NOT launched if application is considered as fully avoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-successful/mandatory',  'Check that mandatory scripts are launched if application is considered as fully avoidable.');
-ok (-f '/tmp/floday/avoidance/avoidance-default/default', 'Check that a container without avoidance scripts are always considered as non-avoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-default/default', 'Check that a container without avoidance scripts are always considered as unavoidable.');
+
+throws_ok {Floday::Deploy->new(hostname => 'avoidance', 'force_unavoidable' => 2)}
+  qr/invalid value for force_unavoidable/,
+  'Check the validity of the force_unavoidable flag';
+Floday::Deploy->new(hostname => 'avoidance', 'force_unavoidable' => 1)->start_deployment;
+$was_as_container_redeployed = $as_container_initial_timestamp - stat($as_container_config_path)->mtime;
+ok ($was_as_container_redeployed < 0, 'Check that the force_unavoidable flag works.');
+say "$was_as_container_redeployed";
+
+my $test_log_fatal_flag = Floday::Deploy->new('hostname' => 'fatal_log');
+my $result = $test_log_fatal_flag->start_deployment;
+cmp_ok ($result, '==', 2, 'Check that if we log something with the "error" level or higher, Floday will return 2.');
+
 done_testing;

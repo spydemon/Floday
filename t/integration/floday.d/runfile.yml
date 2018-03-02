@@ -52,3 +52,11 @@ hosts:
                     type: avoidance
                     check_one: false
                     check_two: false
+    fatal_log:
+        parameters:
+            type: riuk
+            external_ipv4: 192.168.15.151
+        applications:
+            web:
+                parameters:
+                    type: fatal_log
