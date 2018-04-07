@@ -38,6 +38,9 @@ like($parentType, qr/riuk/, 'Parent fetch seems to work.');
 $APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/test.txt');
 like(`cat /var/lib/lxc/integration-web/rootfs/tmp/test.txt`, qr/Hello web !/, 'generate_file seems to work.');
 
+$APP->generate_file('/etc/floday/containers/riuk/children/web/setups/lighttpd/absolute.txt', undef, '/tmp/absolute.txt');
+ok(-f '/var/lib/lxc/integration-web/rootfs/tmp/absolute.txt', 'generate_file works with absolute paths.');
+
 like ($APP->get_root_folder(), qr#/var/lib/lxc/integration-web/rootfs#, 'get_root_path seems to work');
 
 for ($APP->get_sub_applications()) {
