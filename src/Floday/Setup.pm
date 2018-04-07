@@ -139,7 +139,9 @@ sub get_parameters {
 sub generate_file {
 	my ($this, $template, $data, $location) = @_;
 	$this->log->debugf('%s: generate %s from %s', $this->get_application_path, $location, $template);
-	$template = $this->get_config()->get_floday_config('containers', 'path') . '/' . $template;
+	if (substr($template, 0, 1) ne '/') {
+		$template = $this->get_config()->get_floday_config('containers', 'path') . '/' . $template;
+	}
 	my $i = File::Temp->new();
 	my $t = Template::Alloy->new(
 		ABSOLUTE => 1,
@@ -281,9 +283,14 @@ This function first role is to provide a way for generating configuration files.
 =item $source
 
 String representing a Template Toolkit file to use as template.
-The root of this string is the folder that contains Floday container set.
-Eg: if $source = 'riuk/children/web/setups/lighttpd.tt' and the container/path configuration value in the
-/etc/floday.cfg file has the "/etc/floday/containers" value, the source file will be /etc/floday/containers/riuk/children/web/setups/lighttpd.tt
+If the path is relative (the first character is not a slash), the root is the folder that contains Floday container set.
+Eg: if $source = 'riuk/children/web/setups/lighttpd.tt' and the container_path configuration value in the
+/etc/floday.d directory file has the '/etc/floday/containers' value, the source file will be
+'/etc/floday/containers/riuk/children/web/setups/lighttpd.tt'.
+
+Otherwise, if the path is absolute (the first character is a slash), the root is the same than the system one.
+Eg: if $source = '/opt/a_file.txt', it's the file '/opt/a_file.txt' on the host that will be inserted in the application.
+The container_path configuration value has no incidence on it.
 
 =back
 
