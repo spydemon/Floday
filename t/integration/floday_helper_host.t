@@ -40,12 +40,22 @@ my $attributes_without_name = {
 	}
 };
 
-my $attributes_with_unexisting_param = {
+my $attributes_with_unexisting_param_sing = {
 	'parameters' => {
 		'name'          => 'agoodname',
 		'type'          => 'riuk',
 		'external_ipv4' => '10.11.22.33',
-		'unknown_param' => 'a value'
+		'unknown_param' => 'a value',
+	}
+};
+
+my $attributes_with_unexisting_param_plu = {
+	'parameters' => {
+		'name'          => 'agoodname',
+		'type'          => 'riuk',
+		'external_ipv4' => '10.11.22.33',
+		'unknown_param' => 'a value',
+		'unknown_param2' => 'a value',
 	}
 };
 
@@ -388,9 +398,12 @@ cmp_ok ($host->to_hash()->{'parameters'}{'external_ipv4'}{'value'}, 'eq', '10.11
   'Check drunlist parameters integration in drunlist.');
 cmp_ok ($host->to_hash()->{'parameters'}{'useless_param'}{'value'}, 'eq', 'we dont care',
   'Check default drunlist parameters values.');
-throws_ok {Floday::Helper::Host->new('drunlist' => $attributes_with_unexisting_param)->to_hash()}
-  qr/Parameter 'unknown_param' present in drunlist but that doesn't exist in container definition/,
+throws_ok {Floday::Helper::Host->new('drunlist' => $attributes_with_unexisting_param_sing)->to_hash()}
+  qr/Parameter 'unknown_param' present in the runlist but that doesn't exist in the container definition of the 'agoodname' application./,
   'Check exception on unexisting parameter in container definition.';
+throws_ok {Floday::Helper::Host->new('drunlist' => $attributes_with_unexisting_param_plu)->to_hash()}
+	qr/Parameters 'unknown_param.*', 'unknown_param.*' present in the runlist but that don't exist in the container definition of the 'agoodname' application./,
+	'Check exception on unexisting parameter in container definition.';
 
 #Test _get_container_path:
 my $complex_host = Floday::Helper::Host->new('drunlist' => $attributes_with_child);
