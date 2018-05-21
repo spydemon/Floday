@@ -86,6 +86,7 @@ sub launch {
 	}
 	$this->_run_scripts($parameters{application_path}, 'end_setups');
 	$this->log->{adapter}->indent_dec();
+	$log->warningf('End launching %s application.', $parameters{application_path});
 }
 
 #TODO: redundant with launch subroutine.
