@@ -144,7 +144,6 @@ sub _is_application_avoided {
 		if ($result ne '0') {
 			$avoided = 0;
 			$this->log->infof('This script flag application as unavoidable.');
-			last;
 		}
 	}
 	if ($avoided == 1) {
