@@ -63,7 +63,7 @@ Floday::Helper::Config - Manage the Floday configuration.
 
 =head1 VERSION
 
-1.2.0
+1.2.1
 
 =head1 SYNOPSIS
 
