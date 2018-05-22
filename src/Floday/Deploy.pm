@@ -86,6 +86,7 @@ sub launch {
 	}
 	$this->_run_scripts($parameters{application_path}, 'end_setups');
 	$this->log->{adapter}->indent_dec();
+	$log->warningf('End launching %s application.', $parameters{application_path});
 }
 
 #TODO: redundant with launch subroutine.
@@ -144,7 +145,6 @@ sub _is_application_avoided {
 		if ($result ne '0') {
 			$avoided = 0;
 			$this->log->infof('This script flag application as unavoidable.');
-			last;
 		}
 	}
 	if ($avoided == 1) {
@@ -196,7 +196,7 @@ Floday::Deploy - Manage a Floday host deployment.
 
 =head1 VERSION
 
-1.2.0
+1.2.1
 
 =head1 DESCRIPTION
 

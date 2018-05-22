@@ -113,7 +113,7 @@ foreach my $method (logging_methods()) {
 	*{$method} = sub {
 		my $self = shift @_;
 		my $text = join(' ', @_);
-		my $bold = ($text =~ s/^(BOLD)//) ? 1 : 0;
+		my $bold = ($text =~ s/^(BOLD )//) ? 1 : 0;
 		if (numeric_level($method) <= $FATAL_FLAG_LEVEL) {
 			flag_fatal_set();
 			$bold = 1;
@@ -174,7 +174,7 @@ Floday::Helper::Logging - Log::Any Floday adapter.
 
 =head1 VERSION
 
-1.2.0
+1.2.1
 
 =head1 SYNOPSIS
 

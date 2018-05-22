@@ -14,6 +14,9 @@ avoidance:
 	avoidance_checker_two:
 		exec: riuk/children/avoidance/avoidance/checker_two.pl
 		priority: 2
+	avoidance_checker_tree:
+		exec: riuk/children/avoidance/avoidance/checker_tree.pl
+		priority: 3
 parameters:
 	check_one:
 		mandatory: true
