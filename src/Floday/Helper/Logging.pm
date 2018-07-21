@@ -82,11 +82,22 @@ sub flag_fatal_get {
 	-f "$PATH/$FATAL_FLAG_FILE";
 }
 
+sub identifier_set {
+	# If no new identifier was given in parameter, we keep the old one present in the environment variable.
+	# If nothing is present in the environment variable, we take the default "floday" identifier.
+	my ($self, $identifier) = (@_);
+	$identifier = $identifier // $ENV{'FLODAY_LOGGING_IDENTIFIER'} // 'floday';
+	$ENV{'FLODAY_LOGGING_IDENTIFIER'}  = $identifier;
+	closelog();
+	openlog($identifier, 0, 0);
+}
+
 sub init {
 	my ($self) = @_;
 	$self->{log_level} = numeric_level('trace') unless defined $self->{log_level};
 	$self->{log_level} = numeric_level($self->{log_level}) unless $self->{log_level} =~ /^\d+$/;
-	die ('The logging level provided is unknown') unless defined $self->{log_level}
+	$self->identifier_set();
+	die ('The logging level provided is unknown') unless defined $self->{log_level};
 }
 
 sub loglevel_get {
@@ -188,6 +199,7 @@ Floday::Helper::Logging - Log::Any Floday adapter.
 
   my $log = Log::Any->get_logger;
   Log::Any->get_logger()->{adapter}->reset();
+  $log->{adapter}->identifier_set('My_script');
   $log->info('Start script');
   $log->{adapter}->indent_inc();
   $log->notice('Doing something.');
@@ -229,6 +241,16 @@ If the first word present in the log message is "BOLD", the entire line will be 
 By default, all messages with a log level higher or equal than "error" will also be display in bold.
 
 =head2 Object methods
+
+=head3 identifier_set($self, $identifier)
+
+The identifier is the first word that will be put on each Syslog message.
+It's in general the name of the program.
+This field is the equivalent of the $programname rsyslog variable.
+
+This subroutine set in fact a FLODAY_LOGGING_IDENTIFIER environment variable that is concretly used by the logger.
+It means that this variable could also be set by hand and should be passed to LXC containers when we attach a new
+process in them (it's the Floday default behavior).
 
 =head3 indent_dec($self)
 
