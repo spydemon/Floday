@@ -22,11 +22,13 @@ use YAML::Tiny;
 our ($APP);
 
 use constant ALLOW_UNDEF => 1;
+use constant FILE_TT => 1;
+use constant FILE_PLAIN => 2;
 
 $Backticks::autodie = 1;
 
 our @EXPORT = qw($APP);
-our @EXPORT_OK = qw(ALLOW_UNDEF);
+our @EXPORT_OK = qw(ALLOW_UNDEF FILE_PLAIN FILE_TT);
 
 has config => (
 	'is' => 'ro',
@@ -137,20 +139,28 @@ sub get_parameters {
 }
 
 sub generate_file {
-	my ($this, $template, $data, $location, $permissions) = @_;
-	$this->log->debugf('%s: generate %s from %s', $this->get_application_path, $location, $template);
-	if (substr($template, 0, 1) ne '/') {
-		$template = $this->get_config()->get_floday_config('containers', 'path') . '/' . $template;
+	my ($this, $source, $data, $location, $permissions, $type) = @_;
+	$type = $type // FILE_TT;
+	$this->log->debugf('%s: generate %s from %s', $this->get_application_path, $location, $source);
+	if (substr($source, 0, 1) ne '/') {
+		$source = $this->get_config()->get_floday_config('containers', 'path') . '/' . $source;
 	}
 	if (defined ($permissions) and $permissions !~ /^[0-7]{3,4}$/) {
 		$this->log->errorf('Invalid permission set for the generated file: %s', $permissions);
 		croak("Invalid permission set for the generated file: $permissions\n")
 	}
-	my $i = File::Temp->new();
-	my $t = Template::Alloy->new(
-		ABSOLUTE => 1,
-	);
-	$t->process($template, $data, $i) or die $t->error . "\n";
+	my $i;
+	if ($type eq FILE_PLAIN) {
+		$i = $source;
+	} elsif ($type eq FILE_TT) {
+		$i = File::Temp->new();
+		my $t = Template::Alloy->new(
+		  ABSOLUTE => 1,
+		);
+		$t->process($source, $data, $i) or die $t->error . "\n";
+	} else {
+		croak("Invalid input type on generate_file.\n");
+	}
 	if ($this->is_host()) {
 		make_path(dirname($location));
 		rename $i, $location;
@@ -282,7 +292,7 @@ useful for debugging purpose:
 
 =head2 Object methods
 
-=head3 generate_file($self, $source, $parameters, $destination, $permissions)
+=head3 generate_file($self, $source, $parameters, $destination, $permissions, $type)
 
 Will generate a file with the $source Template Toolkit file, the $parameters parameters and write the result on the
 $destination file inside the LXC container representing the current Floday application.
@@ -292,7 +302,7 @@ This function first role is to provide a way for generating configuration files.
 
 =item $source
 
-String representing a Template Toolkit file to use as template.
+String representing a Template Toolkit file to use as template or a plain text file (it depends of the $type parameter).
 If the path is relative (the first character is not a slash), the root is the folder that contains Floday container set.
 Eg: if $source = 'riuk/children/web/setups/lighttpd.tt' and the container_path configuration value in the
 /etc/floday.d directory file has the '/etc/floday/containers' value, the source file will be
@@ -310,6 +320,7 @@ The container_path configuration value has no incidence on it.
 
 A hash that will be used for generating the output.
 Refer to Template Toolkit documentation for knowing more about how that part works.
+This parameter is ignored if $type eq FILE_PLAIN.
 
 =back
 
@@ -332,6 +343,17 @@ the file will be write at the /var/lib/lxc/integration-web/rootfs/etc/lighttpd.c
 Optional parameter that, if provided, will set the given permission to the newly generated file.
 Permissions have to be ordered in octal form.
 Eg: 640 will set the permission to rw-r-----.
+
+=back
+
+=over 15
+
+=item $type
+
+Optionnal parameter that can get the values FILE_TT if $souce is a Template Toolkit template or FILE_PLAIN if the file should
+not be interpreted. Note that in FILE_PLAIN mode, the $parameters parameter is ignored.
+By default, the parameter is set to FILE_TT.
+FILE_TT and FILE_PLAIN constraint should be explicitly exported when the module is imported in your script.
 
 =back
 
@@ -378,7 +400,7 @@ Is a string with the name of the attribute we want to get.
 
 =item $flag
 
-Can be "$ALLOW_EMPTY" or "undef". If the flag is not set, the script will crash if an asked parameter doesn't exist in
+Can be "ALLOW_EMPTY" or "undef". If the flag is not set, the script will crash if an asked parameter doesn't exist in
 the current Floday application. With it, the subroutine will simply return "undef".
 
 Here is an example:
