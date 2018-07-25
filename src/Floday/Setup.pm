@@ -55,7 +55,7 @@ has lxc_instance => (
 	'is' => 'ro',
 	'reader' => 'get_lxc_instance',
 	'default' => sub {
-	  die ('We can not invocate LXC container from host') if ($_[0]->is_host());
+	  croak('We can not invocate LXC container from host') if ($_[0]->is_host());
 	  Floday::Lib::Linux::LXC->new('utsname' => $_[0]->get_application_path)
 	},
 	'lazy' => 1
@@ -91,7 +91,7 @@ has log => (
 sub BUILD {
 	my ($this) = @_;
 	if (!$this->get_runlist()->is_application_existing($this->get_application_path())) {
-		die ('Floday "' . $this->get_application_path() . "\" application was not found in the runfile.\n");
+		croak('Floday "' . $this->get_application_path() . "\" application was not found in the runfile.\n");
 	}
 };
 
