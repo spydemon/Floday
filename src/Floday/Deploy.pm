@@ -96,7 +96,7 @@ sub start_deployment {
 	`mkdir -p /var/lib/floday` unless -d '/var/lib/floday';
 	$yaml->write('/var/lib/floday/runlist.yml');
 	unless ($this->get_runlist->get_clean_runlist->{hosts}{$this->get_hostname}) {
-		die $this->log->errorf('Host %s is unknown.', $this->get_hostname);
+		die $this->log->errorf("Host %s is unknown.\n", $this->get_hostname);
 	}
 	$this->log->warningf('BOLD Deploying %s host', $this->get_hostname);
 	$this->log->{adapter}->indent_inc();
