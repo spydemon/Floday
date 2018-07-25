@@ -137,8 +137,12 @@ sub get_parameters {
 }
 
 sub generate_file {
-	my ($this, $template, $data, $location) = @_;
+	my ($this, $template, $data, $location, $permissions) = @_;
 	$this->log->debugf('%s: generate %s from %s', $this->get_application_path, $location, $template);
+	if (defined ($permissions) and $permissions !~ /^[0-7]{3,4}$/) {
+		$this->log->errorf('Invalid permission set for the generated file: %s', $permissions);
+		croak("Invalid permission set for the generated file: $permissions\n")
+	}
 	$template = $this->get_config()->get_floday_config('containers', 'path') . '/' . $template;
 	my $i = File::Temp->new();
 	my $t = Template::Alloy->new(
@@ -148,8 +152,12 @@ sub generate_file {
 	if ($this->is_host()) {
 		make_path(dirname($location));
 		rename $i, $location;
+		`chmod $permissions $location` if $permissions;
 	} else {
-		$this->get_lxc_instance->put($i, $location);
+		my $lxc = $this->get_lxc_instance();
+		$lxc->put($i, $location);
+		$lxc->start() if $lxc->is_stopped();
+		$this->get_lxc_instance->exec("chmod $permissions $location") if $permissions;
 	}
 }
 
@@ -221,13 +229,15 @@ Floday::Setup - Manage a Floday application.
   $APP->generate_file(
     'jaxe/children/www/setups/lighttpd/lighttpd.conf',
     undef,
-    '/etc/lighttpd/lighttpd.conf'
+    '/etc/lighttpd/lighttpd.conf',
+    '0660'
   );
   for ($APP->get_sub_applications()) {
     $APP->generate_file(
       $_->getParameter('lighttpd_config'),
       {$_->getParameters()},
-      '/etc/lighttpd/conf.d/'.$_->get_application_path().'.conf'
+      '/etc/lighttpd/conf.d/'.$_->get_application_path().'.conf',
+      '0660'
     );
   }
 
@@ -270,7 +280,7 @@ useful for debugging purpose:
 
 =head2 Object methods
 
-=head3 generate_file($self, $source, $parameters, $destination)
+=head3 generate_file($self, $source, $parameters, $destination, $permissions)
 
 Will generate a file with the $source Template Toolkit file, the $parameters parameters and write the result on the
 $destination file inside the LXC container representing the current Floday application.
@@ -305,6 +315,16 @@ If folders are missing, they will be automaticaly created.
 Eg: if $destinatiion = /etc/lighttpd.conf and the LXC root of the current application is /var/lib/lxc/integration-web/rootfs,
 the file will be write at the /var/lib/lxc/integration-web/rootfs/etc/lighttpd.conf emplacement, and the folder
 /var/lib/lxc/integration-web/rootfs/etc will be created if it wasn't already the case.
+
+=back
+
+=over 15
+
+=item $permissions
+
+Optional parameter that, if provided, will set the given permission to the newly generated file.
+Permissions have to be ordered in octal form.
+Eg: 640 will set the permission to rw-r-----.
 
 =back
 
