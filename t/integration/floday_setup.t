@@ -37,6 +37,10 @@ like($parentType, qr/riuk/, 'Parent fetch seems to work.');
 
 $APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/test.txt');
 like(`cat /var/lib/lxc/integration-web/rootfs/tmp/test.txt`, qr/Hello web !/, 'generate_file seems to work.');
+$APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/perm_test.txt', '100');
+like(`ls -l /var/lib/lxc/integration-web/rootfs/tmp/perm_test.txt`, qr/^---x------/, 'Permission management from generate_file subroutine on application file.');
+throws_ok { $APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/perm_test.txt', '108') }
+	qr/^Invalid permission set for the generated file: 108/, 'Check permission validity on generate_file subroutine.';
 
 $APP->generate_file('/etc/floday/containers/riuk/children/web/setups/lighttpd/absolute.txt', undef, '/tmp/absolute.txt');
 ok(-f '/var/lib/lxc/integration-web/rootfs/tmp/absolute.txt', 'generate_file works with absolute paths.');
@@ -64,6 +68,11 @@ cmp_ok($setup->exitcode(), '!=', 0);
 `rm -rf /tmp/a`;
 `/etc/floday/containers/riuk/setups/folder_creation_on_host.pl --application integration`;
 ok (-f '/tmp/a/creation/test/on/host.txt', 'Test generate_file subroutine on the host.');
+like (
+  `ls -l /tmp/a/creation/test/on/host.txt`,
+  qr/^---x--x--t/,
+  'Test rights management from the generate_file subroutine on host.'
+);
 
 cmp_ok (
   $APP->get_container()->get_container_path(),
