@@ -10,7 +10,7 @@ BEGIN {
 
 use Backticks;
 use Cwd;
-use Floday::Setup ('$APP', 'ALLOW_UNDEF');
+use Floday::Setup ('$APP', 'ALLOW_UNDEF', 'FILE_TT', 'FILE_PLAIN');
 use Test::More;
 use Test::Exception;
 use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
@@ -37,8 +37,12 @@ like($parentType, qr/riuk/, 'Parent fetch seems to work.');
 
 $APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/test.txt');
 like(`cat /var/lib/lxc/integration-web/rootfs/tmp/test.txt`, qr/Hello web !/, 'generate_file seems to work.');
-
-like ($APP->get_root_folder(), qr#/var/lib/lxc/integration-web/rootfs#, 'get_root_path seems to work');
+throws_ok {$APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/test.txt', 'invalid type');}
+	qr/Invalid input type on generate_file/, 'Test input type parameter validity on generate_file subroutine.';
+$APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/plain_test.txt', FILE_PLAIN);
+like(`cat /var/lib/lxc/integration-web/rootfs/tmp/plain_test.txt`, qr/Hello \[% name %\] !/, 'generate_file with FILE_PLAIN type seems to work.');
+$APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/tt_test.txt', FILE_TT);
+like(`cat /var/lib/lxc/integration-web/rootfs/tmp/tt_test.txt`, qr/Hello web !/, 'generate_file with FILE_TT type seems to work.');
 
 for ($APP->get_sub_applications()) {
 	ok($_->get_application_path() ~~ ['integration-web-test', 'integration-web-secondtest'], 'Test get_applications seems to work');
