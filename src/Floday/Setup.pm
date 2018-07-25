@@ -7,6 +7,7 @@ use Backticks;
 use Carp;
 use Exporter qw(import);
 use File::Basename;
+use File::Copy;
 use File::Path qw(make_path);
 use File::Temp;
 use Floday::Helper::Config;
@@ -163,7 +164,7 @@ sub generate_file {
 	}
 	if ($this->is_host()) {
 		make_path(dirname($location));
-		rename $i, $location;
+		copy($i, $location);
 		`chmod $permissions $location` if $permissions;
 	} else {
 		my $lxc = $this->get_lxc_instance();
