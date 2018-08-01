@@ -67,6 +67,7 @@ ok (!-r '/tmp/floday/avoidance/avoidance-skipped_nonexisting/avoidance_script_la
 ok ($was_as_container_redeployed == 0, 'If an application is flagged as avoidable, it\'s not deployed anymore.');
 ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as unavoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as unavoidable.');
+ok (-f '/tmp/floday/avoidance/avoidance-completely_failed/always_executed', 'Check that all avoidance scripts are always executed, even if a previous one flags application as unavoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/avoidable', 'Check that avoidable scripts are launched if application is considered as partially avoidable.');
 ok (-f '/tmp/floday/avoidance/avoidance-partially_failed/mandatory', 'Check that mandatory scripts are launched if application is considered as partially avoidable.');
 ok (!-r '/tmp/floday/avoidance/avoidance-successful/avoidable', 'Check that avoidable scripts are NOT launched if application is considered as fully avoidable.');
@@ -84,5 +85,9 @@ say "$was_as_container_redeployed";
 my $test_log_fatal_flag = Floday::Deploy->new('hostname' => 'fatal_log');
 my $result = $test_log_fatal_flag->start_deployment;
 cmp_ok ($result, '==', 2, 'Check that if we log something with the "error" level or higher, Floday will return 2.');
+
+my $test_die_fatal_flag = Floday::Deploy->new('hostname' => 'die_log');
+$result = $test_die_fatal_flag->start_deployment;
+cmp_ok ($result, '==', 2, 'Check that if a setup script dies, Floday will return 2.');
 
 done_testing;

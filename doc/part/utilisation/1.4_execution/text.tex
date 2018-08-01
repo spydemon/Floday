@@ -105,7 +105,11 @@ Les messages sont découpés en plusieurs colonnes dont voici les descriptions~:
 	\item La dernière, le message. Notez que l'indentation dans l'alignement indique le degré d'imbrication. Grâce à cela, nous pouvons rapidement voir, par exemple, que le script \emph{networking.pl} du log ligne~53 aura été exécuté dans le cadre des setups sur \emph{website-web\_application\_galek}, sous-application de \emph{website-web\_application} sur l'\gls{hote} \emph{websites}.
 \end{itemize}
 
-Pour le moment, cette sortie est également disponible via syslog, bien que le format sera peut-être amené à évoluer sur celle-ci.
+\lastupdated{1.3.0}
+Pour le moment, la sortie \emph{Syslog} est la même.
+Tout ce qui touche le corps de \emph{Floday} sera regroupé par défaut sous le tag \emph{Syslog} \path{floday}.
+Ayez tout de même conscience que ce comportement peut être changé au niveau des jeux de conteneurs pour permettre d'utiliser le mécanisme de log dans d'autres contextes (par exemple, pour gérer quotidiennement les mises à jour des applications).
+La documentation du module \path{Floday::Helper::Logging} peut vous apprendre plus à ce sujet.
 
 \subsubsection{Les valeurs de retour}
 \existstill{1.2.0}

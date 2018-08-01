@@ -2,9 +2,13 @@ package Floday::Lib::Linux::LXC;
 
 use v5.20;
 
+use Backticks;
+use Floday::Helper::Executer;
 use Floday::Helper::Runlist;
 use Carp;
 use Moo;
+
+$Backticks::autodie = 0;
 
 extends 'Linux::LXC';
 our @EXPORT_OK = ('ALLOW_UNDEF', 'ERASING_MODE', 'ADDITION_MODE');
@@ -15,6 +19,11 @@ has config => (
 	},
 	is => 'ro',
 	reader => 'get_floday_config'
+);
+
+has executer => (
+	is => 'ro',
+	default => sub { Floday::Helper::Executer->new() },
 );
 
 has log => (
@@ -41,9 +50,7 @@ after deploy => sub {
 	$this->log->warningf('Start post deployment hook.');
 	$this->log->{adapter}->indent_inc();
 	for(sort {$a <=> $b} keys %hooks) {
-		$this->log->infof('Running script: %s', $hooks{$_}{exec});
-		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
-		`$prefix/$hooks{$_}{exec}`;
+		$this->executer->execute_script($hooks{$_}{exec}, $this->get_utsname());
 	}
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('End post deployment hook.');
@@ -58,10 +65,7 @@ after destroy => sub {
 	$this->log->warningf('Start post destroy hook.');
 	$this->log->{adapter}->indent_inc();
 	for (sort {$a cmp $b} keys %hooks) {
-		$this->log->infof('Running script: %s', $hooks{$_}{exec});
-		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
-		my $application= $this->get_utsname();
-		`$prefix/$hooks{$_}{exec} --application $application`;
+		$this->executer->execute_script($hooks{$_}{exec}, $this->get_utsname());
 	}
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('End post destroy hook.');
@@ -120,10 +124,7 @@ before destroy => sub {
 		$this->get_utsname, 'hooks', 'lxc_destroy_before'
 	);
 	for (sort {$a cmp $b} keys %hooks) {
-		$this->log->infof('Running script: %s', $hooks{$_}{exec});
-		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
-		my $application = $this->get_utsname();
-		`$prefix/$hooks{$_}{exec} --application $application`;
+		$this->executer->execute_script($hooks{$_}{exec}, $this->get_utsname());
 	}
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('End pre destruction hooks.');
@@ -138,10 +139,7 @@ before deploy => sub {
 	  $this->get_utsname, 'hooks', 'lxc_deploy_before'
 	);
 	for(sort {$a cmp $b} keys %hooks) {
-		$this->log->infof('Running script: %s', $hooks{$_}{exec});
-		my $prefix = $this->get_floday_config()->get_floday_config('containers', 'path');
-		my $application = $this->get_utsname();
-		`$prefix/$hooks{$_}{exec} --application $application`;
+		$this->executer->execute_script($hooks{$_}{exec}, $this->get_utsname());
 	}
 	$this->log->{adapter}->indent_dec();
 	$this->log->warningf('End pre deployment hook.');
@@ -167,7 +165,7 @@ Floday::Lib::Linux::LXC - Overload of Linux::LXC for logging purpose.
 
 =head1 VERSION
 
-1.2.0
+1.3.0
 
 =head1 DESCRIPTION
 
