@@ -60,3 +60,11 @@ hosts:
             web:
                 parameters:
                     type: fatal_log
+    die_log:
+        parameters:
+            type: riuk
+            external_ipv4: 192.168.15.151
+        applications:
+            dier:
+                parameters:
+                    type: die_log

@@ -2,12 +2,16 @@ package Floday::Deploy;
 
 use v5.20;
 
+use Backticks;
 use Floday::Helper::Config;
+use Floday::Helper::Executer;
 use Floday::Helper::Runlist;
 use Floday::Lib::Linux::LXC;
 use Log::Any qw($log);
 use Moo;
 use YAML::Tiny;
+
+$Backticks::autodie = 0;
 
 has config => (
 	default => sub {
@@ -15,6 +19,11 @@ has config => (
 	},
 	is => 'ro',
 	reader => 'get_config'
+);
+
+has executer => (
+	is => 'ro',
+	default => sub { Floday::Helper::Executer->new() },
 );
 
 has force_unavoidable => (
@@ -139,10 +148,9 @@ sub _is_application_avoided {
 		my $script_path = "$containers_folder/" . $scripts{$_}->{exec};
 		$this->log->infof('Running avoidance check: %s', $scripts{$_}->{exec});
 		$this->log->{adapter}->indent_inc();
-		`$script_path --application $application_path`;
-		my $result = $?;
+		my $result = `$script_path --application $application_path`;
 		$this->log->{adapter}->indent_dec();
-		if ($result ne '0') {
+		if ($result->returncode ne '0') {
 			$avoided = 0;
 			$this->log->infof('This script flag application as unavoidable.');
 		}
@@ -178,10 +186,7 @@ sub _run_scripts {
 		if ($this->_is_script_avoided($scripts{$_}, $application_path)) {
 			$this->log->infof('Avoided script: %s', $script_path);
 		} else {
-			$this->log->infof('Running script: %s', $script_path);
-			$this->log->{adapter}->indent_inc();
-			print `$script_path --application $application_path`;
-			$this->log->{adapter}->indent_dec();
+			$this->executer->execute_script($scripts{$_}->{exec}, $application_path);
 		}
 	}
 	$this->log->{adapter}->indent_dec();
