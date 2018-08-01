@@ -194,6 +194,11 @@ sub _install_package_alpinekeys {
 	    'alpine-devel@lists.alpinelinux.org-5243ef4b.rsa.pub' => 'e18e65ee911eb1f8ea869f758e8f2c94cf2ac254ee7ab90a3de1d47b94a547c2066214abf710da21910ebedc0153d05fd4fe579cc5ce24f46e0cfd29a02b1a68',
 	    'alpine-devel@lists.alpinelinux.org-4a6a0840.rsa.pub' => '2d4064cbe09ff958493ec86bcb925af9b7517825d1d9d8d00f2986201ad5952f986fea83d1e2c177e92130700bafa8c0bff61411b3cdb59a41e460ed719580a6',
 	    'alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub' => '721134f289ab1e7dde9158359906017daee40983199fe55f28206c8cdc46b8fcf177a36f270ce374b0eba5dbe01f68cbb3e385ae78a54bb0a2ed1e83a4d820a5'
+	  },
+	  'v3.7' => {
+	    'alpine-devel@lists.alpinelinux.org-5243ef4b.rsa.pub' => 'e18e65ee911eb1f8ea869f758e8f2c94cf2ac254ee7ab90a3de1d47b94a547c2066214abf710da21910ebedc0153d05fd4fe579cc5ce24f46e0cfd29a02b1a68',
+	    'alpine-devel@lists.alpinelinux.org-4a6a0840.rsa.pub' => '2d4064cbe09ff958493ec86bcb925af9b7517825d1d9d8d00f2986201ad5952f986fea83d1e2c177e92130700bafa8c0bff61411b3cdb59a41e460ed719580a6',
+	    'alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub' => '721134f289ab1e7dde9158359906017daee40983199fe55f28206c8cdc46b8fcf177a36f270ce374b0eba5dbe01f68cbb3e385ae78a54bb0a2ed1e83a4d820a5',
 	  }
 	);
 	my $key_list = `echo $LXC_ROOTFS/etc/apk/keys/*.pub`;

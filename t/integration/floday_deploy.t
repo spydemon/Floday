@@ -86,4 +86,8 @@ my $test_log_fatal_flag = Floday::Deploy->new('hostname' => 'fatal_log');
 my $result = $test_log_fatal_flag->start_deployment;
 cmp_ok ($result, '==', 2, 'Check that if we log something with the "error" level or higher, Floday will return 2.');
 
+my $test_die_fatal_flag = Floday::Deploy->new('hostname' => 'die_log');
+$result = $test_die_fatal_flag->start_deployment;
+cmp_ok ($result, '==', 2, 'Check that if a setup script dies, Floday will return 2.');
+
 done_testing;

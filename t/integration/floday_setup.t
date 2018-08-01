@@ -10,7 +10,7 @@ BEGIN {
 
 use Backticks;
 use Cwd;
-use Floday::Setup ('$APP', 'ALLOW_UNDEF');
+use Floday::Setup ('$APP', 'ALLOW_UNDEF', 'FILE_TT', 'FILE_PLAIN');
 use Test::More;
 use Test::Exception;
 use Log::Any::Adapter('+Floday::Helper::Logging', 'log_level', 'trace');
@@ -37,6 +37,18 @@ like($parentType, qr/riuk/, 'Parent fetch seems to work.');
 
 $APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/test.txt');
 like(`cat /var/lib/lxc/integration-web/rootfs/tmp/test.txt`, qr/Hello web !/, 'generate_file seems to work.');
+$APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/perm_test.txt', '100');
+like(`ls -l /var/lib/lxc/integration-web/rootfs/tmp/perm_test.txt`, qr/^---x------/, 'Permission management from generate_file subroutine on application file.');
+throws_ok { $APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/perm_test.txt', '108') }
+	qr/^Invalid permission set for the generated file: 108/, 'Check permission validity on generate_file subroutine.';
+$APP->generate_file('/etc/floday/containers/riuk/children/web/setups/lighttpd/absolute.txt', undef, '/tmp/absolute.txt');
+throws_ok {$APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/test.txt', undef, 'invalid type');}
+	qr/Invalid input type on generate_file/, 'Test input type parameter validity on generate_file subroutine.';
+$APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/plain_test.txt', undef, FILE_PLAIN);
+like(`cat /var/lib/lxc/integration-web/rootfs/tmp/plain_test.txt`, qr/Hello \[% name %\] !/, 'generate_file with FILE_PLAIN type seems to work.');
+$APP->generate_file('riuk/children/web/children/php/setups/test/test.tt', {$APP->get_parameters}, '/tmp/tt_test.txt', undef, FILE_TT);
+like(`cat /var/lib/lxc/integration-web/rootfs/tmp/tt_test.txt`, qr/Hello web !/, 'generate_file with FILE_TT type seems to work.');
+ok(-f '/var/lib/lxc/integration-web/rootfs/tmp/absolute.txt', 'generate_file works with absolute paths.');
 
 like ($APP->get_root_folder(), qr#/var/lib/lxc/integration-web/rootfs#, 'get_root_path seems to work');
 
@@ -61,6 +73,11 @@ cmp_ok($setup->exitcode(), '!=', 0);
 `rm -rf /tmp/a`;
 `/etc/floday/containers/riuk/setups/folder_creation_on_host.pl --application integration`;
 ok (-f '/tmp/a/creation/test/on/host.txt', 'Test generate_file subroutine on the host.');
+like (
+  `ls -l /tmp/a/creation/test/on/host.txt`,
+  qr/^---x--x--t/,
+  'Test rights management from the generate_file subroutine on host.'
+);
 
 cmp_ok (
   $APP->get_container()->get_container_path(),

@@ -124,15 +124,29 @@ sub _get_container_path {
 sub _merge_definition {
 	my ($this, $container_definition) = @_;
 	my $drunlist_attributes = $this->_get_application_to_manage_drunlist_attributes();
+	my $application_name = $this->_get_application_path_to_manage();
+	my @unknown_parameters;
 	$drunlist_attributes = $drunlist_attributes->{'parameters'};
 	$container_definition->{parameters}{name}{value} = undef;
 	$container_definition->{parameters}{name}{mandatory} = 'true';
 	$container_definition->{parameters}{type}{value} = undef;
 	$container_definition->{parameters}{type}{mandatory} = 'true';
 	for (keys %$drunlist_attributes) {
-		croak ("Parameter '$_' present in drunlist but that doesn't exist in container definition")
-		  unless defined $container_definition->{parameters}{$_};
-		$container_definition->{parameters}{$_}{value} = $drunlist_attributes->{$_};
+		if (defined $container_definition->{parameters}{$_}) {
+			$container_definition->{parameters}{$_}{value} = $drunlist_attributes->{$_};
+		} else {
+			push @unknown_parameters, $_;
+		}
+	}
+	if (@unknown_parameters) {
+		my $message = 'Parameter';
+		$message .= 's' if @unknown_parameters > 1;
+		$message .= " '$_'," for @unknown_parameters;
+		$message = substr($message, 0, -1);
+		$message .= ' present in the runlist but that ';
+		$message .= (@unknown_parameters > 1) ? 'don\'t' : 'doesn\'t';
+		$message .= " exist in the container definition of the '$application_name' application.\n";
+		die ($message);
 	}
 	$container_definition->{parameters}{application_path}{value} = $this->_get_application_path_to_manage();
 	$container_definition->{parameters}{container_path}{value} = $this->_get_container_path();
@@ -147,7 +161,7 @@ Floday::Helper::Host - Manage the Floday host.
 
 =head1 VERSION
 
-1.2.1
+1.3.0
 
 =head1 DESCRIPTION
 

@@ -1,0 +1,8 @@
+setups:
+	failed:
+		avoidable: false
+		exec: riuk/children/die_log/setups/die.pl
+		priority: 10
+parameters:
+	template:
+		value: flodayalpine -- version 3.4
