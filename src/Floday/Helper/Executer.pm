@@ -49,7 +49,7 @@ Floday::Helper::Executer - Code factorisation module for executing a script on a
 
 =head1 VERSION
 
-1.2.1
+1.3.0
 
 =head1 DESCRIPTION
 

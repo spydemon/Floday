@@ -185,7 +185,7 @@ Floday::Helper::Logging - Log::Any Floday adapter.
 
 =head1 VERSION
 
-1.2.1
+1.3.0
 
 =head1 SYNOPSIS
 
