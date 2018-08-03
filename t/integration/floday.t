@@ -39,7 +39,7 @@ my $log_testing = Backticks->new('../../src/floday.pl --host integration --logle
 eval { $log_testing->run(); };
 like($log_testing->stderr(), qr/Unexisting notexisting loglevel/, 'Check that the --loglevel parameter is taken into account.');
 
-cmp_ok(`../../src/floday.pl --version`->stdout(), 'eq', "1.3.0\n", 'Check the --version option.');
+cmp_ok(`../../src/floday.pl --version`->stdout(), 'eq', "1.3.1\n", 'Check the --version option.');
 like(`../../src/floday.pl --help`->stdout(), qr/^Usage: Floday/, 'Check the --help option.');
 
 done_testing;
