@@ -72,7 +72,11 @@ cmp_ok($setup->exitcode(), '!=', 0);
 
 `rm -rf /tmp/a`;
 `/etc/floday/containers/riuk/setups/folder_creation_on_host.pl --application integration`;
-ok (-f '/tmp/a/creation/test/on/host.txt', 'Test generate_file subroutine on the host.');
+like(
+  `cat /tmp/a/creation/test/on/host.txt`,
+  qr/File generated on host./,
+  'Test generate_file subroutine on the host.'
+);
 like (
   `ls -l /tmp/a/creation/test/on/host.txt`,
   qr/^---x--x--t/,

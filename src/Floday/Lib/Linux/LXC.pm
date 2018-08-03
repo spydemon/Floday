@@ -165,7 +165,7 @@ Floday::Lib::Linux::LXC - Overload of Linux::LXC for logging purpose.
 
 =head1 VERSION
 
-1.3.0
+1.3.1
 
 =head1 DESCRIPTION
 

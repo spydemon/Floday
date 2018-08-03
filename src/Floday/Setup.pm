@@ -9,7 +9,7 @@ use Exporter qw(import);
 use File::Basename;
 use File::Copy;
 use File::Path qw(make_path);
-use File::Temp;
+use File::Temp qw(:seekable);
 use Floday::Helper::Config;
 use Floday::Helper::Container;
 use Floday::Helper::Runlist;
@@ -150,25 +150,31 @@ sub generate_file {
 		$this->log->errorf('Invalid permission set for the generated file: %s', $permissions);
 		croak("Invalid permission set for the generated file: $permissions\n")
 	}
-	my $i;
+	my $origin;
+	# Temp is declared here because the file is automatically deleted when the variable come out of range and we need to
+	# have it until its copy.
+	my $temp;
 	if ($type eq FILE_PLAIN) {
-		$i = $source;
+		$origin = $source;
 	} elsif ($type eq FILE_TT) {
-		$i = File::Temp->new();
+		$temp = File::Temp->new();
 		my $t = Template::Alloy->new(
 		  ABSOLUTE => 1,
 		);
-		$t->process($source, $data, $i) or die $t->error . "\n";
+		$t->process($source, $data, $temp) or (die $this->log->error($t->error));
+		$temp->seek(0, SEEK_END);
+		#It seems that `copy` is not working if we are not explicitely working with the file name.
+		$origin = $temp->filename();
 	} else {
 		croak("Invalid input type on generate_file.\n");
 	}
 	if ($this->is_host()) {
 		make_path(dirname($location));
-		copy($i, $location);
+		copy($origin, $location) or die $this->log->errorf('Copy error: %s', $!);
 		`chmod $permissions $location` if $permissions;
 	} else {
 		my $lxc = $this->get_lxc_instance();
-		$lxc->put($i, $location);
+		$lxc->put($origin, $location);
 		$lxc->start() if $lxc->is_stopped();
 		$this->get_lxc_instance->exec("chmod $permissions $location") if $permissions;
 	}
@@ -218,7 +224,7 @@ Floday::Setup - Manage a Floday application.
 
 =head1 VERSION
 
-1.3.0
+1.3.1
 
 =head1 SYNOPSYS
 
